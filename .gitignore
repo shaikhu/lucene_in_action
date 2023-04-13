@@ -6,3 +6,6 @@
 
 # Ignore Gradle build output directory
 build
+
+# lucene index
+index/*
