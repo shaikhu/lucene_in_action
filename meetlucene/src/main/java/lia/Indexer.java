@@ -72,7 +72,7 @@ public class Indexer
     }
 
     private void indexFile(Path path) throws Exception {
-        System.out.println("Indexing " + path.getFileName());
+        System.out.println("Indexing " + path.toString());
         Document doc = getDocument(path);
         writer.addDocument(doc);
     }
@@ -81,7 +81,7 @@ public class Indexer
         Document doc = new Document();
         doc.add(new TextField("contents", Files.newBufferedReader(path)));
         doc.add(new StringField("filename", path.getFileName().toString(), Store.YES));
-        doc.add(new StringField("fullpath", path.getParent().toString() + "/" + path.getFileName(), Store.YES));
+        doc.add(new StringField("fullpath", path.toString(), Store.YES));
         return doc;
     }
 }
