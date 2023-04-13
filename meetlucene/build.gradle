@@ -1,0 +1,11 @@
+task(indexer, dependsOn: 'classes', type: JavaExec) {
+    mainClass = 'lia.Indexer'
+    classpath = sourceSets.main.runtimeClasspath
+    args "${getRootDir()}/index", "${getRootDir()}/data"
+}
+
+task(searcher, dependsOn: 'classes', type: JavaExec) {
+    mainClass = 'lia.Searcher'
+    classpath = sourceSets.main.runtimeClasspath
+    args "${getRootDir()}/index", 'patent'
+}

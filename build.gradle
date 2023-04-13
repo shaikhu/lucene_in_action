@@ -1,0 +1,23 @@
+subprojects {
+    apply plugin: 'java'
+
+    repositories {
+        // Use Maven Central for resolving dependencies.
+        mavenCentral()
+    }
+
+    dependencies {
+        // Use JUnit Jupiter for testing.
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+
+        // This dependency is used by the application.
+        implementation 'org.apache.lucene:lucene-core:9.5.0'
+        implementation 'org.apache.lucene:lucene-queryparser:9.5.0'
+    }
+
+    test {
+        testLogging {
+            showStandardStreams = true
+        }
+    }
+}
