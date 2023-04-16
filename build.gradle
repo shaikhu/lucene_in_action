@@ -13,9 +13,12 @@ subprojects {
         // This dependency is used by the application.
         implementation 'org.apache.lucene:lucene-core:9.5.0'
         implementation 'org.apache.lucene:lucene-queryparser:9.5.0'
+        implementation 'org.apache.lucene:lucene-analyzers-common:8.11.2'
     }
 
     test {
+        useJUnitPlatform()
+
         testLogging {
             showStandardStreams = true
         }
