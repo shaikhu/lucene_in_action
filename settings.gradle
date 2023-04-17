@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'lucene_in_action'
-include('meetlucene', 'indexing')
+include('meetlucene', 'indexing', 'common')

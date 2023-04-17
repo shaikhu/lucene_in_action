@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import lia.common.TestUtil;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.LimitTokenCountAnalyzer;
 import org.apache.lucene.document.Document;
@@ -63,7 +64,7 @@ public class IndexingTest
     IndexSearcher searcher = new IndexSearcher(reader);
     Term t = new Term(fieldName, searchString);
     Query query = new TermQuery(t);
-    long hitCount = searcher.search(query, 1).totalHits.value;
+    long hitCount = TestUtil.hitCount(searcher, query);
     reader.close();
     return hitCount;
   }

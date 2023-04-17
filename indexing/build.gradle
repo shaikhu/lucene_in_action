@@ -5,3 +5,7 @@ plugins {
 application {
   mainClass = 'lia.VerboseIndexing'
 }
+
+dependencies {
+  testImplementation project(':common')
+}
