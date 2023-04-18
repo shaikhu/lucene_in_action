@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.StoredFields;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
@@ -42,7 +43,7 @@ public class Searcher
       System.out.println("Found " + hits.totalHits + " document(s) (in " + (end - start) + " milliseconds) that matched query '" + q + "':");
 
       for(ScoreDoc scoreDoc : hits.scoreDocs) {
-        Document doc = is.doc(scoreDoc.doc);
+        Document doc= is.storedFields().document(scoreDoc.doc);
         System.out.println(doc.get("fullpath"));
       }
     }
