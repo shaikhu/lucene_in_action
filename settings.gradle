@@ -1,3 +1,2 @@
 rootProject.name = 'lucene_in_action'
-include('meetlucene', 'indexing', 'common')
-
+include('meetlucene', 'indexing', 'common', 'searching')

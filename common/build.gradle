@@ -1,3 +1,13 @@
 plugins {
   id 'lucene-in-action-config'
 }
+
+task(createTestIndex, dependsOn: ['classes', 'deleteTestIndex'], type: JavaExec) {
+  mainClass = 'lia.common.CreateTestIndex'
+  classpath = sourceSets.main.runtimeClasspath
+  args "${getRootDir()}/data", "${getRootDir()}/testIndex"
+}
+
+task(deleteTestIndex, type: Delete) {
+  delete files("${getRootDir()}/testIndex")
+}

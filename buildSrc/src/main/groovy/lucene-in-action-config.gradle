@@ -22,3 +22,5 @@ dependencies {
   implementation 'org.apache.lucene:lucene-queryparser:9.5.0'
   implementation 'org.apache.lucene:lucene-analyzers-common:8.11.2'
 }
+
+test.dependsOn(':common:createTestIndex')

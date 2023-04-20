@@ -1,0 +1,15 @@
+plugins {
+  id 'lucene-in-action-config'
+}
+
+dependencies {
+  testImplementation project(':common')
+}
+
+task(explainer, type: JavaExec) {
+  mainClass = 'lia.Explainer'
+  classpath = sourceSets.main.runtimeClasspath
+  args "${getRootDir()}/testIndex", "junit"
+}
+
+explainer.dependsOn(['classes', ':common:createTestIndex'])
