@@ -1,0 +1,24 @@
+plugins {
+  id 'java'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+repositories {
+  mavenCentral()
+}
+
+test {
+  useJUnitPlatform()
+}
+
+dependencies {
+  // Use JUnit Jupiter for testing.
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+
+  // This dependency is used by the application.
+  implementation 'org.apache.lucene:lucene-core:9.5.0'
+  implementation 'org.apache.lucene:lucene-queryparser:9.5.0'
+  implementation 'org.apache.lucene:lucene-analyzers-common:8.11.2'
+}

@@ -1,0 +1,3 @@
+plugins {
+  id 'lucene-in-action-config'
+}
