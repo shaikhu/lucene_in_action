@@ -38,5 +38,12 @@ public class AnalyzerDemo {
       AnalyzerUtils.displayTokens(analyzer, text);
       System.out.println("\n");
     }
+
+    System.out.println("SimpleAnalyzer - displayTokensWithFullDetails");
+    AnalyzerUtils.displayTokensWithFullDetails(new SimpleAnalyzer(), "The quick brown fox....");
+
+    System.out.println("\n----");
+    System.out.println("StandardAnalyzer - displayTokensWithFullDetails");
+    AnalyzerUtils.displayTokensWithFullDetails(new StandardAnalyzer(), "I'll email you at xyz@example.com");
   }
 }
