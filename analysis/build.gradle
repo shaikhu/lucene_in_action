@@ -1,0 +1,8 @@
+plugins {
+  id 'lucene-in-action-config'
+  id 'application'
+}
+
+application {
+  mainClass = 'lia.AnalyzerDemo'
+}
