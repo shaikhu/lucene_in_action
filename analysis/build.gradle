@@ -6,3 +6,7 @@ plugins {
 application {
   mainClass = 'lia.AnalyzerDemo'
 }
+
+dependencies {
+  implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
+}
