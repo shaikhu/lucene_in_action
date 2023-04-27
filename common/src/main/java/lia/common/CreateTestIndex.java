@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.DateTools;
@@ -27,8 +28,11 @@ import org.apache.lucene.util.BytesRef;
 public class CreateTestIndex
 {
   private static List<Path> findFiles(Path dir) throws IOException {
-    return Files.walk(dir).filter(path -> path.getFileName().toString().endsWith("properties")).toList();
-
+    try (Stream<Path> fileStream = Files.walk(dir)) {
+      return fileStream
+          .filter(path -> path.getFileName().toString().endsWith("properties"))
+          .toList();
+    }
   }
 
   private static Document getDocument(String rootDir, Path path) throws IOException {
