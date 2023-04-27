@@ -22,7 +22,7 @@ public class TestUtil
   }
 
   public static Directory getBookIndexDirectory() throws IOException {
-    return FSDirectory.open(Paths.get("/home/shaikhu/projects/lucene_in_action/testIndex"));
+    return FSDirectory.open(Paths.get("../testIndex"));
   }
 
   public static boolean hitsIncludeTitle(IndexSearcher searcher,  TopDocs matches, String title) throws IOException {
