@@ -11,9 +11,7 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StopAnalyzerTest
 {
@@ -42,10 +40,10 @@ public class StopAnalyzerTest
     CharTermAttribute termAttr = stream.addAttribute(CharTermAttribute.class);
     stream.reset();
     for (String expected : output) {
-      assertTrue(stream.incrementToken());
-      assertEquals(expected, termAttr.toString());
+      assertThat(stream.incrementToken()).isTrue();
+      assertThat(termAttr.toString()).isEqualTo(expected);
     }
-    assertFalse(stream.incrementToken());
+    assertThat(stream.incrementToken()).isFalse();
     stream.end();
     stream.close();
   }

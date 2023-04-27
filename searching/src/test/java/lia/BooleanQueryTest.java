@@ -14,7 +14,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BooleanQueryTest
 {
@@ -32,8 +32,7 @@ public class BooleanQueryTest
     IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     TopDocs matches = searcher.search(searchingBooks2010, 10);
 
-    assertTrue(TestUtil.hitsIncludeTitle(searcher, matches, "Lucene in Action, Second Edition"));
-
+    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Lucene in Action, Second Edition")).isTrue();
     directory.close();
   }
 
@@ -51,8 +50,8 @@ public class BooleanQueryTest
     IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     TopDocs matches = searcher.search(enlightenmentBooks, 100);
 
-    assertTrue(TestUtil.hitsIncludeTitle(searcher, matches, "Extreme Programming Explained"));
-    assertTrue(TestUtil.hitsIncludeTitle(searcher, matches, "Tao Te Ching \u9053\u5FB7\u7D93"));
+    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Extreme Programming Explained")).isTrue();
+    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Tao Te Ching \u9053\u5FB7\u7D93")).isTrue();
 
     directory.close();
   }

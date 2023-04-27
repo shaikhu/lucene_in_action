@@ -18,8 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PhraseQueryTest
 {
@@ -53,21 +52,21 @@ public class PhraseQueryTest
 
   @Test
   void testSlopComparison() throws Exception {
-    assertFalse(matched(0, "quick", "fox"));
-    assertTrue(matched(1, "quick", "fox"));
+    assertThat(matched(0, "quick", "fox")).isFalse();
+    assertThat(matched(1, "quick", "fox")).isTrue();
   }
 
   @Test
   void testReverse() throws Exception {
-    assertFalse(matched(2, "fox", "quick"));
-    assertTrue(matched(3, "fox", "quick"));
+    assertThat(matched(2, "fox", "quick")).isFalse();
+    assertThat(matched(3, "fox", "quick")).isTrue();
   }
 
   @Test
   void testMultiple() throws Exception {
-    assertFalse(matched(3, "quick", "jumped", "lazy"));
-    assertTrue(matched(4, "quick", "jumped", "lazy"));
-    assertFalse(matched(7, "lazy", "jumped", "quick"));
-    assertTrue(matched(8, "lazy", "jumped", "quick"));
+    assertThat(matched(3, "quick", "jumped", "lazy")).isFalse();
+    assertThat(matched(4, "quick", "jumped", "lazy")).isTrue();
+    assertThat(matched(7, "lazy", "jumped", "quick")).isFalse();
+    assertThat(matched(8, "lazy", "jumped", "quick")).isTrue();
   }
 }

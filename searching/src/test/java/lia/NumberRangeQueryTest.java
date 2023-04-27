@@ -9,7 +9,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NumberRangeQueryTest
 {
@@ -19,7 +19,7 @@ public class NumberRangeQueryTest
     IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     Query query = LongPoint.newRangeQuery("pubmonth", 200605, 200609);
     TopDocs matches = searcher.search(query, 10);
-    assertEquals(1, matches.totalHits.value);
+    assertThat(matches.totalHits.value).isOne();
   }
 
   @Test
@@ -28,6 +28,6 @@ public class NumberRangeQueryTest
     IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     Query query = LongPoint.newRangeQuery("pubmonth", Math.addExact(200605, 1), Math.addExact(200609, -1));
     TopDocs matches = searcher.search(query, 10);
-    assertEquals(0, matches.totalHits.value);
+    assertThat(matches.totalHits.value).isZero();
   }
 }

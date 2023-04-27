@@ -9,7 +9,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.BytesRef;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TermRangeQueryTest
 {
@@ -19,6 +19,6 @@ public class TermRangeQueryTest
     IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     TermRangeQuery termRangeQuery = new TermRangeQuery("title2", new BytesRef("d"), new BytesRef("j"), true, true);
     TopDocs matches = searcher.search(termRangeQuery, 100);
-    assertEquals(3, matches.totalHits.value);
+    assertThat(matches.totalHits.value).isEqualTo(3);
   }
 }

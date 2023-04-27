@@ -17,8 +17,7 @@ import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NearRealTimeTest
 {
@@ -39,7 +38,7 @@ public class NearRealTimeTest
 
     Query query = new TermQuery(new Term("text", "aaa"));
     TopDocs docs = searcher.search(query, 1);
-    assertEquals(10, docs.totalHits.value);
+    assertThat(docs.totalHits.value).isEqualTo(10);
 
     writer.deleteDocuments(new Term("id", "7"));
 
@@ -49,17 +48,15 @@ public class NearRealTimeTest
     writer.addDocument(doc);
 
     DirectoryReader newReader = DirectoryReader.openIfChanged(reader);
-    assertNotSame(reader, newReader);
+    assertThat(reader).isNotSameAs(newReader);
     reader.close();
     searcher = new IndexSearcher(newReader);
 
     TopDocs hits = searcher.search(query, 10);
-    assertEquals(9, hits.totalHits.value);
-
+    assertThat(hits.totalHits.value).isEqualTo(9);
     query = new TermQuery(new Term("text", "bbb"));
     hits = searcher.search(query, 1);
-    assertEquals(1, hits.totalHits.value);
-
+    assertThat(hits.totalHits.value).isOne();
     newReader.close();
     directory.close();
   }

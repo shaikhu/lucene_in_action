@@ -24,8 +24,7 @@ import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IndexingTest
 {
@@ -72,33 +71,35 @@ public class IndexingTest
   @Test
   void testIndexWriter() throws IOException {
     IndexWriter writer = getWriter();
-    assertEquals(IDS.size(), writer.getDocStats().numDocs);
+    assertThat(writer.getDocStats().numDocs).isEqualTo(IDS.size());
     writer.close();
   }
 
   @Test
   void testIndexReader() throws IOException {
     IndexReader reader = DirectoryReader.open(directory);
-    assertEquals(IDS.size(), reader.maxDoc());
-    assertEquals(IDS.size(), reader.numDocs());
+    assertThat(reader.maxDoc()).isEqualTo(IDS.size());
+    assertThat(reader.numDocs()).isEqualTo(IDS.size());
     reader.close();
   }
 
   @Test
   void testDelete() throws IOException {
     IndexWriter writer = getWriter();
-    assertEquals(2, writer.getDocStats().numDocs);
+    assertThat(writer.getDocStats().numDocs).isEqualTo(2);
     writer.deleteDocuments(new Term("id", "1"));
     writer.commit();
-    assertTrue(writer.hasDeletions());
-    assertEquals(2, writer.getDocStats().maxDoc);
-    assertEquals(1, writer.getDocStats().numDocs);
+    assertThat(writer.hasDeletions()).isTrue();
+
+    assertThat(writer.getDocStats().maxDoc).isEqualTo(2);
+    assertThat(writer.getDocStats().numDocs).isOne();
+
     writer.close();
   }
 
   @Test
   void testUpdate() throws IOException {
-    assertEquals(1, getHitCount("city", "Amsterdam"));
+    assertThat(getHitCount("city", "Amsterdam")).isOne();
 
     IndexWriter writer = getWriter();
     Document document = new Document();
@@ -108,13 +109,14 @@ public class IndexingTest
     document.add(new StringField("city", "Den Haag", Store.YES));
     writer.updateDocument(new Term("id", "1"), document);
     writer.close();
-    assertEquals(0, getHitCount("city", "Amsterdam"));
-    assertEquals(1, getHitCount("city", "Den Haag"));
+
+    assertThat(getHitCount("city", "Amsterdam")).isZero();
+    assertThat(getHitCount("city", "Den Haag")).isOne();
   }
 
   @Test
   void testMaxFieldLength() throws IOException {
-    assertEquals(1, getHitCount("contents", "bridges"));
+    assertThat(getHitCount("contents", "bridges")).isOne();
     IndexWriter writer =
         new IndexWriter(directory, new IndexWriterConfig(new LimitTokenCountAnalyzer(new WhitespaceAnalyzer(), 1)));
 
@@ -123,6 +125,6 @@ public class IndexingTest
     writer.addDocument(doc);
     writer.close();
 
-    assertEquals(1, getHitCount("contents", "bridges"));
+    assertThat(getHitCount("contents", "bridges")).isOne();
   }
 }

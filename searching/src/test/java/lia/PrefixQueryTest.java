@@ -10,7 +10,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PrefixQueryTest
 {
@@ -26,7 +26,7 @@ public class PrefixQueryTest
 
     matches = searcher.search(new TermQuery(term), 10);
     long justProgramming = matches.totalHits.value;
-    assertTrue(programmingAndBelow > justProgramming);
+    assertThat(programmingAndBelow).isGreaterThan(justProgramming);
     directory.close();
   }
 }

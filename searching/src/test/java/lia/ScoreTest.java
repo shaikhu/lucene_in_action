@@ -20,8 +20,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScoreTest
 {
@@ -58,9 +57,9 @@ public class ScoreTest
     IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     Query query = new WildcardQuery(new Term("contents", "?ild*"));
     TopDocs matches = searcher.search(query, 10);
-    assertEquals(3, matches.totalHits.value);
-    assertEquals(matches.scoreDocs[0].score, matches.scoreDocs[1].score);
-    assertEquals(matches.scoreDocs[1].score, matches.scoreDocs[2].score);
+    assertThat(matches.totalHits.value).isEqualTo(3);
+    assertThat(matches.scoreDocs[0].score).isEqualTo(matches.scoreDocs[1].score);
+    assertThat(matches.scoreDocs[1].score).isEqualTo(matches.scoreDocs[2].score);
   }
 
   @Test
@@ -72,9 +71,9 @@ public class ScoreTest
     IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     Query query = new FuzzyQuery(new Term("contents", "wuzza"));
     TopDocs matches = searcher.search(query, 10);
-    assertEquals(2, matches.totalHits.value);
-    assertNotEquals(matches.scoreDocs[0].score, matches.scoreDocs[1].score);
+    assertThat(matches.totalHits.value).isEqualTo(2);
+    assertThat(matches.scoreDocs[0].score).isNotEqualTo(matches.scoreDocs[1].score);
     Document doc = searcher.storedFields().document(matches.scoreDocs[0].doc);
-    assertEquals("wuzzy", doc.get("contents"));
+    assertThat(doc.get("contents")).isEqualTo("wuzzy");
   }
 }

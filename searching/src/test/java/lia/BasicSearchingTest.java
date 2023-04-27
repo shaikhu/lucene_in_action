@@ -13,7 +13,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BasicSearchingTest
 {
@@ -26,11 +26,11 @@ public class BasicSearchingTest
     Query query = new TermQuery(t);
 
     TopDocs docs = searcher.search(query, 10);
-    assertEquals(1, docs.totalHits.value, "Ant in Action");
+    assertThat(docs.totalHits.value).isOne();
 
     t = new Term("subject", "junit");
     docs = searcher.search(new TermQuery(t), 10);
-    assertEquals(2, docs.totalHits.value, "Ant in Action, JUnit in Action, Second Edition");
+    assertThat(docs.totalHits.value).isEqualTo(2);
     dir.close();
   }
 
@@ -41,8 +41,7 @@ public class BasicSearchingTest
     Term t = new Term("isbn", "9781935182023");
     Query query = new TermQuery(t);
     TopDocs docs = searcher.search(query, 10);
-    assertEquals(1, docs.totalHits.value, "JUnit in Action, Second Edition");
-
+    assertThat(docs.totalHits.value).isOne();
     dir.close();
   }
 
@@ -54,15 +53,12 @@ public class BasicSearchingTest
     QueryParser parser = new QueryParser("contents", new StandardAnalyzer());
     Query query = parser.parse("+JUNIT +ANT -MOCK");
     TopDocs docs = searcher.search(query, 10);
-    assertEquals(1, docs.totalHits.value);
-
+    assertThat(docs.totalHits.value).isOne();
     Document d = searcher.storedFields().document(docs.scoreDocs[0].doc);
-    assertEquals("Ant in Action", d.get("title"));
-
+    assertThat(d.get("title")).isEqualTo("Ant in Action");
     query = parser.parse("mock OR junit");
     docs = searcher.search(query, 10);
-    assertEquals(2, docs.totalHits.value);
-    
+    assertThat(docs.totalHits.value).isEqualTo(2);
     dir.close();
   }
 }

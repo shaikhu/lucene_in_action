@@ -12,7 +12,7 @@ import org.apache.lucene.store.LockObtainFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class LockTest
 {
@@ -28,8 +28,9 @@ public class LockTest
   void testWriteLock() throws IOException {
     IndexWriter writer = new IndexWriter(dir, new IndexWriterConfig(new WhitespaceAnalyzer()));
 
-    assertThrows(LockObtainFailedException.class,
-        () -> new IndexWriter(dir, new IndexWriterConfig(new WhitespaceAnalyzer())));
+    assertThatExceptionOfType(LockObtainFailedException.class)
+        .isThrownBy(() -> new IndexWriter(dir, new IndexWriterConfig(new WhitespaceAnalyzer())));
+
     writer.close();
   }
 }

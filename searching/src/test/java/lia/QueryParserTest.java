@@ -20,10 +20,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class QueryParserTest
 {
@@ -52,30 +50,30 @@ public class QueryParserTest
         .add(new TermQuery(new Term("title", "western")), Occur.SHOULD)
         .build();
 
-    assertEquals("+kountry~2 title:western", query.toString("field"));
+    assertThat(query.toString("field")).isEqualTo("+kountry~2 title:western");
   }
 
   @Test
   void testTermQuery() throws Exception {
     QueryParser parser = new QueryParser("subject", analyzer);
     Query query = parser.parse("computers");
-    assertEquals("subject:computers", query.toString());
+    assertThat(query).hasToString("subject:computers");
   }
 
   @Test
   void testPrefixQuery() throws Exception {
     QueryParser parser = new QueryParser("category", new StandardAnalyzer());
-    assertEquals(parser.parse("/computers/technology*").toString("category"), "/computers/ technology*");
+    assertThat(parser.parse("/computers/technology*").toString("category")).isEqualTo("/computers/ technology*");
   }
 
   @Test
   void testFuzzyQuery() throws Exception {
     QueryParser parser = new QueryParser("subject", analyzer);
     Query query = parser.parse("kountry~");
-    assertEquals("subject:kountry~2", query.toString());
+    assertThat(query).hasToString("subject:kountry~2");
 
     query = parser.parse("kountry~0.7");
-    assertEquals("subject:kountry~2", query.toString());
+    assertThat(query).hasToString("subject:kountry~2");
   }
 
   @Test
@@ -83,53 +81,54 @@ public class QueryParserTest
     Query query = new QueryParser("subject", analyzer).parse("(agile OR extreme) AND methodology");
     TopDocs matches = searcher.search(query, 10);
 
-    assertTrue(TestUtil.hitsIncludeTitle(searcher, matches, "Extreme Programming Explained"));
-    assertTrue(TestUtil.hitsIncludeTitle(searcher, matches, "The Pragmatic Programmer"));
+    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Extreme Programming Explained")).isTrue();
+    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "The Pragmatic Programmer")).isTrue();
   }
 
   @Test
   void testPhraseQuery() throws Exception {
     Query query = new QueryParser("field", new StandardAnalyzer()).parse("\"This is Some Phrase*\"");
-    assertEquals("\"this is some phrase\"", query.toString("field"));
+    assertThat(query.toString("field")).isEqualTo("\"this is some phrase\"");
 
     query = new QueryParser("field", analyzer).parse("\"term\"");
-    assertInstanceOf(TermQuery.class, query);
+    assertThat(query).isInstanceOf(TermQuery.class);
   }
 
   @Test
   void testSlop() throws Exception {
     Query query = new QueryParser("field", analyzer).parse("\"exact phrase\"");
-    assertEquals("\"exact phrase\"", query.toString("field"));
+    assertThat(query.toString("field")).isEqualTo("\"exact phrase\"");
 
     QueryParser qp = new QueryParser("field", analyzer);
     qp.setPhraseSlop(5);
     query = qp.parse("\"sloppy phrase\"");
-    assertEquals("\"sloppy phrase\"~5", query.toString("field"));
+    assertThat(query.toString("field")).isEqualTo("\"sloppy phrase\"~5");
   }
 
   @Test
   void testLowercase() throws Exception {
     Query q = new QueryParser("field", analyzer).parse("PrefixQuery*");
-    assertEquals("PrefixQuery*", q.toString("field"));
+    assertThat(q.toString("field")).isEqualTo("PrefixQuery*");
 
     QueryParser qp = new QueryParser("field", analyzer);
     q = qp.parse("PrefixQuery*");
-    assertEquals("PrefixQuery*", q.toString("field"));
+    assertThat(q.toString("field")).isEqualTo("PrefixQuery*");
   }
 
   @Test
   void testWildcard() {
-    assertThrows(ParseException.class, () -> new QueryParser("field", analyzer).parse("*xyz"));
+    assertThatExceptionOfType(ParseException.class).isThrownBy(() -> new QueryParser("field", analyzer).parse("*xyz"));
   }
 
   @Test
   void testBoost() throws Exception {
     Query q = new QueryParser("field", analyzer).parse("term^2");
-    assertEquals("(term)^2.0", q.toString("field"));
+    assertThat(q.toString("field")).isEqualTo("(term)^2.0");
   }
 
   @Test
   void testParseException() {
-    assertThrows(ParseException.class, () -> new QueryParser("contents", analyzer).parse("^&#"));
+    assertThatExceptionOfType(ParseException.class).isThrownBy(
+        () -> new QueryParser("contents", analyzer).parse("^&#"));
   }
 }
