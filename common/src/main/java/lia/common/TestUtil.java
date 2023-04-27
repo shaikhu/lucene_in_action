@@ -2,7 +2,6 @@ package lia.common;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
