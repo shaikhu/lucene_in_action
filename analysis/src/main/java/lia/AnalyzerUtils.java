@@ -54,4 +54,28 @@ public class AnalyzerUtils
     stream.close();
     System.out.println();
   }
+
+  public static void displayTokensWithPositions(Analyzer analyzer, String text) throws IOException {
+
+    TokenStream stream = analyzer.tokenStream("contents", new StringReader(text));
+    CharTermAttribute term = stream.addAttribute(CharTermAttribute.class);
+    PositionIncrementAttribute posIncr = stream.addAttribute(PositionIncrementAttribute.class);
+
+    int position = 0;
+    stream.reset();
+    while(stream.incrementToken()) {
+      int increment = posIncr.getPositionIncrement();
+      if (increment > 0) {
+        position = position + increment;
+        System.out.println();
+        System.out.print(position + ": ");
+      }
+
+      System.out.print("[" + term.toString() + "] ");
+    }
+    stream.end();
+    stream.close();
+    System.out.println();
+  }
+
 }
