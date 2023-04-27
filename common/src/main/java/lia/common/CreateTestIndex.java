@@ -16,7 +16,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
@@ -52,7 +51,7 @@ public class CreateTestIndex
 
     doc.add(new StringField("isbn", isbn, Store.YES));
     doc.add(new SortedDocValuesField("category", new BytesRef(category)));
-    doc.add(new StoredField("category", category));
+    doc.add(new StringField("category", category, Store.YES));
     doc.add(new TextField("title", title, Store.YES));
     doc.add(new StringField("title2", title.toLowerCase(), Store.YES));
 
