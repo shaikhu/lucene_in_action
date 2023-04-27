@@ -98,4 +98,19 @@ public class SortingTest
 
     assertThat(titles).isSorted();
   }
+
+  @Test
+  void testSortByFieldReverse() throws Exception {
+    TopDocs results = searcher.search(query, 10, new Sort(new SortField("category", Type.STRING, true)), true);
+    List<String> titles = Arrays.stream(results.scoreDocs).map(scoreDoc -> {
+      try {
+        return searcher.storedFields().document(scoreDoc.doc).get("category");
+      }
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).toList();
+
+    assertThat(titles).isSortedAccordingTo(Comparator.reverseOrder());
+  }
 }
