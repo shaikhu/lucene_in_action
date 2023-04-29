@@ -1,0 +1,7 @@
+plugins {
+  id 'lucene-in-action-config'
+}
+
+dependencies {
+  implementation group: 'org.apache.lucene', name: 'lucene-highlighter', version: '9.5.0'
+}
