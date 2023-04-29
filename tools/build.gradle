@@ -4,4 +4,5 @@ plugins {
 
 dependencies {
   implementation group: 'org.apache.lucene', name: 'lucene-highlighter', version: '9.5.0'
+  testImplementation(project(':analysis'))
 }
