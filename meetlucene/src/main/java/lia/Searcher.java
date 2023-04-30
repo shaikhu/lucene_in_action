@@ -1,13 +1,10 @@
 package lia;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.StoredFields;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -16,35 +13,32 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
-public class Searcher
-{
-  public static void main(String[] args) throws IllegalArgumentException, IOException, ParseException {
+public class Searcher {
+  public static void main(String... args) throws Exception {
     if (args.length != 2) {
       throw new IllegalArgumentException("Usage: java " + Searcher.class.getName() + " <index dir> <query>");
     }
 
     String indexDir = args[0];
-    String q = args[1];
+    String query = args[1];
 
-    search(indexDir, q);
+    search(indexDir, query);
   }
 
-  private static void search(String indexDir, String q) throws IOException, ParseException
-  {
-    try (Directory dir = FSDirectory.open(Paths.get(indexDir))) {
-      IndexSearcher is = new IndexSearcher(DirectoryReader.open(dir));
+  private static void search(String indexDir, String searchTerm) throws Exception {
+    try (Directory directory = FSDirectory.open(Paths.get(indexDir))) {
+      IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
 
       QueryParser parser = new QueryParser("contents", new StandardAnalyzer());
-      Query query = parser.parse(q);
+      Query query = parser.parse(searchTerm);
       long start = System.currentTimeMillis();
-      TopDocs hits = is.search(query, 10);
+      TopDocs hits = searcher.search(query, 10);
       long end = System.currentTimeMillis();
 
-      System.out.println("Found " + hits.totalHits + " document(s) (in " + (end - start) + " milliseconds) that matched query '" + q + "':");
-
-      for(ScoreDoc scoreDoc : hits.scoreDocs) {
-        Document doc= is.storedFields().document(scoreDoc.doc);
-        System.out.println(doc.get("fullpath"));
+      System.out.println("Found " + hits.totalHits.value + " document(s) (in " + (end - start) + " milliseconds) that matched query '" + searchTerm + "':");
+      for (ScoreDoc scoreDoc : hits.scoreDocs) {
+        Document document = searcher.storedFields().document(scoreDoc.doc);
+        System.out.println(document.get("fullpath"));
       }
     }
   }
