@@ -14,17 +14,6 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 public class Searcher {
-  public static void main(String... args) throws Exception {
-    if (args.length != 2) {
-      throw new IllegalArgumentException("Usage: java " + Searcher.class.getName() + " <index dir> <query>");
-    }
-
-    String indexDir = args[0];
-    String query = args[1];
-
-    search(indexDir, query);
-  }
-
   private static void search(String indexDir, String searchTerm) throws Exception {
     try (Directory directory = FSDirectory.open(Paths.get(indexDir))) {
       IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
@@ -41,5 +30,16 @@ public class Searcher {
         System.out.println(document.get("fullpath"));
       }
     }
+  }
+
+  public static void main(String... args) throws Exception {
+    if (args.length != 2) {
+      throw new IllegalArgumentException("Usage: java " + Searcher.class.getName() + " <index dir> <query>");
+    }
+
+    String indexDir = args[0];
+    String query = args[1];
+
+    search(indexDir, query);
   }
 }

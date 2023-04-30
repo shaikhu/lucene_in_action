@@ -1,12 +1,11 @@
 package lia;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -18,70 +17,63 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
-public class Indexer
-{
-    public static void main(String[] args) throws Exception {
-        if (args.length != 2) {
-            throw new IllegalArgumentException("Usage: java " + Indexer.class.getName() + " <index dir> <data dir>");
-        }
+import static java.util.function.Predicate.not;
 
-        String indexDir = args[0];
-        String dataDir = args[1];
+public class Indexer {
+  private static final Predicate<Path> TEXT_FILE_FILTER =
+      path -> path.getFileName().toString().toLowerCase().endsWith(".txt");
 
-        long start = System.currentTimeMillis();
-        Indexer indexer = new Indexer(indexDir);
-        int numIndexed;
-        try {
-            numIndexed = indexer.index(dataDir, new TextFilesFilter());
-        } finally {
-            indexer.close();
-        }
+  private final String indexDir;
+
+  private final String dataDir;
+
+  public Indexer(String indexDir, String dataDir) {
+    this.indexDir = indexDir;
+    this.dataDir = dataDir;
+  }
+
+  public void index() throws IOException {
+    try (Directory directory = FSDirectory.open(Paths.get(indexDir));
+         IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()))) {
+      long start = System.currentTimeMillis();
+      try (Stream<Path> files = Files.list(Paths.get(dataDir))) {
+        long numIndexed = files
+            .filter(not(Files::isDirectory))
+            .filter(Files::exists)
+            .filter(Files::isReadable)
+            .filter(TEXT_FILE_FILTER)
+            .mapToInt(path -> indexFile(writer, path))
+            .count();
+
         long end = System.currentTimeMillis();
-
         System.out.println("Indexing " + numIndexed + " files took " + (end - start) + " milliseconds");
+      }
     }
+  }
 
-    private IndexWriter writer;
-
-    public Indexer(String indexDir) throws IOException {
-        Directory dir = FSDirectory.open(Paths.get(indexDir));
-        writer = new IndexWriter(dir, new IndexWriterConfig(new StandardAnalyzer()));
+  private int indexFile(IndexWriter writer, Path path){
+    System.out.println("Indexing " + path.toString());
+    try {
+      Document doc = getDocument(path);
+      writer.addDocument(doc);
+      return writer.getDocStats().numDocs;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    public void close() throws IOException {
-        writer.close();
-    }
+  private Document getDocument(Path path) throws IOException {
+    Document doc = new Document();
+    doc.add(new TextField("contents", Files.newBufferedReader(path)));
+    doc.add(new StringField("filename", path.getFileName().toString(), Store.YES));
+    doc.add(new StringField("fullpath", path.toString(), Store.YES));
+    return doc;
+  }
 
-    public int index(String dataDir, FileFilter textFileFilter) throws Exception {
-        List<Path> files = Files.list(Paths.get(dataDir)).toList();
-        for (Path file : files) {
-            if (!Files.isDirectory(file) && !Files.isHidden(file) &&
-                Files.exists(file) && Files.isReadable(file) &&
-                textFileFilter.accept(file.toFile())) {
-                indexFile(file);
-            }
-        }
-        return writer.getDocStats().numDocs;
+  public static void main(String... args) throws IOException {
+    if (args.length != 2) {
+      throw new IllegalArgumentException("Usage: java " + Indexer.class.getName() + " <index dir> <data dir>");
     }
-
-    private static class TextFilesFilter implements FileFilter {
-        @Override
-        public boolean accept(File path) {
-            return path.getName().toLowerCase().endsWith(".txt");
-        }
-    }
-
-    private void indexFile(Path path) throws Exception {
-        System.out.println("Indexing " + path.toString());
-        Document doc = getDocument(path);
-        writer.addDocument(doc);
-    }
-
-    private Document getDocument(Path path) throws Exception {
-        Document doc = new Document();
-        doc.add(new TextField("contents", Files.newBufferedReader(path)));
-        doc.add(new StringField("filename", path.getFileName().toString(), Store.YES));
-        doc.add(new StringField("fullpath", path.toString(), Store.YES));
-        return doc;
-    }
+    new Indexer(args[0], args[1]).index();
+  }
 }
