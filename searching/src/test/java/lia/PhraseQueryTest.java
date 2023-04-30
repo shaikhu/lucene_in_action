@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PhraseQueryTest
-{
+public class PhraseQueryTest {
   private Directory directory;
 
   private IndexSearcher searcher;
@@ -30,24 +29,17 @@ public class PhraseQueryTest
   void setup() throws IOException {
     directory = new ByteBuffersDirectory();
 
-    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()));
-    Document doc = new Document();
-    doc.add(new TextField("field", "the quick brown fox jumped over the lazy dog", Store.NO));
-    writer.addDocument(doc);
-    writer.close();
+    try (IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
+      Document doc = new Document();
+      doc.add(new TextField("field", "the quick brown fox jumped over the lazy dog", Store.NO));
+      writer.addDocument(doc);
+    }
     searcher = new IndexSearcher(DirectoryReader.open(directory));
   }
-
 
   @AfterEach
   void tearDown() throws IOException {
     directory.close();
-  }
-
-  private boolean matched(int slop, String... phrase) throws IOException {
-    PhraseQuery query = new PhraseQuery(slop, "field", phrase);
-    TopDocs matches = searcher.search(query, 10);
-    return matches.totalHits.value > 0;
   }
 
   @Test
@@ -68,5 +60,11 @@ public class PhraseQueryTest
     assertThat(matched(4, "quick", "jumped", "lazy")).isTrue();
     assertThat(matched(7, "lazy", "jumped", "quick")).isFalse();
     assertThat(matched(8, "lazy", "jumped", "quick")).isTrue();
+  }
+
+  private boolean matched(int slop, String... phrase) throws IOException {
+    PhraseQuery query = new PhraseQuery(slop, "field", phrase);
+    TopDocs matches = searcher.search(query, 10);
+    return matches.totalHits.value > 0;
   }
 }

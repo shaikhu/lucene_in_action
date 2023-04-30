@@ -12,21 +12,20 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PrefixQueryTest
-{
+public class PrefixQueryTest {
   @Test
   void testPrefix() throws Exception {
-    Directory directory = TestUtil.getBookIndexDirectory();
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
-    Term term = new Term("category", "/technology/computers/programming");
-    PrefixQuery query = new PrefixQuery(term);
+    try (Directory directory = TestUtil.getBookIndexDirectory()) {
+      IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
+      Term term = new Term("category", "/technology/computers/programming");
+      PrefixQuery query = new PrefixQuery(term);
 
-    TopDocs matches = searcher.search(query, 10);
-    long programmingAndBelow = matches.totalHits.value;
+      TopDocs matches = searcher.search(query, 10);
+      long programmingAndBelow = matches.totalHits.value;
 
-    matches = searcher.search(new TermQuery(term), 10);
-    long justProgramming = matches.totalHits.value;
-    assertThat(programmingAndBelow).isGreaterThan(justProgramming);
-    directory.close();
+      matches = searcher.search(new TermQuery(term), 10);
+      long justProgramming = matches.totalHits.value;
+      assertThat(programmingAndBelow).isGreaterThan(justProgramming);
+    }
   }
 }

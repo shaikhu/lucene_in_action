@@ -7,16 +7,30 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NumberRangeQueryTest
-{
+public class NumberRangeQueryTest {
+  private Directory directory;
+
+  private IndexSearcher searcher;
+
+  @BeforeEach
+  void setup() throws Exception {
+    directory = TestUtil.getBookIndexDirectory();
+    searcher = new IndexSearcher(DirectoryReader.open(directory));
+  }
+
+  @AfterEach
+  void tearDown() throws Exception {
+    directory.close();
+  }
+
   @Test
   void testInclusive() throws Exception {
-    Directory directory = TestUtil.getBookIndexDirectory();
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     Query query = LongPoint.newRangeQuery("pubmonth", 200605, 200609);
     TopDocs matches = searcher.search(query, 10);
     assertThat(matches.totalHits.value).isOne();
@@ -24,8 +38,6 @@ public class NumberRangeQueryTest
 
   @Test
   void testExclusive() throws Exception {
-    Directory directory = TestUtil.getBookIndexDirectory();
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     Query query = LongPoint.newRangeQuery("pubmonth", Math.addExact(200605, 1), Math.addExact(200609, -1));
     TopDocs matches = searcher.search(query, 10);
     assertThat(matches.totalHits.value).isZero();

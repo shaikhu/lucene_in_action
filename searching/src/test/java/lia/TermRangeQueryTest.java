@@ -11,14 +11,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TermRangeQueryTest
-{
+public class TermRangeQueryTest {
   @Test
   void testTermRangeQuery() throws Exception {
-    Directory directory = TestUtil.getBookIndexDirectory();
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
-    TermRangeQuery termRangeQuery = new TermRangeQuery("title2", new BytesRef("d"), new BytesRef("j"), true, true);
-    TopDocs matches = searcher.search(termRangeQuery, 100);
-    assertThat(matches.totalHits.value).isEqualTo(3);
+    try(Directory directory = TestUtil.getBookIndexDirectory()) {
+      IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
+      TermRangeQuery termRangeQuery = new TermRangeQuery("title2", new BytesRef("d"), new BytesRef("j"), true, true);
+      TopDocs matches = searcher.search(termRangeQuery, 100);
+      assertThat(matches.totalHits.value).isEqualTo(3);
+    }
   }
 }

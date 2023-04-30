@@ -12,12 +12,28 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BooleanQueryTest
-{
+public class BooleanQueryTest {
+  private Directory directory;
+
+  private IndexSearcher searcher;
+
+  @BeforeEach
+  void setup() throws Exception {
+    directory = TestUtil.getBookIndexDirectory();
+    searcher = new IndexSearcher(DirectoryReader.open(directory));
+  }
+
+  @AfterEach
+  void tearDown() throws Exception {
+    directory.close();
+  }
+
   @Test
   void testAnd() throws Exception {
     TermQuery searchingBooks = new TermQuery(new Term("subject", "search"));
@@ -28,12 +44,11 @@ public class BooleanQueryTest
         .add(new BooleanClause(books2010, Occur.MUST))
         .build();
 
-    Directory directory = TestUtil.getBookIndexDirectory();
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
+    directory = TestUtil.getBookIndexDirectory();
+    searcher = new IndexSearcher(DirectoryReader.open(directory));
     TopDocs matches = searcher.search(searchingBooks2010, 10);
 
     assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Lucene in Action, Second Edition")).isTrue();
-    directory.close();
   }
 
   @Test
@@ -46,13 +61,10 @@ public class BooleanQueryTest
         .add(easternPhilosophyBooks, Occur.SHOULD)
         .build();
 
-    Directory directory = TestUtil.getBookIndexDirectory();
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
+    searcher = new IndexSearcher(DirectoryReader.open(directory));
     TopDocs matches = searcher.search(enlightenmentBooks, 100);
 
     assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Extreme Programming Explained")).isTrue();
-    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Tao Te Ching \u9053\u5FB7\u7D93")).isTrue();
-
-    directory.close();
+    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Tao Te Ching 道德經")).isTrue();
   }
 }
