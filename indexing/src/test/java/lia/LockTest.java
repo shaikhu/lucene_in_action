@@ -9,6 +9,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,13 +25,17 @@ public class LockTest
     dir = FSDirectory.open(Paths.get(indexDir));
   }
 
+  @AfterEach
+  void tearDown() throws Exception {
+    dir.close();
+  }
+
   @Test
   void testWriteLock() throws IOException {
-    IndexWriter writer = new IndexWriter(dir, new IndexWriterConfig(new WhitespaceAnalyzer()));
+    try (IndexWriter writer = new IndexWriter(dir, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
 
-    assertThatExceptionOfType(LockObtainFailedException.class)
-        .isThrownBy(() -> new IndexWriter(dir, new IndexWriterConfig(new WhitespaceAnalyzer())));
-
-    writer.close();
+      assertThatExceptionOfType(LockObtainFailedException.class)
+          .isThrownBy(() -> new IndexWriter(dir, new IndexWriterConfig(new WhitespaceAnalyzer())));
+    }
   }
 }
