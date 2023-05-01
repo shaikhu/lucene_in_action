@@ -9,11 +9,15 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.WildcardQuery;
+import org.apache.lucene.search.similarities.BasicStats;
+import org.apache.lucene.search.similarities.SimilarityBase;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
@@ -22,8 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ScoreTest
-{
+public class ScoreTest {
   private Directory directory;
 
   @BeforeEach
@@ -36,14 +39,20 @@ public class ScoreTest
     directory.close();
   }
 
-  private void indexSingleFieldDocs(Field... fields) throws Exception {
-    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()));
-    for (Field f : fields) {
-      Document doc = new Document();
-      doc.add(f);
-      writer.addDocument(doc);
-    }
-    writer.close();
+  @Test
+  void testSimple() throws Exception {
+    indexSingleFieldDocs(new TextField("contents", "x", Store.YES));
+
+    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
+    searcher.setSimilarity(new SimpleSimilarity());
+
+    Query query = new TermQuery(new Term("contents", "x"));
+    Explanation explanation = searcher.explain(query, 0);
+    System.out.println(explanation);
+
+    TopDocs matches = searcher.search(query, 10);
+    assertThat(matches.totalHits.value).isOne();
+    assertThat(matches.scoreDocs[0].score).isEqualTo(0);
   }
 
   @Test
@@ -57,6 +66,7 @@ public class ScoreTest
     IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     Query query = new WildcardQuery(new Term("contents", "?ild*"));
     TopDocs matches = searcher.search(query, 10);
+
     assertThat(matches.totalHits.value).isEqualTo(3);
     assertThat(matches.scoreDocs[0].score).isEqualTo(matches.scoreDocs[1].score);
     assertThat(matches.scoreDocs[1].score).isEqualTo(matches.scoreDocs[2].score);
@@ -64,16 +74,39 @@ public class ScoreTest
 
   @Test
   void testFuzzy() throws Exception {
-    indexSingleFieldDocs(
-        new TextField("contents", "fuzzy", Store.YES),
-        new TextField("contents", "wuzzy", Store.YES));
+    indexSingleFieldDocs(new TextField("contents", "fuzzy", Store.YES), new TextField("contents", "wuzzy", Store.YES));
 
     IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
     Query query = new FuzzyQuery(new Term("contents", "wuzza"));
     TopDocs matches = searcher.search(query, 10);
+
     assertThat(matches.totalHits.value).isEqualTo(2);
     assertThat(matches.scoreDocs[0].score).isNotEqualTo(matches.scoreDocs[1].score);
+
     Document doc = searcher.storedFields().document(matches.scoreDocs[0].doc);
     assertThat(doc.get("contents")).isEqualTo("wuzzy");
+  }
+
+  private void indexSingleFieldDocs(Field... fields) throws Exception {
+    try (IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer())) ) {
+      for (Field f : fields) {
+        Document doc = new Document();
+        doc.add(f);
+        writer.addDocument(doc);
+      }
+    }
+  }
+
+  private static class SimpleSimilarity extends SimilarityBase
+  {
+    @Override
+    protected double score(BasicStats stats, double freq, double docLen) {
+      return 0;
+    }
+
+    @Override
+    public String toString() {
+      return "SimpleSimilarity";
+    }
   }
 }
