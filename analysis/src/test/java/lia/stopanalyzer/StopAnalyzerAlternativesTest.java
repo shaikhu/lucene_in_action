@@ -6,23 +6,20 @@ import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.core.StopAnalyzer;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StopAnalyzerTest {
-  private static final StopAnalyzer STOP_ANALYZER = new StopAnalyzer(EnglishAnalyzer.ENGLISH_STOP_WORDS_SET);
+public class StopAnalyzerAlternativesTest {
+  @Test
+  void testStopAnalyzer2() throws Exception {
+    assertAnalyzesTo(new StopAnalyzer1(), "The quick brown...", Arrays.asList("quick", "brown"));
+  }
 
-  @Test void testHoles() throws Exception {
-    List<String> expected = Arrays.asList("one", "enough");
-
-    assertAnalyzesTo(STOP_ANALYZER, "one is not enough", expected);
-    assertAnalyzesTo(STOP_ANALYZER, "one is enough", expected);
-    assertAnalyzesTo(STOP_ANALYZER, "one enough", expected);
-    assertAnalyzesTo(STOP_ANALYZER, "one but not enough", expected);
+  @Test
+  public void testStopAnalyzerFlawed() throws Exception {
+    assertAnalyzesTo(new StopAnalyzerFlawed(), "The quick brown...", Arrays.asList("the", "quick", "brown"));
   }
 
   private void assertAnalyzesTo(Analyzer analyzer, String input, List<String> output) throws Exception {
@@ -37,4 +34,5 @@ public class StopAnalyzerTest {
     stream.end();
     stream.close();
   }
+
 }
