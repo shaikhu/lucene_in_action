@@ -10,8 +10,7 @@ import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 
-public class AnalyzerUtils
-{
+public class AnalyzerUtils {
   public static void displayTokens(Analyzer analyzer, String text) throws IOException {
     displayTokens(analyzer.tokenStream("contents", new StringReader(text)));
   }
@@ -44,11 +43,7 @@ public class AnalyzerUtils
         System.out.print(position + ": ");
       }
 
-      System.out.print("[" +
-          term.toString() + ":" +
-          offset.startOffset() + "->" +
-          offset.endOffset() + ":" +
-          type.type() + "] ");
+      System.out.print("[" + term.toString() + ":" + offset.startOffset() + "->" + offset.endOffset() + ":" + type.type() + "] ");
     }
     stream.end();
     stream.close();
@@ -56,7 +51,6 @@ public class AnalyzerUtils
   }
 
   public static void displayTokensWithPositions(Analyzer analyzer, String text) throws IOException {
-
     TokenStream stream = analyzer.tokenStream("contents", new StringReader(text));
     CharTermAttribute term = stream.addAttribute(CharTermAttribute.class);
     PositionIncrementAttribute posIncr = stream.addAttribute(PositionIncrementAttribute.class);
@@ -70,12 +64,10 @@ public class AnalyzerUtils
         System.out.println();
         System.out.print(position + ": ");
       }
-
       System.out.print("[" + term.toString() + "] ");
     }
     stream.end();
     stream.close();
     System.out.println();
   }
-
 }
