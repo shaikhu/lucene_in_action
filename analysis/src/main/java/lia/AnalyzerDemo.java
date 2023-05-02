@@ -23,12 +23,6 @@ public class AnalyzerDemo {
       new StandardAnalyzer()
   );
 
-  public static void main(String... args) throws IOException {
-    for (String text : EXAMPLES) {
-      analyze(text);
-    }
-  }
-
   private static void analyze(String text) throws IOException {
     System.out.println("Analyzing \"" + text + "\"");
     for (Analyzer analyzer : ANALYZERS) {
@@ -45,5 +39,11 @@ public class AnalyzerDemo {
     System.out.println("\n----");
     System.out.println("StandardAnalyzer - displayTokensWithFullDetails");
     AnalyzerUtils.displayTokensWithFullDetails(new StandardAnalyzer(), "I'll email you at xyz@example.com");
+  }
+
+  public static void main(String... args) throws IOException {
+    for (String text : EXAMPLES) {
+      analyze(text);
+    }
   }
 }
