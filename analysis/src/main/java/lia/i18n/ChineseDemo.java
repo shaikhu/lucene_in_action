@@ -1,9 +1,6 @@
 package lia.i18n;
 
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Frame;
-import java.awt.Label;
+import java.awt.*;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
@@ -18,7 +15,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 public class ChineseDemo {
   private static final List<String> TEXT = List.of("道德經");
 
-  private static final List<? extends Analyzer> ANALYSERS = List.of(
+  private static final List<Analyzer> ANALYSERS = List.of(
       new SimpleAnalyzer(),
       new StandardAnalyzer(),
       new CJKAnalyzer());
