@@ -27,11 +27,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class SynonymAnalyzerTest
-{
-  private static final SynonymAnalyzer SYNONYM_ANALYZER = new SynonymAnalyzer(new TestSynonymEngine());
-
+public class SynonymAnalyzerTest {
   private Directory directory;
+
+  private SynonymAnalyzer analyzer;
 
   private IndexSearcher searcher;
 
@@ -40,7 +39,8 @@ public class SynonymAnalyzerTest
   void setUp() throws Exception {
     directory = new ByteBuffersDirectory();
 
-    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(SYNONYM_ANALYZER));
+    analyzer = new SynonymAnalyzer(new TestSynonymEngine());
+    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(analyzer));
 
     Document doc = new Document();
     doc.add(new TextField("content", "The quick brown fox jumps over the lazy dog", Store.YES));
@@ -58,7 +58,7 @@ public class SynonymAnalyzerTest
 
   @Test
   void testJumps() throws Exception {
-    TokenStream stream = SYNONYM_ANALYZER.tokenStream("contents", new StringReader("jumps"));
+    TokenStream stream = analyzer.tokenStream("contents", new StringReader("jumps"));
     CharTermAttribute term = stream.addAttribute(CharTermAttribute.class);
     PositionIncrementAttribute posIncr = stream.addAttribute(PositionIncrementAttribute.class);
 
@@ -94,7 +94,7 @@ public class SynonymAnalyzerTest
 
   @Test
   void testWithQueryParser() throws Exception {
-    Query query = new QueryParser("content", SYNONYM_ANALYZER).parse("\"fox jumps\"");
+    Query query = new QueryParser("content", analyzer).parse("\"fox jumps\"");
     assertThat(TestUtil.hitCount(searcher, query)).isOne();
 
     query = new QueryParser("content", new StandardAnalyzer()).parse("\"fox jumps\"");

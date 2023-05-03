@@ -4,8 +4,7 @@ import java.io.IOException;
 
 import lia.AnalyzerUtils;
 
-public class SynonymAnalyzerViewer
-{
+public class SynonymAnalyzerViewer {
   public static void main(String[] args) throws IOException {
     SynonymEngine engine = new TestSynonymEngine();
 

@@ -10,8 +10,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.util.AttributeSource;
 
-public final class SynonymFilter extends TokenFilter
-{
+public final class SynonymFilter extends TokenFilter {
   private final Stack<String> synonymStack;
 
   private final SynonymEngine engine;
