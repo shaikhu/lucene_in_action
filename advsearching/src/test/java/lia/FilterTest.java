@@ -1,6 +1,7 @@
 package lia;
 
 import lia.common.TestUtil;
+import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -42,6 +43,24 @@ public class FilterTest {
         .add(new TermRangeQuery("title2", new BytesRef("d"), new BytesRef("j"), true, true), Occur.FILTER)
         .build();
 
+    assertThat(TestUtil.hitCount(searcher, query)).isEqualTo(3);
+  }
+
+  @Test
+  void testNumericDateFilter() throws Exception {
+    BooleanQuery query = new BooleanQuery.Builder()
+        .add(allBooks, Occur.MUST)
+        .add(LongPoint.newRangeQuery("pubmonth", 201001, 201006), Occur.FILTER)
+        .build();
+    assertThat(TestUtil.hitCount(searcher, query)).isEqualTo(2);
+  }
+
+  @Test
+  void testStringRangeFilter() throws Exception {
+    Query query = new BooleanQuery.Builder()
+        .add(allBooks, Occur.MUST)
+        .add(TermRangeQuery.newStringRange("title2", "d", "j", true, true), Occur.FILTER)
+        .build();
     assertThat(TestUtil.hitCount(searcher, query)).isEqualTo(3);
   }
 }
