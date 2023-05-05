@@ -1,6 +1,5 @@
 package lia;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -32,13 +31,13 @@ public class MultiReaderTest
 
   @BeforeEach
   void setUp() throws Exception {
-    List<String> animals = Arrays.asList("aardvark", "beaver", "coati",
-                            "dog", "elephant", "frog", "gila monster",
-                            "horse", "iguana", "javelina", "kangaroo",
-                            "lemur", "moose", "nematode", "orca",
-                            "python", "quokka", "rat", "scorpion",
-                            "tarantula", "uromastyx", "vicuna",
-                            "walrus", "xiphias", "yak", "zebra");
+    List<String> animals = List.of("aardvark", "beaver", "coati",
+        "dog", "elephant", "frog", "gila monster",
+        "horse", "iguana", "javelina", "kangaroo",
+        "lemur", "moose", "nematode", "orca",
+        "python", "quokka", "rat", "scorpion",
+        "tarantula", "uromastyx", "vicuna",
+        "walrus", "xiphias", "yak", "zebra");
 
     Analyzer analyzer = new WhitespaceAnalyzer();
 
@@ -47,7 +46,7 @@ public class MultiReaderTest
 
     IndexWriter aTOmWriter = new IndexWriter(aTOmDirectory, new IndexWriterConfig(analyzer));
     IndexWriter nTOzWriter = new IndexWriter(nTOzDirectory, new IndexWriterConfig(analyzer));
-    
+
 
     for (int i=animals.size() - 1; i >= 0; i--) {
       Document doc = new Document();
