@@ -9,8 +9,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 
-public class CustomQueryParser extends QueryParser
-{
+public class CustomQueryParser extends QueryParser {
   public CustomQueryParser(String field, Analyzer analyzer) {
     super(field, analyzer);
   }
@@ -33,12 +32,11 @@ public class CustomQueryParser extends QueryParser
   public Query getFieldQuery(String field, String queryText, int slop) throws ParseException {
     Query orig = super.getFieldQuery(field, queryText, slop);
 
-    if (!(orig instanceof PhraseQuery)) {
+    if (!(orig instanceof PhraseQuery phraseQuery)) {
       return orig;
     }
 
-    PhraseQuery pq = (PhraseQuery) orig;
-    Term[] terms = pq.getTerms();
+    Term[] terms = phraseQuery.getTerms();
     SpanTermQuery[] clauses = new SpanTermQuery[terms.length];
     for (int i = 0; i < terms.length; i++) {
       clauses[i] = new SpanTermQuery(terms[i]);
