@@ -13,11 +13,13 @@ import java.util.stream.Stream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
@@ -52,16 +54,17 @@ public class CreateTestIndex
     doc.add(new StringField("isbn", isbn, Store.YES));
     doc.add(new SortedDocValuesField("category", new BytesRef(category)));
     doc.add(new StringField("category", category, Store.YES));
-    doc.add(new TextField("title", title, Store.YES));
-    doc.add(new StringField("title2", title.toLowerCase(), Store.YES));
+
+    doc.add(new Field("title", title, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, true)));
+    doc.add(new Field("title2", title.toLowerCase(), createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, false)));
 
     String[] authors = author.split(",");
     for (String a : authors) {
-      doc.add(new StringField("author", a, Store.YES));
+      doc.add(new Field("author", a, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, false)));
     }
 
     doc.add(new StringField("url", url, Store.YES));
-    doc.add(new TextField("subject", subject, Store.YES));
+    doc.add(new Field("subject", subject, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, true)));
 
     doc.add(new LongField("pubmonth", Long.parseLong(pubmonth)));
 
@@ -74,10 +77,21 @@ public class CreateTestIndex
     doc.add(new LongField("pubmonthAsDay", date.getTime()/(1000*3600*24)));
 
     for (String text : new String[] {title, subject, author , category}) {
-      doc.add(new TextField("contents", text, Store.NO));
+      doc.add(new Field("contents", text, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, false, true)));
     }
 
     return doc;
+  }
+
+  private static FieldType createFieldType(IndexOptions indexOptions, boolean stored, boolean tokenized) {
+    FieldType fieldType = new FieldType();
+    fieldType.setIndexOptions(indexOptions);
+    fieldType.setStored(stored);
+    fieldType.setTokenized(tokenized);
+    fieldType.setStoreTermVectors(true);
+    fieldType.setStoreTermVectorOffsets(true);
+    fieldType.setStoreTermVectorPositions(true);
+    return fieldType;
   }
 
   public static void main(String[] args) throws IOException {
