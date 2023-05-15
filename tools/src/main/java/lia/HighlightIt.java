@@ -14,14 +14,14 @@ import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
 
 public class HighlightIt
 {
-  private static final String text =
-      "In this section we'll show you how to make the simplest " +
-          "programmatic query, searching for a single term, and then " +
-          "we'll see how to use QueryParser to accept textual queries. " +
-          "In the sections that follow, we’ll take this simple example " +
-          "further by detailing all the query types built into Lucene. " +
-          "We begin with the simplest search of all: searching for all " +
-          "documents that contain a single term.";
+  private static final String TEXT = """
+      In this section we'll show you how to make the simplest
+      programmatic query, searching for a single term, and then
+      we'll see how to use QueryParser to accept textual queries.
+      In the sections that follow, we’ll take this simple example
+      further by detailing all the query types built into Lucene.
+      We begin with the simplest search of all: searching for all
+      documents that contain a single term.""";
 
   public static void main(String... args) throws Exception {
     String filename = "results.html";
@@ -32,23 +32,22 @@ public class HighlightIt
 
     SimpleHTMLFormatter formatter = new SimpleHTMLFormatter("<span class=\"highlight\">", "</span>");
 
-    TokenStream tokens = new StandardAnalyzer().tokenStream("f", new StringReader(text));
+    TokenStream tokens = new StandardAnalyzer().tokenStream("f", new StringReader(TEXT));
     QueryScorer scorer = new QueryScorer(query, "f");
 
     Highlighter highlighter = new Highlighter(formatter, scorer);
     highlighter.setTextFragmenter(new SimpleSpanFragmenter(scorer));
 
-    String result =
-        highlighter.getBestFragments(tokens, text, 3, "...");
-
+    String result = highlighter.getBestFragments(tokens, TEXT, 3, "...");
 
     FileWriter writer = new FileWriter(filename);
     writer.write("<html>");
-    writer.write("<style>\n" +
-        ".highlight {\n" +
-        " background: yellow;\n" +
-        "}\n" +
-        "</style>");
+    writer.write("""
+        <style>
+        .highlight {
+         background: yellow;
+        }
+        </style>""");
     writer.write("<body>");
     writer.write(result);
     writer.write("</body></html>");
