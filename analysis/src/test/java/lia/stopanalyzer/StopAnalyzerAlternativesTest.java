@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StopAnalyzerAlternativesTest {
+class StopAnalyzerAlternativesTest {
   @Test
   void testStopAnalyzer2() throws Exception {
     assertAnalyzesTo(new StopAnalyzer1(), "The quick brown...", Arrays.asList("quick", "brown"));

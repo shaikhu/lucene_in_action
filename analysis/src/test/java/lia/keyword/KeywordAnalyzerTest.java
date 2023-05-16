@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class KeywordAnalyzerTest {
+class KeywordAnalyzerTest {
   private Directory directory;
 
   private IndexSearcher searcher;

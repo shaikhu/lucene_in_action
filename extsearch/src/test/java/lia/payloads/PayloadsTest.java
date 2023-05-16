@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PayloadsTest {
+class PayloadsTest {
   private static final Similarity BOOSTING_SIMILARITY = new BoostingSimilarity();
 
   private Directory directory;

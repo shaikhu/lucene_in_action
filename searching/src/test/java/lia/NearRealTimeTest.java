@@ -19,8 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NearRealTimeTest
-{
+class NearRealTimeTest {
   @Test
   void testNearRealTime() throws Exception {
     try (Directory directory = new ByteBuffersDirectory();

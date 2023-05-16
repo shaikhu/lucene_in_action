@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NumberRangeQueryTest {
+class NumberRangeQueryTest {
   private Directory directory;
 
   private IndexSearcher searcher;

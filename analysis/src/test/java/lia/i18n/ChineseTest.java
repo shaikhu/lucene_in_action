@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ChineseTest {
+class ChineseTest {
   @Test
   void testChinese() throws Exception {
     try (Directory dir = TestUtil.getBookIndexDirectory()) {

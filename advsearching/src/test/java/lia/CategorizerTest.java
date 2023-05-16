@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CategorizerTest {
+class CategorizerTest {
   Map<String,Map<String,Integer>> categories = new HashMap<>();
 
   @BeforeEach

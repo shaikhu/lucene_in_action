@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MetaphoneAnalyzerTest {
+class MetaphoneAnalyzerTest {
   @Test
   void testKoolKat() throws Exception {
     try (Directory directory = new ByteBuffersDirectory()) {

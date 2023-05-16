@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MultiReaderTest
-{
+class MultiReaderTest {
   private DirectoryReader reader1;
 
   private DirectoryReader reader2;

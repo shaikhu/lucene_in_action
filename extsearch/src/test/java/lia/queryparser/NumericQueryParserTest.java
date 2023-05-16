@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NumericQueryParserTest {
+class NumericQueryParserTest {
   private Directory directory;
 
   private Analyzer analyzer;

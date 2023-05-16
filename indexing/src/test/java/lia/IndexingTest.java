@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IndexingTest {
+class IndexingTest {
   private static final List<String> IDS = Arrays.asList("1", "2");
 
   private static final List<String> UNINDEXED = Arrays.asList("Netherlands", "Italy");

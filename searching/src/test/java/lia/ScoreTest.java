@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ScoreTest {
+class ScoreTest {
   private Directory directory;
 
   @BeforeEach

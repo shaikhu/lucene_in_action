@@ -13,8 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AnalyzerLanguageTest
-{
+class AnalyzerLanguageTest {
   @Test
   void testEnglish() throws Exception {
     Analyzer analyzer = new EnglishAnalyzer();

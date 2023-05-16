@@ -27,13 +27,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SynonymAnalyzerTest {
+class SynonymAnalyzerTest {
   private Directory directory;
 
   private SynonymAnalyzer analyzer;
 
   private IndexSearcher searcher;
-
 
   @BeforeEach
   void setUp() throws Exception {

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RegexQueryTest {
+class RegexQueryTest {
   @Test
   void testRegexQuery() throws Exception {
     try (Directory directory = TestUtil.getBookIndexDirectory()) {

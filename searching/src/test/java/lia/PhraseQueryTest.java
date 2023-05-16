@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PhraseQueryTest {
+class PhraseQueryTest {
   private Directory directory;
 
   private IndexSearcher searcher;

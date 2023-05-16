@@ -26,8 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SpanQueryTest
-{
+class SpanQueryTest {
   private ByteBuffersDirectory directory;
 
   private IndexSearcher searcher;

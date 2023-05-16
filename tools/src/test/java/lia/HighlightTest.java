@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HighlightTest
-{
+class HighlightTest {
   private static final List<String> FRAGMENTS = List.of(
       "Tapestry in <B>Action</B>",
       "Ant in <B>Action</B>",

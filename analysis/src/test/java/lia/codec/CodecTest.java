@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CodecTest {
+class CodecTest {
   private final Metaphone metaphoner = new Metaphone();
 
   @Test

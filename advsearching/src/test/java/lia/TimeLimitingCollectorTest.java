@@ -15,8 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TimeLimitingCollectorTest 
-{
+class TimeLimitingCollectorTest {
   @Test
   void testTimeLimitingCollector() throws Exception {
     Directory dir = TestUtil.getBookIndexDirectory();

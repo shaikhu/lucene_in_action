@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TermRangeQueryTest {
+class TermRangeQueryTest {
   @Test
   void testTermRangeQuery() throws Exception {
     try(Directory directory = TestUtil.getBookIndexDirectory()) {
