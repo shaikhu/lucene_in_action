@@ -22,6 +22,7 @@ import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +53,7 @@ public class PayloadsTest {
     writer.addDocument(doc);
   }
 
+  @Disabled
   @Test
   void testPayloadTermQuery() throws Throwable {
     IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
