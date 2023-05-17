@@ -29,7 +29,7 @@ public class CustomFlexibleQueryParser extends StandardQueryParser {
     }
 
     @Override
-    protected QueryNode postProcessNode(QueryNode node) throws QueryNodeException {
+    protected QueryNode postProcessNode(QueryNode node) {
       return node;
     }
 
