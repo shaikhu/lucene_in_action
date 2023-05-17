@@ -1,4 +1,4 @@
-package lia;
+package lia.common;
 
 import java.io.IOException;
 import java.io.StringReader;

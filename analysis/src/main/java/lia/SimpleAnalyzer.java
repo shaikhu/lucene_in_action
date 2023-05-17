@@ -2,6 +2,7 @@ package lia;
 
 import java.io.IOException;
 
+import lia.common.AnalyzerUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenStream;
