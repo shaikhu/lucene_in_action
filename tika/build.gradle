@@ -1,0 +1,16 @@
+plugins {
+  id 'lucene-in-action-config'
+}
+
+dependencies {
+  implementation group: 'commons-digester', name: 'commons-digester', version: '2.1'
+  implementation group: 'org.apache.tika', name: 'tika-core', version: '2.8.0'
+  implementation 'org.apache.tika:tika-parsers-standard-package:2.8.0'
+  implementation project(':meetlucene')
+}
+
+task(tikaIndexer, dependsOn: 'classes', type: JavaExec) {
+  mainClass = 'lia.TikaIndexer'
+  classpath = sourceSets.main.runtimeClasspath
+  args "${getRootDir()}/tikaIndex", "${getRootDir()}/tika/data"
+}

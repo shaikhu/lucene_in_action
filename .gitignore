@@ -10,4 +10,5 @@ build
 # lucene index
 index/*
 testIndex/*
+tikaIndex/*
 spellIndex/*

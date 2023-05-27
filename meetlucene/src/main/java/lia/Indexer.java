@@ -32,7 +32,7 @@ public class Indexer {
     this.dataDir = dataDir;
   }
 
-  public void index() throws IOException {
+  public void index(Predicate<Path> fileFilter) throws IOException {
     try (Directory directory = FSDirectory.open(Paths.get(indexDir));
          IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()))) {
       long start = System.currentTimeMillis();
@@ -41,7 +41,7 @@ public class Indexer {
             .filter(not(Files::isDirectory))
             .filter(Files::exists)
             .filter(Files::isReadable)
-            .filter(TEXT_FILE_FILTER)
+            .filter(fileFilter)
             .mapToInt(path -> indexFile(writer, path))
             .count();
 
@@ -57,12 +57,12 @@ public class Indexer {
       Document doc = getDocument(path);
       writer.addDocument(doc);
       return writer.getDocStats().numDocs;
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private Document getDocument(Path path) throws IOException {
+  protected Document getDocument(Path path) throws Exception {
     Document doc = new Document();
     doc.add(new TextField("contents", Files.newBufferedReader(path)));
     doc.add(new StringField("filename", path.getFileName().toString(), Store.YES));
@@ -74,6 +74,6 @@ public class Indexer {
     if (args.length != 2) {
       throw new IllegalArgumentException("Usage: java " + Indexer.class.getName() + " <index dir> <data dir>");
     }
-    new Indexer(args[0], args[1]).index();
+    new Indexer(args[0], args[1]).index(TEXT_FILE_FILTER);
   }
 }
