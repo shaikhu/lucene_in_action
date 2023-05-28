@@ -11,10 +11,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
@@ -31,6 +30,8 @@ import org.xml.sax.ContentHandler;
 
 
 public class TikaIndexer extends Indexer {
+  private static final Predicate<Path> ACCEPT_ALL_FILTER = path -> true;
+
   private boolean DEBUG = true;
 
   static Set<String> textualMetadataFields = new HashSet<>();
@@ -68,7 +69,7 @@ public class TikaIndexer extends Indexer {
 
     long start = new Date().getTime();
     TikaIndexer indexer = new TikaIndexer(indexDir, dataDir);
-    indexer.index(path -> true);
+    indexer.index(ACCEPT_ALL_FILTER);
     long end = new Date().getTime();
 
     System.out.println("Indexing took " + (end - start) + " milliseconds");
