@@ -24,8 +24,7 @@ public class HighlightIt
       documents that contain a single term.""";
 
   public static void main(String... args) throws Exception {
-    String filename = "results.html";
-
+    String filename = args.length > 0 ? args[0] : "results.html";
     String searchText = "term";
     QueryParser parser = new QueryParser("f", new StandardAnalyzer());
     Query query = parser.parse(searchText);
