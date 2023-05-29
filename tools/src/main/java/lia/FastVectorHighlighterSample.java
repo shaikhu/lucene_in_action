@@ -39,16 +39,9 @@ public class FastVectorHighlighterSample {
 
   private static final String FIELD = "f";
 
-  private static final String OUTPUT_FILE = "result.html";
-
   private static final Directory DIRECTORY = new ByteBuffersDirectory();
 
   private static final Analyzer ANALYZER = new StandardAnalyzer();
-
-  public static void main(String... args) throws Exception {
-    makeIndex();
-    searchIndex();
-  }
 
   private static void makeIndex() throws IOException {
     FieldType fieldType = new FieldType();
@@ -68,7 +61,7 @@ public class FastVectorHighlighterSample {
     writer.close();
   }
 
-  private static void searchIndex() throws Exception {
+  private static void searchIndex(String outputFile) throws Exception {
     QueryParser parser = new QueryParser(FIELD, ANALYZER);
     Query query = parser.parse(QUERY);
     FastVectorHighlighter highlighter = getHighlighter();
@@ -76,7 +69,7 @@ public class FastVectorHighlighterSample {
     IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(DIRECTORY));
     TopDocs docs = searcher.search(query, 10);
 
-    FileWriter writer = new FileWriter(OUTPUT_FILE);
+    FileWriter writer = new FileWriter(outputFile);
     writer.write("<html>");
     writer.write("<body>");
     writer.write("<p>QUERY : " + QUERY + "</p>");
@@ -96,5 +89,10 @@ public class FastVectorHighlighterSample {
             BaseFragmentsBuilder.COLORED_PRE_TAGS,
             BaseFragmentsBuilder.COLORED_POST_TAGS);
     return new FastVectorHighlighter(true, true, fragListBuilder, fragmentBuilder);
+  }
+
+  public static void main(String... args) throws Exception {
+    makeIndex();
+    searchIndex(args.length > 0 ? args[0] : "results.html");
   }
 }
