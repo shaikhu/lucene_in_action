@@ -48,7 +48,6 @@ class ScoreTest {
 
     Query query = new TermQuery(new Term("contents", "x"));
     Explanation explanation = searcher.explain(query, 0);
-    System.out.println(explanation);
 
     TopDocs matches = searcher.search(query, 10);
     assertThat(matches.totalHits.value).isOne();
