@@ -4,6 +4,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import javax.swing.*;
 
 import lia.SimpleAnalyzer;
 import org.apache.lucene.analysis.Analyzer;
@@ -36,20 +37,20 @@ public class ChineseDemo {
 
     String output = sb.toString();
 
-    Frame f = new Frame();
+    JFrame f = new JFrame();
     f.setTitle(analyzer.getClass().getSimpleName() + " : " + string);
     f.setResizable(true);
+    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     Font font = new Font(null, Font.PLAIN, 36);
     int width = getWidth(f.getFontMetrics(font), output);
 
     f.setSize((width < 250) ? 250 : width + 50, 75);
 
-    // NOTE: if Label doesn't render the Chinese characters
-    // properly, try using javax.swing.JLabel instead
-    Label label = new Label(output);   //D
+    JLabel label = new JLabel(output);
     label.setSize(width, 75);
-    label.setAlignment(Label.CENTER);
+    label.setAlignmentX(Label.CENTER_ALIGNMENT);
+    label.setAlignmentY(Label.CENTER_ALIGNMENT);
     label.setFont(font);
     f.add(label);
     f.setVisible(true);
