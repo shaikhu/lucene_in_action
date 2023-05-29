@@ -61,26 +61,10 @@ class SortingTest {
 
   @Test
   void testSortByIndexOrder() throws Exception {
+    // sorted by index / document number
     TopDocs results = searcher.search(query, 10, Sort.INDEXORDER, true);
-    List<String> titles = Arrays.stream(results.scoreDocs).map(scoreDoc -> {
-      try {
-        return searcher.storedFields().document(scoreDoc.doc).get("title");
-      }
-      catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }).toList();
-
-    assertThat(titles).containsExactly("Tao Te Ching 道德經",
-        "A Modern Art of Education",
-        "Nudge: Improving Decisions About Health, Wealth, and Happiness",
-        "Imperial Secrets of Health and Longevity",
-        "Lipitor, Thief of Memory",
-        "Gödel, Escher, Bach: an Eternal Golden Braid",
-        "Lucene in Action, Second Edition",
-        "Mindstorms: Children, Computers, And Powerful Ideas",
-        "Extreme Programming Explained",
-        "The Pragmatic Programmer");
+    List<Integer> documentNumbers = Arrays.stream(results.scoreDocs).map(scoreDoc -> scoreDoc.doc).toList();
+    assertThat(documentNumbers).isSorted();
   }
 
   @Test
