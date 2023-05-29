@@ -2,13 +2,15 @@ plugins {
     id 'lucene-in-action-config'
 }
 
-task(indexer, dependsOn: 'classes', type: JavaExec) {
+tasks.register('indexer', JavaExec) {
+    dependsOn 'classes'
     mainClass = 'lia.Indexer'
     classpath = sourceSets.main.runtimeClasspath
     args "${getRootDir()}/index", "${getRootDir()}/data"
 }
 
-task(searcher, dependsOn: 'classes', type: JavaExec) {
+tasks.register('searcher', JavaExec) {
+    dependsOn 'classes'
     mainClass = 'lia.Searcher'
     classpath = sourceSets.main.runtimeClasspath
     args "${getRootDir()}/index", 'patent'

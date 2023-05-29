@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-  testImplementation(project(':common'))
+  testImplementation project(':common')
 }

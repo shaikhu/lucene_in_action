@@ -9,7 +9,8 @@ dependencies {
   implementation project(':meetlucene')
 }
 
-task(tikaIndexer, dependsOn: 'classes', type: JavaExec) {
+tasks.register('tikaIndexer', JavaExec) {
+  dependsOn 'classes'
   mainClass = 'lia.TikaIndexer'
   classpath = sourceSets.main.runtimeClasspath
   args "${getRootDir()}/tikaIndex", "${getRootDir()}/tika/data"

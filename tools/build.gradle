@@ -9,13 +9,15 @@ dependencies {
   testImplementation project(':analysis')
 }
 
-task(createSpellCheckerIndex, dependsOn: ['classes', ':meetlucene:indexer'], type: JavaExec) {
+tasks.register('createSpellCheckerIndex', JavaExec) {
+  dependsOn['classes', ':meetlucene:indexer']
   mainClass = 'lia.CreateSpellCheckerIndex'
   classpath = sourceSets.main.runtimeClasspath
   args "${getRootDir()}/spellIndex", "${getRootDir()}/index/", "contents"
 }
 
-task(spellCheckerExample, dependsOn: 'classes', type: JavaExec) {
+tasks.register('spellCheckerExample', JavaExec) {
+  dependsOn 'classes'
   mainClass = 'lia.SpellCheckerExample'
   classpath = sourceSets.main.runtimeClasspath
   args "${getRootDir()}/spellIndex", "frie"
