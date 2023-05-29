@@ -94,7 +94,7 @@ public class CreateTestIndex
     return fieldType;
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String... args) throws IOException {
     String dataDir = args[0];
     String indexDir = args[1];
 
