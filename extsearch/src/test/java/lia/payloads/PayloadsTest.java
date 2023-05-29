@@ -22,7 +22,6 @@ import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +52,6 @@ class PayloadsTest {
     writer.addDocument(doc);
   }
 
-  @Disabled
   @Test
   void testPayloadTermQuery() throws Throwable {
     IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
@@ -75,6 +73,8 @@ class PayloadsTest {
 
     PayloadScoreQuery query2 = new PayloadScoreQuery(warning, new AveragePayloadFunction(), PayloadDecoder.FLOAT_DECODER);
     hits = searcher.search(query2, 10);
+
+    // this assertion is failing as the other docs aren't getting boosted using the payloadscorequery :(
     assertThat(searcher.storedFields().document(hits.scoreDocs[2].doc).get("title")).isEqualTo("Warning label maker");
   }
 }
