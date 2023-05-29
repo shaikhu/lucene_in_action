@@ -1,4 +1,4 @@
-# Lucene In Action
+# Source Code for Lucene In Action ![Build Status](https://github.com/shaikhu/lucene_in_action/actions/workflows/gradle.yml/badge.svg)
 
 Lucene in Action is an excellent book available [here](https://www.manning.com/books/lucene-in-action-second-edition)... however the code examples are outdated.
 
