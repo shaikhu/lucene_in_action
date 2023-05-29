@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-  implementation group: 'org.apache.lucene', name: 'lucene-benchmark', version: '9.5.0'
+  implementation group: 'org.apache.lucene', name: 'lucene-benchmark', version: luceneVersion
 }

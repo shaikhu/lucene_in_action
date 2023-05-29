@@ -3,10 +3,11 @@ plugins {
 }
 
 dependencies {
-  implementation group: 'commons-digester', name: 'commons-digester', version: '2.1'
-  implementation group: 'org.apache.tika', name: 'tika-core', version: '2.8.0'
-  implementation 'org.apache.tika:tika-parsers-standard-package:2.8.0'
   implementation project(':meetlucene')
+
+  implementation group: 'commons-digester', name: 'commons-digester', version: '2.1'
+  implementation group: 'org.apache.tika', name: 'tika-core', version: tikaVersion
+  implementation group: 'org.apache.tika', name: 'tika-parsers-standard-package', version: tikaVersion
 }
 
 tasks.register('tikaIndexer', JavaExec) {
