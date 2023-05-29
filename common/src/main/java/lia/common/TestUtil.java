@@ -1,8 +1,14 @@
 package lia.common;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -33,5 +39,18 @@ public class TestUtil
       }
     }
     return false;
+  }
+
+  public static List<String> getTokens(Analyzer analyzer, String input) throws Exception {
+    List<String> tokens = new ArrayList<>();
+    TokenStream stream = analyzer.tokenStream("field", new StringReader(input));
+    CharTermAttribute termAttr = stream.addAttribute(CharTermAttribute.class);
+    stream.reset();
+    while (stream.incrementToken()) {
+      tokens.add(termAttr.toString());
+    }
+    stream.end();
+    stream.close();
+    return tokens;
   }
 }
