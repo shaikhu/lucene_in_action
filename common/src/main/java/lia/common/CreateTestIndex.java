@@ -22,6 +22,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
@@ -102,7 +103,10 @@ public class CreateTestIndex
     System.out.println(results.size() + " books to index");
 
     Directory dir = FSDirectory.open(Paths.get(indexDir));
-    IndexWriter writer = new IndexWriter(dir, new IndexWriterConfig(new StandardAnalyzer()));
+    IndexWriterConfig indexWriterConfig = new IndexWriterConfig(new StandardAnalyzer());
+    indexWriterConfig.setOpenMode(OpenMode.CREATE);
+    IndexWriter writer = new IndexWriter(dir, indexWriterConfig);
+
     for (Path p : results) {
       Document doc = getDocument(dataDir, p);
       writer.addDocument(doc);

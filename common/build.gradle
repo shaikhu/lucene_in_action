@@ -3,12 +3,8 @@ plugins {
 }
 
 tasks.register('createTestIndex', JavaExec) {
-  dependsOn(['classes', 'deleteTestIndex'])
+  dependsOn 'classes'
   mainClass = 'lia.common.CreateTestIndex'
   classpath = sourceSets.main.runtimeClasspath
   args "${getRootDir()}/data", "${getRootDir()}/testIndex"
-}
-
-tasks.register('deleteTestIndex', Delete) {
-  delete files("${getRootDir()}/testIndex")
 }
