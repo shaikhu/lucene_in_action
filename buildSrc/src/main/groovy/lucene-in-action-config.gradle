@@ -11,9 +11,8 @@ repositories {
 
 test {
   useJUnitPlatform()
+  dependsOn(':common:createTestIndex')
 }
-
-test.dependsOn(':common:createTestIndex')
 
 dependencies {
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.9.1'
