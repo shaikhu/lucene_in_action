@@ -11,6 +11,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.payloads.AveragePayloadFunction;
+import org.apache.lucene.queries.payloads.MaxPayloadFunction;
 import org.apache.lucene.queries.payloads.PayloadDecoder;
 import org.apache.lucene.queries.payloads.PayloadScoreQuery;
 import org.apache.lucene.queries.spans.SpanQuery;
@@ -71,7 +72,7 @@ class PayloadsTest {
 
     assertThat(searcher.storedFields().document(hits.scoreDocs[0].doc).get("title")).isEqualTo("Warning label maker");
 
-    PayloadScoreQuery query2 = new PayloadScoreQuery(warning, new AveragePayloadFunction(), PayloadDecoder.FLOAT_DECODER);
+    PayloadScoreQuery query2 = new PayloadScoreQuery(warning, new MaxPayloadFunction(), PayloadDecoder.FLOAT_DECODER);
     hits = searcher.search(query2, 10);
 
     // this assertion is failing as the other docs aren't getting boosted using the payloadscorequery :(
