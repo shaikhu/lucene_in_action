@@ -5,11 +5,26 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 
 public class BulletinPayloadsAnalyzer extends Analyzer {
+  /* no reuse is not recommended due to performance
+   * however is needed to ensure BulletinPayloadsAnalyzer#createComponents
+   * sets bulletin correctly
+   */
+  private final static ReuseStrategy NO_REUSE = new ReuseStrategy() {
+    @Override
+    public TokenStreamComponents getReusableComponents(Analyzer analyzer, String fieldName) {
+      return null;
+    }
+
+    @Override
+    public void setReusableComponents(Analyzer analyzer, String fieldName, TokenStreamComponents components) {}
+  };
+
   private boolean bulletin;
 
   private float boost;
 
   BulletinPayloadsAnalyzer(float boost) {
+    super(NO_REUSE);
     this.boost = boost;
   }
 
