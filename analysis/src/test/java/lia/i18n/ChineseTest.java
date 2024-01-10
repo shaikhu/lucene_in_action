@@ -16,7 +16,7 @@ class ChineseTest {
   void testChinese() throws Exception {
     try (Directory dir = TestUtil.getBookIndexDirectory()) {
       IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(dir));
-      Query query = new TermQuery(new Term("contents", "道"));
+      Query query = new TermQuery(new Term("contents", "\u9053"));
       assertThat(TestUtil.hitCount(searcher, query)).isOne();
     }
   }

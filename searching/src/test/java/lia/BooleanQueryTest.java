@@ -65,6 +65,6 @@ class BooleanQueryTest {
     TopDocs matches = searcher.search(enlightenmentBooks, 100);
 
     assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Extreme Programming Explained")).isTrue();
-    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Tao Te Ching 道德經")).isTrue();
+    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Tao Te Ching \u9053\u5FB7\u7D93")).isTrue();
   }
 }
