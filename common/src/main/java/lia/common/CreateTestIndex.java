@@ -42,7 +42,7 @@ public class CreateTestIndex
     props.load(Files.newInputStream(path));
 
     Document doc = new Document();
-    String category = path.getParent().toString().substring(rootDir.length());
+    String category = path.getParent().toString().substring(rootDir.length()).replaceAll("\\\\", "/");
     String isbn = props.getProperty("isbn");
     String title = props.getProperty("title");
     String author = props.getProperty("author");
