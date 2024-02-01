@@ -9,5 +9,5 @@ application {
 
 dependencies {
   implementation project(':common')
-  implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
+  implementation 'commons-codec:commons-codec:1.15'
 }

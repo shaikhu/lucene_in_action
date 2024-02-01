@@ -5,9 +5,9 @@ plugins {
 dependencies {
   implementation project(':meetlucene')
 
-  implementation group: 'commons-digester', name: 'commons-digester', version: '2.1'
-  implementation group: 'org.apache.tika', name: 'tika-core', version: tikaVersion
-  implementation group: 'org.apache.tika', name: 'tika-parsers-standard-package', version: tikaVersion
+  implementation 'commons-digester:commons-digester:2.1'
+  implementation "org.apache.tika:tika-core:${tikaVersion}"
+  implementation "org.apache.tika:tika-parsers-standard-package:${tikaVersion}"
 }
 
 tasks.register('tikaIndexer', JavaExec) {

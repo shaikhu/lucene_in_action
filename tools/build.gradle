@@ -6,8 +6,8 @@ dependencies {
   testImplementation project(':analysis')
 
   implementation project(':common')
-  implementation group: 'org.apache.lucene', name: 'lucene-highlighter', version: luceneVersion
-  implementation group: 'org.apache.lucene', name: 'lucene-suggest', version: luceneVersion
+  implementation "org.apache.lucene:lucene-highlighter:${luceneVersion}"
+  implementation "org.apache.lucene:lucene-suggest:${luceneVersion}"
 }
 
 tasks.register('createSpellCheckerIndex', JavaExec) {

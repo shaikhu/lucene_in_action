@@ -1,5 +1,6 @@
 plugins {
   id 'java'
+  id 'jvm-test-suite'
 }
 
 java {
@@ -11,16 +12,23 @@ repositories {
   mavenCentral()
 }
 
-test {
-  useJUnitPlatform()
+testing {
+  suites {
+    test {
+      useJUnitJupiter()
+      dependencies {
+        implementation 'org.assertj:assertj-core:3.24.2'
+      }
+    }
+  }
+}
+
+tasks.named('test') {
   dependsOn(':common:createTestIndex')
 }
 
 dependencies {
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.9.1'
-  testImplementation group: 'org.assertj', name :'assertj-core', version: '3.24.2'
-
-  implementation group: 'org.apache.lucene', name:'lucene-core', version: luceneVersion
-  implementation group: 'org.apache.lucene', name:'lucene-queryparser', version: luceneVersion
-  implementation group: 'org.apache.lucene', name:'lucene-analyzers-common', version:'8.11.2'
+  implementation "org.apache.lucene:lucene-core:${luceneVersion}"
+  implementation "org.apache.lucene:lucene-queryparser:${luceneVersion}"
+  implementation 'org.apache.lucene:lucene-analyzers-common:8.11.2'
 }
