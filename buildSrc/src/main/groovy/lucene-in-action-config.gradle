@@ -4,8 +4,8 @@ plugins {
 }
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
+  sourceCompatibility = JavaVersion.VERSION_21
+  targetCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -30,5 +30,5 @@ tasks.named('test') {
 dependencies {
   implementation "org.apache.lucene:lucene-core:${luceneVersion}"
   implementation "org.apache.lucene:lucene-queryparser:${luceneVersion}"
-  implementation 'org.apache.lucene:lucene-analyzers-common:8.11.2'
+  implementation "org.apache.lucene:lucene-analysis-common:${luceneVersion}"
 }
