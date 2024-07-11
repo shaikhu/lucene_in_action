@@ -67,7 +67,7 @@ public class CreateTestIndex
     doc.add(new StringField("url", url, Store.YES));
     doc.add(new Field("subject", subject, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, true)));
 
-    doc.add(new LongField("pubmonth", Long.parseLong(pubmonth)));
+    doc.add(new LongField("pubmonth", Long.parseLong(pubmonth), Store.NO));
 
     Date date;
     try {
@@ -75,7 +75,7 @@ public class CreateTestIndex
     } catch (ParseException e) {
       throw new RuntimeException(e);
     }
-    doc.add(new LongField("pubmonthAsDay", date.getTime()/(1000*3600*24)));
+    doc.add(new LongField("pubmonthAsDay", date.getTime()/(1000*3600*24), Store.NO));
 
     for (String text : new String[] {title, subject, author , category}) {
       doc.add(new Field("contents", text, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, false, true)));
