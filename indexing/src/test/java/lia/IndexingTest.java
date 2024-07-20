@@ -1,6 +1,8 @@
 package lia;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import lia.common.TestUtil;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
@@ -25,13 +27,12 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class IndexingTest {
-  private static final String[] IDS = new String[] {"1", "2"};
+  record Data(String id, String country, String contents, String city) {}
 
-  private static final String[] UNINDEXED = new String[] {"Netherlands", "Italy"};
+  private static final List<Data> INDEX_DATA = Arrays.asList(
+    new Data("1", "Netherlands", "Amsterdam has lots of bridges", "Amsterdam"),
+    new Data("2", "Italy", "Venice has lots of canals", "Venice"));
 
-  private static final String[] UNSTORED = new String[] {"Amsterdam has lots of bridges", "Venice has lots of canals"};
-
-  private static final String[] TEXT = new String[] {"Amsterdam", "Venice"};
 
   private Directory directory;
 
@@ -40,12 +41,12 @@ class IndexingTest {
     directory = new ByteBuffersDirectory();
 
     try (IndexWriter writer = getWriter()) {
-      for (int i = 0; i < IDS.length; i++) {
+      for (Data data : INDEX_DATA) {
         Document doc = new Document();
-        doc.add(new StringField("id", IDS[i], Store.YES));
-        doc.add(new StringField("country", UNINDEXED[i], Store.YES));
-        doc.add(new TextField("contents", UNSTORED[i], Store.NO));
-        doc.add(new StringField("city", TEXT[i], Store.YES));
+        doc.add(new StringField("id", data.id, Store.YES));
+        doc.add(new StringField("country", data.country, Store.YES));
+        doc.add(new TextField("contents", data.contents, Store.NO));
+        doc.add(new StringField("city", data.city, Store.YES));
         writer.addDocument(doc);
       }
     }
@@ -59,15 +60,15 @@ class IndexingTest {
   @Test
   void testIndexWriter() throws IOException {
     try (IndexWriter writer = getWriter()) {
-      assertThat(writer.getDocStats().numDocs).isEqualTo(IDS.length);
+      assertThat(writer.getDocStats().numDocs).isEqualTo(INDEX_DATA.size());
     }
   }
 
   @Test
   void testIndexReader() throws IOException {
     try (DirectoryReader reader = DirectoryReader.open(directory)) {
-      assertThat(reader.maxDoc()).isEqualTo(IDS.length);
-      assertThat(reader.numDocs()).isEqualTo(IDS.length);
+      assertThat(reader.maxDoc()).isEqualTo(INDEX_DATA.size());
+      assertThat(reader.numDocs()).isEqualTo(INDEX_DATA.size());
     }
   }
 
@@ -76,10 +77,9 @@ class IndexingTest {
     try (IndexWriter writer = getWriter()) {
       assertThat(writer.getDocStats().numDocs).isEqualTo(2);
       writer.deleteDocuments(new Term("id", "1"));
-      writer.commit();
       assertThat(writer.hasDeletions()).isTrue();
-
       assertThat(writer.getDocStats().maxDoc).isEqualTo(2);
+      writer.commit();
       assertThat(writer.getDocStats().numDocs).isOne();
     }
   }
