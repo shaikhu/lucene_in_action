@@ -1,13 +1,32 @@
 plugins {
   id 'lucene-in-action-config'
-  id 'application'
-}
-
-application {
-  mainClass = 'lia.AnalyzerDemo'
 }
 
 dependencies {
   implementation project(':common')
   implementation 'commons-codec:commons-codec:1.15'
+}
+
+tasks.register('analyzerDemo', JavaExec) {
+  dependsOn 'classes'
+  mainClass = 'lia.AnalyzerDemo'
+  classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('simpleAnalyzer', JavaExec) {
+  dependsOn 'classes'
+  mainClass = 'lia.SimpleAnalyzer'
+  classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register("synonymAnalyzerViewer", JavaExec) {
+  dependsOn 'classes'
+  mainClass = 'lia.synonym.SynonymAnalyzerViewer'
+  classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register("chineseDemo", JavaExec) {
+  dependsOn 'classes'
+  mainClass = 'lia.i18n.ChineseDemo'
+  classpath = sourceSets.main.runtimeClasspath
 }

@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class IndexingTest {
   record Data(String id, String country, String contents, String city) {}
 
-  private static final List<Data> INDEX_DATA = Arrays.asList(
+  private static final List<Data> INDEX_DATA = List.of(
     new Data("1", "Netherlands", "Amsterdam has lots of bridges", "Amsterdam"),
     new Data("2", "Italy", "Venice has lots of canals", "Venice"));
 

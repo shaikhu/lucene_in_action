@@ -31,7 +31,7 @@ public final class SynonymFilter extends TokenFilter {
 
   @Override
   public boolean incrementToken() throws IOException {
-    if (synonymStack.size() > 0) {
+    if (!synonymStack.isEmpty()) {
       String syn = synonymStack.pop();
       restoreState(current);
       termAtt.setEmpty();
