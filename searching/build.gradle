@@ -9,7 +9,8 @@ dependencies {
 tasks.register('explainer', JavaExec) {
   mainClass = 'lia.Explainer'
   classpath = sourceSets.main.runtimeClasspath
-  args "${getRootDir()}/testIndex", "junit"
+  args "${getRootDir()}/testIndex", project.hasProperty("query") ? project.getProperties().get("query") : 'junit'
+
 }
 
 explainer.dependsOn(['classes', ':common:createTestIndex'])
