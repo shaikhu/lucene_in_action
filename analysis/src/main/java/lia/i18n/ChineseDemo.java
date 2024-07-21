@@ -16,7 +16,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 public class ChineseDemo {
-  private static final List<String> TEXT = List.of("\u9053\u5FB7\u7D93");
+  private static final List<String> TEXT = List.of("道德經");
 
   private static final List<Analyzer> ANALYSERS = List.of(
       new SimpleAnalyzer(),
