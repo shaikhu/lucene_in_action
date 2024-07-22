@@ -39,13 +39,13 @@ class MultiPhraseQueryTest {
   void setUp() throws Exception {
     directory = new ByteBuffersDirectory();
     IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()));
-    Document doc1 = new Document();
-    doc1.add(new TextField("field", "the quick brown fox jumped over the lazy dog", Store.YES));
-    writer.addDocument(doc1);
+    Document doc = new Document();
+    doc.add(new TextField("field", "the quick brown fox jumped over the lazy dog", Store.YES));
+    writer.addDocument(doc);
 
-    Document doc2 = new Document();
-    doc2.add(new TextField("field", "the fast fox hopped over the hound", Store.YES));
-    writer.addDocument(doc2);
+    doc = new Document();
+    doc.add(new TextField("field", "the fast fox hopped over the hound", Store.YES));
+    writer.addDocument(doc);
     writer.close();
 
     searcher = new IndexSearcher(DirectoryReader.open(directory));

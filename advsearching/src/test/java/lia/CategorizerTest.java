@@ -55,12 +55,7 @@ class CategorizerTest {
 
     int sumTotalTermFreq =  Long.valueOf(terms.getSumTotalTermFreq()).intValue();
     for (String subjectTerm : subjectTerms) {
-      if (vectorMap.containsKey(subjectTerm)) {
-        Integer value = vectorMap.get(subjectTerm);
-        vectorMap.put(subjectTerm, value + sumTotalTermFreq);
-      } else {
-        vectorMap.put(subjectTerm, sumTotalTermFreq);
-      }
+      vectorMap.merge(subjectTerm, sumTotalTermFreq, Integer::sum);
     }
   }
 
@@ -86,24 +81,15 @@ class CategorizerTest {
     int dotProduct = 0;
     int sumOfSquares = 0;
     for (String word : words) {
-      int categoryWordFreq = 0;
-      if (vectorMap.containsKey(word)) {
-        categoryWordFreq = vectorMap.get(word);
-      }
+      int categoryWordFreq = vectorMap.getOrDefault(word, 0);
       dotProduct += categoryWordFreq;
       sumOfSquares += categoryWordFreq * categoryWordFreq;
     }
 
-    double denominator;
-    if (sumOfSquares == words.length) {
-      denominator = sumOfSquares;
-    } else {
-      denominator = Math.sqrt(sumOfSquares) * Math.sqrt(words.length);
-    }
+    double denominator = sumOfSquares == words.length ? sumOfSquares : Math.sqrt(sumOfSquares) * Math.sqrt(words.length);
     double ratio = dotProduct / denominator;
     return Math.acos(ratio);
   }
-
 
   @Test
   void testCategorization() {
