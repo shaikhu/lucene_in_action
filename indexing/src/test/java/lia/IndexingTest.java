@@ -1,7 +1,6 @@
 package lia;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import lia.common.TestUtil;
@@ -77,9 +76,10 @@ class IndexingTest {
     try (IndexWriter writer = getWriter()) {
       assertThat(writer.getDocStats().numDocs).isEqualTo(2);
       writer.deleteDocuments(new Term("id", "1"));
-      assertThat(writer.hasDeletions()).isTrue();
-      assertThat(writer.getDocStats().maxDoc).isEqualTo(2);
       writer.commit();
+      assertThat(writer.hasDeletions()).isTrue();
+
+      assertThat(writer.getDocStats().maxDoc).isEqualTo(2);
       assertThat(writer.getDocStats().numDocs).isOne();
     }
   }
