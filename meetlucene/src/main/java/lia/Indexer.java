@@ -33,20 +33,21 @@ public class Indexer {
   }
 
   public void index(Predicate<Path> fileFilter) throws IOException {
-    try (Directory directory = FSDirectory.open(Paths.get(indexDir));
-         IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()))) {
-      long start = System.currentTimeMillis();
-      try (Stream<Path> files = Files.list(Paths.get(dataDir))) {
-        long numIndexed = files
+    try (var directory = FSDirectory.open(Paths.get(indexDir));
+         var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()))) {
+
+      var startTime = System.currentTimeMillis();
+      try (var files = Files.list(Paths.get(dataDir))) {
+        var numFilesIndexed = files
             .filter(not(Files::isDirectory))
             .filter(Files::exists)
             .filter(Files::isReadable)
             .filter(fileFilter)
-            .mapToInt(path -> indexFile(writer, path))
+            .mapToInt(path -> indexFile(indexWriter, path))
             .count();
 
-        long end = System.currentTimeMillis();
-        System.out.println("Indexing " + numIndexed + " files took " + (end - start) + " milliseconds");
+        var endTime = System.currentTimeMillis();
+        System.out.println("Indexing " + numFilesIndexed + " files took " + (endTime - startTime) + " milliseconds");
       }
     }
   }
@@ -54,8 +55,7 @@ public class Indexer {
   private int indexFile(IndexWriter writer, Path path){
     System.out.println("Indexing " + path.toString());
     try {
-      Document doc = getDocument(path);
-      writer.addDocument(doc);
+      writer.addDocument(getDocument(path));
       return writer.getDocStats().numDocs;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -63,11 +63,11 @@ public class Indexer {
   }
 
   protected Document getDocument(Path path) throws Exception {
-    Document doc = new Document();
-    doc.add(new TextField("contents", Files.newBufferedReader(path)));
-    doc.add(new StringField("filename", path.getFileName().toString(), Store.YES));
-    doc.add(new StringField("fullpath", path.toString(), Store.YES));
-    return doc;
+    var document = new Document();
+    document.add(new TextField("contents", Files.newBufferedReader(path)));
+    document.add(new StringField("filename", path.getFileName().toString(), Store.YES));
+    document.add(new StringField("fullpath", path.toString(), Store.YES));
+    return document;
   }
 
   public static void main(String... args) throws IOException {
