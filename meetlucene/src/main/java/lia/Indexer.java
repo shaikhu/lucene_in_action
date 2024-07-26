@@ -45,7 +45,7 @@ public class Indexer {
             .count();
 
         var endTime = System.currentTimeMillis();
-        System.out.printf("Indexing %d files too %d milliseconds%n", numFilesIndexed, endTime - startTime);
+        System.out.printf("Indexing %d files took %d milliseconds%n", numFilesIndexed, endTime - startTime);
       }
     }
   }
