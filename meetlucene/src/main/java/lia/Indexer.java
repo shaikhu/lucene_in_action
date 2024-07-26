@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -14,7 +13,6 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 import static java.util.function.Predicate.not;
@@ -23,21 +21,21 @@ public class Indexer {
   private static final Predicate<Path> TEXT_FILE_FILTER =
       path -> path.getFileName().toString().toLowerCase().endsWith(".txt");
 
-  private final String indexDir;
+  private final String indexDirectory;
 
-  private final String dataDir;
+  private final String dataDirectory;
 
-  public Indexer(String indexDir, String dataDir) {
-    this.indexDir = indexDir;
-    this.dataDir = dataDir;
+  public Indexer(String indexDirectory, String dataDirectory) {
+    this.indexDirectory = indexDirectory;
+    this.dataDirectory = dataDirectory;
   }
 
   public void index(Predicate<Path> fileFilter) throws IOException {
-    try (var directory = FSDirectory.open(Paths.get(indexDir));
+    try (var directory = FSDirectory.open(Paths.get(indexDirectory));
          var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()))) {
 
       var startTime = System.currentTimeMillis();
-      try (var files = Files.list(Paths.get(dataDir))) {
+      try (var files = Files.list(Paths.get(dataDirectory))) {
         var numFilesIndexed = files
             .filter(not(Files::isDirectory))
             .filter(Files::exists)
@@ -47,7 +45,7 @@ public class Indexer {
             .count();
 
         var endTime = System.currentTimeMillis();
-        System.out.println("Indexing " + numFilesIndexed + " files took " + (endTime - startTime) + " milliseconds");
+        System.out.printf("Indexing %d files too %d milliseconds%n", numFilesIndexed, endTime - startTime);
       }
     }
   }
@@ -55,14 +53,14 @@ public class Indexer {
   private int indexFile(IndexWriter writer, Path path){
     System.out.println("Indexing " + path.toString());
     try {
-      writer.addDocument(getDocument(path));
+      writer.addDocument(createDocument(path));
       return writer.getDocStats().numDocs;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected Document getDocument(Path path) throws Exception {
+  protected Document createDocument(Path path) throws Exception {
     var document = new Document();
     document.add(new TextField("contents", Files.newBufferedReader(path)));
     document.add(new StringField("filename", path.getFileName().toString(), Store.YES));

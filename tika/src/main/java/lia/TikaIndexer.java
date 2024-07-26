@@ -80,7 +80,7 @@ public class TikaIndexer extends Indexer {
   }
 
   @Override
-  protected Document getDocument(Path path) throws Exception {
+  protected Document createDocument(Path path) throws Exception {
     Metadata metadata = new Metadata();
     metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, path.getFileName().toString());
 
