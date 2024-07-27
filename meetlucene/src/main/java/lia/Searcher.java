@@ -19,7 +19,7 @@ public class Searcher {
       var topDocs = indexSearcher.search(query, 10);
       var endTime = System.currentTimeMillis();
 
-      System.out.println("Found " + topDocs.totalHits.value + " document(s) (in " + (endTime - startTime) + " milliseconds) that matched query '" + searchTerm + "':");
+      System.out.printf("Found %d document(s) (in %d milliseconds) that matched query '%s':%n", topDocs.totalHits.value, endTime - startTime, searchTerm);
       for (var scoreDoc : topDocs.scoreDocs) {
         var document = indexSearcher.storedFields().document(scoreDoc.doc);
         System.out.println(document.get("fullpath"));
