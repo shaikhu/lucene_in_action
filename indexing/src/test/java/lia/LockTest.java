@@ -16,25 +16,25 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class LockTest {
-  private Directory dir;
+  private Directory directory;
 
   @BeforeEach
   void setup() throws IOException {
-    String indexDir = System.getProperty("java.io.tmpdir", "tmp") + System.getProperty("file.separator") + "index";
-    dir = FSDirectory.open(Paths.get(indexDir));
+    String indexDirectory = System.getProperty("java.io.tmpdir", "tmp") + System.getProperty("file.separator") + "index";
+    directory = FSDirectory.open(Paths.get(indexDirectory));
   }
 
   @AfterEach
   void tearDown() throws Exception {
-    dir.close();
+    directory.close();
   }
 
   @Test
   void testWriteLock() throws IOException {
-    try (IndexWriter writer = new IndexWriter(dir, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
+    try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
 
       assertThatExceptionOfType(LockObtainFailedException.class)
-          .isThrownBy(() -> new IndexWriter(dir, new IndexWriterConfig(new WhitespaceAnalyzer())));
+          .isThrownBy(() -> new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer())));
     }
   }
 }
