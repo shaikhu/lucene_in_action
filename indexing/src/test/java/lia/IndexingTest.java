@@ -20,7 +20,6 @@ import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,8 +38,8 @@ class IndexingTest {
   void setup() throws Exception {
     directory = new ByteBuffersDirectory();
 
-    try (IndexWriter indexWriter = getIndexWriter()) {
-      for (Data data : INDEX_DATA) {
+    try (var indexWriter = getIndexWriter()) {
+      for (var data : INDEX_DATA) {
         var document = new Document();
         document.add(new StringField("id", data.id, Store.YES));
         document.add(new StringField("country", data.country, Store.YES));
@@ -72,15 +71,14 @@ class IndexingTest {
   }
 
   @Test
-  @Disabled
   void testDelete() throws IOException {
     try (var indexWriter = getIndexWriter()) {
       assertThat(indexWriter.getDocStats().numDocs).isEqualTo(2);
       indexWriter.deleteDocuments(new Term("id", "1"));
-      indexWriter.commit();
       assertThat(indexWriter.hasDeletions()).isTrue();
-
-      assertThat(indexWriter.getDocStats().maxDoc).isEqualTo(2);
+      indexWriter.commit(); // forces lucene to merge index segments after deleting the document
+      assertThat(indexWriter.hasDeletions()).isFalse();
+      assertThat(indexWriter.getDocStats().maxDoc).isOne();
       assertThat(indexWriter.getDocStats().numDocs).isOne();
     }
   }
