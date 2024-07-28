@@ -46,25 +46,25 @@ class FilteringTest {
 
   private Directory directory;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setup() throws Exception {
     directory = new ByteBuffersDirectory();
 
-    LocalDateTime date = START_DATE;
-    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()));
-    for (int i=0; i< MAX; i++) {
-      Document doc = new Document();
-      doc.add(new StringField("key", String.valueOf(i + 1), Store.YES));
-      doc.add(new StringField("owner", (i < MAX / 2) ? "bob" : "sue", Store.YES));
-      doc.add(new StringField("date", DateTools.timeToString(date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(), Resolution.DAY), Store.YES));
-      writer.addDocument(doc);
-      date = date.plusDays(1);
+    var date = START_DATE;
+    try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
+      for (var i = 0; i < MAX; i++) {
+        var doc = new Document();
+        doc.add(new StringField("key", String.valueOf(i + 1), Store.YES));
+        doc.add(new StringField("owner", (i < MAX / 2) ? "bob" : "sue", Store.YES));
+        doc.add(new StringField("date", DateTools.timeToString(date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(), Resolution.DAY), Store.YES));
+        indexWriter.addDocument(doc);
+        date = date.plusDays(1);
+      }
     }
-    writer.close();
 
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -74,40 +74,40 @@ class FilteringTest {
 
   @Test
   void testOr() throws Exception {
-    Query query = new BooleanQuery.Builder()
+    var query = new BooleanQuery.Builder()
         .add(SUE_TERM_QUERY, Occur.SHOULD)
         .add(BOB_TERM_QUERY, Occur.SHOULD)
         .build();
 
-    TopDocs hits = searcher.search(query, 10);
-    assertThat(hits.totalHits.value).isEqualTo(MAX);
+    var topDocs = indexSearcher.search(query, 10);
+    assertThat(topDocs.totalHits.value).isEqualTo(MAX);
   }
 
   @Test
   void testAnd() throws Exception {
-    Query query = new BooleanQuery.Builder()
+    var query = new BooleanQuery.Builder()
         .add(DATE_QUERY, Occur.MUST)
         .add(BOB_TERM_QUERY, Occur.MUST)
         .build();
 
-    TopDocs hits = searcher.search(query, 10);
-    assertThat(hits.totalHits.value).isEqualTo(MAX / 2);
-    assertThat(hits.scoreDocs)
-        .extracting(scoreDoc -> searcher.storedFields().document(scoreDoc.doc).get("owner"))
+    var topDocs = indexSearcher.search(query, 10);
+    assertThat(topDocs.totalHits.value).isEqualTo(MAX / 2);
+    assertThat(topDocs.scoreDocs)
+        .extracting(scoreDoc -> indexSearcher.storedFields().document(scoreDoc.doc).get("owner"))
         .containsOnly("bob");
   }
 
   @Test
   void testAndNot() throws Exception {
-    Query query = new BooleanQuery.Builder()
+    var query = new BooleanQuery.Builder()
         .add(DATE_QUERY, Occur.MUST)
         .add(BOB_TERM_QUERY, Occur.MUST_NOT)
         .build();
 
-    TopDocs hits = searcher.search(query, 10);
-    assertThat(hits.totalHits.value).isEqualTo(MAX / 2);
-    assertThat(hits.scoreDocs)
-        .extracting(scoreDoc -> searcher.storedFields().document(scoreDoc.doc).get("owner"))
+    var topDocs = indexSearcher.search(query, 10);
+    assertThat(topDocs.totalHits.value).isEqualTo(MAX / 2);
+    assertThat(topDocs.scoreDocs)
+        .extracting(scoreDoc -> indexSearcher.storedFields().document(scoreDoc.doc).get("owner"))
         .containsOnly("sue");
   }
 }
