@@ -5,10 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Stream;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.DateTools;
@@ -23,69 +21,65 @@ import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 
 public class CreateTestIndex
 {
-  private static List<Path> findFiles(Path dir) throws IOException {
-    try (Stream<Path> fileStream = Files.walk(dir)) {
+  private static List<Path> listFiles(Path directory) throws IOException {
+    try (var fileStream = Files.walk(directory)) {
       return fileStream
           .filter(path -> path.getFileName().toString().endsWith("properties"))
           .toList();
     }
   }
 
-  private static Document getDocument(String rootDir, Path path) throws IOException {
-    Properties props = new Properties();
+  private static Document createDocument(String rootDirectory, Path path) throws IOException {
+    var props = new Properties();
     props.load(Files.newInputStream(path));
 
-    Document doc = new Document();
-    String category = path.getParent().toString().substring(rootDir.length()).replaceAll("\\\\", "/");
-    String isbn = props.getProperty("isbn");
-    String title = props.getProperty("title");
-    String author = props.getProperty("author");
-    String url = props.getProperty("url");
-    String subject = props.getProperty("subject");
-    String pubmonth = props.getProperty("pubmonth");
+    var document = new Document();
+    var category = path.getParent().toString().substring(rootDirectory.length()).replaceAll("\\\\", "/");
+    var isbn = props.getProperty("isbn");
+    var title = props.getProperty("title");
+    var authors = props.getProperty("author");
+    var url = props.getProperty("url");
+    var subject = props.getProperty("subject");
+    var pubmonth = props.getProperty("pubmonth");
 
-    System.out.println(title + "\n" + author + "\n" + subject + "\n" + pubmonth + "\n" + category + "\n---------");
+    System.out.println(title + "\n" + authors + "\n" + subject + "\n" + pubmonth + "\n" + category + "\n---------");
 
-    doc.add(new StringField("isbn", isbn, Store.YES));
-    doc.add(new SortedDocValuesField("category", new BytesRef(category)));
-    doc.add(new StringField("category", category, Store.YES));
+    document.add(new StringField("isbn", isbn, Store.YES));
+    document.add(new SortedDocValuesField("category", new BytesRef(category)));
+    document.add(new StringField("category", category, Store.YES));
 
-    doc.add(new Field("title", title, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, true)));
-    doc.add(new Field("title2", title.toLowerCase(), createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, false)));
+    document.add(new Field("title", title, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, true)));
+    document.add(new Field("title2", title.toLowerCase(), createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, false)));
 
-    String[] authors = author.split(",");
-    for (String a : authors) {
-      doc.add(new Field("author", a, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, false)));
+    for (var author : authors.split(",")) {
+      document.add(new Field("author", author, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, false)));
     }
 
-    doc.add(new StringField("url", url, Store.YES));
-    doc.add(new Field("subject", subject, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, true)));
+    document.add(new StringField("url", url, Store.YES));
+    document.add(new Field("subject", subject, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, true)));
+    document.add(new LongField("pubmonth", Long.parseLong(pubmonth), Store.NO));
 
-    doc.add(new LongField("pubmonth", Long.parseLong(pubmonth), Store.NO));
-
-    Date date;
     try {
-      date = DateTools.stringToDate(pubmonth);
+      var date = DateTools.stringToDate(pubmonth);
+      document.add(new LongField("pubmonthAsDay", date.getTime()/(1000*3600*24), Store.NO));
     } catch (ParseException e) {
       throw new RuntimeException(e);
     }
-    doc.add(new LongField("pubmonthAsDay", date.getTime()/(1000*3600*24), Store.NO));
 
-    for (String text : new String[] {title, subject, author , category}) {
-      doc.add(new Field("contents", text, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, false, true)));
+    for (String text : List.of(title, subject, authors , category)) {
+      document.add(new Field("contents", text, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, false, true)));
     }
 
-    return doc;
+    return document;
   }
 
   private static FieldType createFieldType(IndexOptions indexOptions, boolean stored, boolean tokenized) {
-    FieldType fieldType = new FieldType();
+    var fieldType = new FieldType();
     fieldType.setIndexOptions(indexOptions);
     fieldType.setStored(stored);
     fieldType.setTokenized(tokenized);
@@ -96,22 +90,20 @@ public class CreateTestIndex
   }
 
   public static void main(String... args) throws IOException {
-    String dataDir = args[0];
-    String indexDir = args[1];
+    var dataDirectory = args[0];
+    var indexDirectory = args[1];
 
-    List<Path> results = findFiles(Paths.get(dataDir));
-    System.out.println(results.size() + " books to index");
+    var files = listFiles(Paths.get(dataDirectory));
+    System.out.println(files.size() + " books to index");
 
-    Directory dir = FSDirectory.open(Paths.get(indexDir));
-    IndexWriterConfig indexWriterConfig = new IndexWriterConfig(new StandardAnalyzer());
+    var indexWriterConfig = new IndexWriterConfig(new StandardAnalyzer());
     indexWriterConfig.setOpenMode(OpenMode.CREATE);
-    IndexWriter writer = new IndexWriter(dir, indexWriterConfig);
 
-    for (Path p : results) {
-      Document doc = getDocument(dataDir, p);
-      writer.addDocument(doc);
+    try (var directory = FSDirectory.open(Paths.get(indexDirectory));
+         var indexWriter = new IndexWriter(directory, indexWriterConfig)) {
+      for (var file : files) {
+        indexWriter.addDocument(createDocument(dataDirectory, file));
+      }
     }
-    writer.close();
-    dir.close();
   }
 }

@@ -26,48 +26,46 @@ public class AnalyzerUtils {
   }
 
   public static void displayTokensWithFullDetails(Analyzer analyzer, String text) throws IOException {
-    TokenStream stream = analyzer.tokenStream("contents", new StringReader(text));
+    TokenStream tokenStream = analyzer.tokenStream("contents", new StringReader(text));
 
-    CharTermAttribute term = stream.addAttribute(CharTermAttribute.class);
-    PositionIncrementAttribute posIncr = stream.addAttribute(PositionIncrementAttribute.class);
-    OffsetAttribute offset = stream.addAttribute(OffsetAttribute.class);
-    TypeAttribute type = stream.addAttribute(TypeAttribute.class);
+    CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
+    PositionIncrementAttribute positionIncrement = tokenStream.addAttribute(PositionIncrementAttribute.class);
+    OffsetAttribute offset = tokenStream.addAttribute(OffsetAttribute.class);
+    TypeAttribute type = tokenStream.addAttribute(TypeAttribute.class);
 
-    int position = 0;
-    stream.reset();
-    while(stream.incrementToken()) {
-      int increment = posIncr.getPositionIncrement();
-      if (increment > 0) {
-        position = position + increment;
+    var position = 0;
+    tokenStream.reset();
+    while(tokenStream.incrementToken()) {
+      if (positionIncrement.getPositionIncrement() > 0) {
+        position += positionIncrement.getPositionIncrement();
         System.out.println();
         System.out.print(position + ": ");
       }
 
       System.out.print("[" + term.toString() + ":" + offset.startOffset() + "->" + offset.endOffset() + ":" + type.type() + "] ");
     }
-    stream.end();
-    stream.close();
+    tokenStream.end();
+    tokenStream.close();
     System.out.println();
   }
 
   public static void displayTokensWithPositions(Analyzer analyzer, String text) throws IOException {
-    TokenStream stream = analyzer.tokenStream("contents", new StringReader(text));
-    CharTermAttribute term = stream.addAttribute(CharTermAttribute.class);
-    PositionIncrementAttribute posIncr = stream.addAttribute(PositionIncrementAttribute.class);
+    TokenStream tokenStream = analyzer.tokenStream("contents", new StringReader(text));
+    CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
+    PositionIncrementAttribute positionIncrement = tokenStream.addAttribute(PositionIncrementAttribute.class);
 
-    int position = 0;
-    stream.reset();
-    while(stream.incrementToken()) {
-      int increment = posIncr.getPositionIncrement();
-      if (increment > 0) {
-        position = position + increment;
+    var position = 0;
+    tokenStream.reset();
+    while(tokenStream.incrementToken()) {
+      if (positionIncrement.getPositionIncrement() > 0) {
+        position += positionIncrement.getPositionIncrement();
         System.out.println();
         System.out.print(position + ": ");
       }
       System.out.print("[" + term.toString() + "] ");
     }
-    stream.end();
-    stream.close();
+    tokenStream.end();
+    tokenStream.close();
     System.out.println();
   }
 }
