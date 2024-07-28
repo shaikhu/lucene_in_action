@@ -13,5 +13,5 @@ tasks.register('searcher', JavaExec) {
     dependsOn 'classes'
     mainClass = 'lia.Searcher'
     classpath = sourceSets.main.runtimeClasspath
-    args "${getRootDir()}/index", 'patent'
+    args "${getRootDir()}/index", project.hasProperty("query") ? project.getProperties().get("query") : 'patent'
 }

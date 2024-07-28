@@ -1,6 +1,5 @@
 package lia.keyword;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import lia.SimpleAnalyzer;
@@ -68,8 +67,7 @@ class KeywordAnalyzerTest {
 
   @Test
   void testPerFieldAnalyzer() throws Exception {
-    Map<String, Analyzer> fieldAnalyzers = new HashMap<>();
-    fieldAnalyzers.put("partnum", new KeywordAnalyzer());
+    Map<String, Analyzer> fieldAnalyzers = Map.of("partnum", new KeywordAnalyzer());
     PerFieldAnalyzerWrapper analyzer = new PerFieldAnalyzerWrapper(new SimpleAnalyzer(), fieldAnalyzers);
     Query query = new QueryParser("description", analyzer).parse("partnum:Q36 AND SPACE");
 

@@ -47,7 +47,6 @@ class ScoreTest {
     searcher.setSimilarity(new SimpleSimilarity());
 
     Query query = new TermQuery(new Term("contents", "x"));
-    Explanation explanation = searcher.explain(query, 0);
 
     TopDocs matches = searcher.search(query, 10);
     assertThat(matches.totalHits.value).isOne();

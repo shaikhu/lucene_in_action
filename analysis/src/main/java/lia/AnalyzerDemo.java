@@ -13,11 +13,11 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 public class AnalyzerDemo {
-  private static final List<String> EXAMPLES = Arrays.asList(
+  private static final List<String> EXAMPLES = List.of(
       "The quick brown fox jumped over the lazy dog",
       "XY&Z Corporation - xyz@example.com");
 
-  public static final List<Analyzer> ANALYZERS = Arrays.asList(
+  public static final List<Analyzer> ANALYZERS = List.of(
       new WhitespaceAnalyzer(),
       new SimpleAnalyzer(),
       new StopAnalyzer(EnglishAnalyzer.ENGLISH_STOP_WORDS_SET),

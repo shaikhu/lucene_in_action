@@ -1,10 +1,12 @@
 package lia.i18n;
 
-import java.awt.*;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import lia.SimpleAnalyzer;
 import org.apache.lucene.analysis.Analyzer;
@@ -14,7 +16,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 public class ChineseDemo {
-  private static final List<String> TEXT = List.of("\u9053\u5FB7\u7D93");
+  private static final List<String> TEXT = List.of("道德經");
 
   private static final List<Analyzer> ANALYSERS = List.of(
       new SimpleAnalyzer(),
@@ -49,8 +51,8 @@ public class ChineseDemo {
 
     JLabel label = new JLabel(output);
     label.setSize(width, 75);
-    label.setAlignmentX(Label.CENTER_ALIGNMENT);
-    label.setAlignmentY(Label.CENTER_ALIGNMENT);
+    label.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+    label.setAlignmentY(JLabel.CENTER_ALIGNMENT);
     label.setFont(font);
     f.add(label);
     f.setVisible(true);
