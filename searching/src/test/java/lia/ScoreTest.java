@@ -9,12 +9,9 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.similarities.BasicStats;
 import org.apache.lucene.search.similarities.SimilarityBase;
@@ -43,14 +40,14 @@ class ScoreTest {
   void testSimple() throws Exception {
     indexSingleFieldDocs(new TextField("contents", "x", Store.YES));
 
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
-    searcher.setSimilarity(new SimpleSimilarity());
+    var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher.setSimilarity(new SimpleSimilarity());
 
-    Query query = new TermQuery(new Term("contents", "x"));
+    var query = new TermQuery(new Term("contents", "x"));
 
-    TopDocs matches = searcher.search(query, 10);
-    assertThat(matches.totalHits.value).isOne();
-    assertThat(matches.scoreDocs[0].score).isEqualTo(0);
+    var topDocs = indexSearcher.search(query, 10);
+    assertThat(topDocs.totalHits.value).isOne();
+    assertThat(topDocs.scoreDocs[0].score).isEqualTo(0);
   }
 
   @Test
@@ -61,42 +58,41 @@ class ScoreTest {
         new TextField("contents", "mild", Store.YES),
         new TextField("contents", "mildew", Store.YES));
 
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
-    Query query = new WildcardQuery(new Term("contents", "?ild*"));
-    TopDocs matches = searcher.search(query, 10);
+    var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
+    var query = new WildcardQuery(new Term("contents", "?ild*"));
+    var topDocs = indexSearcher.search(query, 10);
 
-    assertThat(matches.totalHits.value).isEqualTo(3);
-    assertThat(matches.scoreDocs[0].score).isEqualTo(matches.scoreDocs[1].score);
-    assertThat(matches.scoreDocs[1].score).isEqualTo(matches.scoreDocs[2].score);
+    assertThat(topDocs.totalHits.value).isEqualTo(3);
+    assertThat(topDocs.scoreDocs[0].score).isEqualTo(topDocs.scoreDocs[1].score);
+    assertThat(topDocs.scoreDocs[1].score).isEqualTo(topDocs.scoreDocs[2].score);
   }
 
   @Test
   void testFuzzy() throws Exception {
     indexSingleFieldDocs(new TextField("contents", "fuzzy", Store.YES), new TextField("contents", "wuzzy", Store.YES));
 
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
-    Query query = new FuzzyQuery(new Term("contents", "wuzza"));
-    TopDocs matches = searcher.search(query, 10);
+    var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
+    var query = new FuzzyQuery(new Term("contents", "wuzza"));
+    var topDocs = indexSearcher.search(query, 10);
 
-    assertThat(matches.totalHits.value).isEqualTo(2);
-    assertThat(matches.scoreDocs[0].score).isNotEqualTo(matches.scoreDocs[1].score);
+    assertThat(topDocs.totalHits.value).isEqualTo(2);
+    assertThat(topDocs.scoreDocs[0].score).isNotEqualTo(topDocs.scoreDocs[1].score);
 
-    Document doc = searcher.storedFields().document(matches.scoreDocs[0].doc);
-    assertThat(doc.get("contents")).isEqualTo("wuzzy");
+    var document = indexSearcher.storedFields().document(topDocs.scoreDocs[0].doc);
+    assertThat(document.get("contents")).isEqualTo("wuzzy");
   }
 
   private void indexSingleFieldDocs(Field... fields) throws Exception {
-    try (IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer())) ) {
-      for (Field f : fields) {
-        Document doc = new Document();
-        doc.add(f);
-        writer.addDocument(doc);
+    try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer())) ) {
+      for (var field : fields) {
+        var document = new Document();
+        document.add(field);
+        indexWriter.addDocument(document);
       }
     }
   }
 
-  private static class SimpleSimilarity extends SimilarityBase
-  {
+  private static class SimpleSimilarity extends SimilarityBase {
     @Override
     protected double score(BasicStats stats, double freq, double docLen) {
       return 0;

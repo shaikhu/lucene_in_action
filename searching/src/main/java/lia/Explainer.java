@@ -20,21 +20,21 @@ public class Explainer {
       throw new IllegalArgumentException("Usage: Explainer <index dir> <query>");
     }
 
-    String indexDir = args[0];
-    String queryExpression = args[1];
+    var indexDirectory = args[0];
+    var searchText = args[1];
 
-    try (Directory directory = FSDirectory.open(Paths.get(indexDir))) {
-      QueryParser parser = new QueryParser("contents", new StandardAnalyzer());
-      Query query = parser.parse(queryExpression);
+    try (Directory directory = FSDirectory.open(Paths.get(indexDirectory))) {
+      var queryParser = new QueryParser("contents", new StandardAnalyzer());
+      var query = queryParser.parse(searchText);
 
-      System.out.println("Query: " + queryExpression);
-      IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
-      TopDocs topDocs = searcher.search(query, 10);
-      for (ScoreDoc match : topDocs.scoreDocs) {
-        Explanation explanation = searcher.explain(query, match.doc);
+      System.out.println("Query: " + searchText);
+      var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
+      var topDocs = indexSearcher.search(query, 10);
+      for (var scoreDoc : topDocs.scoreDocs) {
+        var explanation = indexSearcher.explain(query, scoreDoc.doc);
         System.out.println("----------");
-        Document doc = searcher.storedFields().document(match.doc);
-        System.out.println(doc.get("title"));
+        var document = indexSearcher.storedFields().document(scoreDoc.doc);
+        System.out.println(document.get("title"));
         System.out.println(explanation.toString());
       }
     }

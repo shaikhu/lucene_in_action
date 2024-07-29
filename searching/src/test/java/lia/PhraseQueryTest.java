@@ -11,7 +11,6 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
@@ -23,18 +22,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PhraseQueryTest {
   private Directory directory;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setup() throws IOException {
     directory = new ByteBuffersDirectory();
 
-    try (IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
-      Document doc = new Document();
-      doc.add(new TextField("field", "the quick brown fox jumped over the lazy dog", Store.NO));
-      writer.addDocument(doc);
+    try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
+      var document = new Document();
+      document.add(new TextField("field", "the quick brown fox jumped over the lazy dog", Store.NO));
+      indexWriter.addDocument(document);
     }
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -63,8 +62,7 @@ class PhraseQueryTest {
   }
 
   private boolean matched(int slop, String... phrase) throws IOException {
-    PhraseQuery query = new PhraseQuery(slop, "field", phrase);
-    TopDocs matches = searcher.search(query, 10);
-    return matches.totalHits.value > 0;
+    var topDocs = indexSearcher.search(new PhraseQuery(slop, "field", phrase), 10);
+    return topDocs.totalHits.value > 0;
   }
 }

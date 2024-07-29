@@ -6,8 +6,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,17 +13,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PrefixQueryTest {
   @Test
   void testPrefix() throws Exception {
-    try (Directory directory = TestUtil.getBookIndexDirectory()) {
-      IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
-      Term term = new Term("category", "/technology/computers/programming");
-      PrefixQuery query = new PrefixQuery(term);
+    try (var directory = TestUtil.getBookIndexDirectory()) {
+      var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
 
-      TopDocs matches = searcher.search(query, 10);
-      long programmingAndBelow = matches.totalHits.value;
+      var term = new Term("category", "/technology/computers/programming");
+      var prefixQuery = new PrefixQuery(term);
+      var termQuery = new TermQuery(term);
 
-      matches = searcher.search(new TermQuery(term), 10);
-      long justProgramming = matches.totalHits.value;
-      assertThat(programmingAndBelow).isGreaterThan(justProgramming);
+      var numberOfProgrammingBooksAndSubcategories = indexSearcher.search(prefixQuery, 10).totalHits.value;
+      var numberOfProgrammingBooks = indexSearcher.search(termQuery, 10).totalHits.value;
+      assertThat(numberOfProgrammingBooksAndSubcategories).isGreaterThan(numberOfProgrammingBooks);
     }
   }
 }

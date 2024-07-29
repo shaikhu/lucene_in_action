@@ -14,7 +14,6 @@ import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,13 +27,13 @@ class QueryParserTest {
 
   private Directory directory;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setup() throws Exception {
     analyzer = new WhitespaceAnalyzer();
     directory = TestUtil.getBookIndexDirectory();
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -44,49 +43,49 @@ class QueryParserTest {
 
   @Test
   void testToString() {
-    BooleanQuery query = new BooleanQuery.Builder()
+    var booleanQuery = new BooleanQuery.Builder()
         .add(new FuzzyQuery(new Term("field", "kountry")), Occur.MUST)
         .add(new TermQuery(new Term("title", "western")), Occur.SHOULD)
         .build();
 
-    assertThat(query.toString("field")).isEqualTo("+kountry~2 title:western");
+    assertThat(booleanQuery.toString("field")).isEqualTo("+kountry~2 title:western");
   }
 
   @Test
   void testTermQuery() throws Exception {
-    QueryParser parser = new QueryParser("subject", analyzer);
-    Query query = parser.parse("computers");
+    var queryParser = new QueryParser("subject", analyzer);
+    var query = queryParser.parse("computers");
     assertThat(query).hasToString("subject:computers");
   }
 
   @Test
   void testPrefixQuery() throws Exception {
-    QueryParser parser = new QueryParser("category", new StandardAnalyzer());
-    assertThat(parser.parse("/computers/technology*").toString("category")).isEqualTo("/computers/ technology*");
+    var queryParser = new QueryParser("category", new StandardAnalyzer());
+    assertThat(queryParser.parse("/computers/technology*").toString("category")).isEqualTo("/computers/ technology*");
   }
 
   @Test
   void testFuzzyQuery() throws Exception {
-    QueryParser parser = new QueryParser("subject", analyzer);
-    Query query = parser.parse("kountry~");
+    var queryParser = new QueryParser("subject", analyzer);
+    var query = queryParser.parse("kountry~");
     assertThat(query).hasToString("subject:kountry~2");
 
-    query = parser.parse("kountry~0.7");
+    query = queryParser.parse("kountry~0.7");
     assertThat(query).hasToString("subject:kountry~2");
   }
 
   @Test
   void testGrouping() throws Exception {
-    Query query = new QueryParser("subject", analyzer).parse("(agile OR extreme) AND methodology");
-    TopDocs matches = searcher.search(query, 10);
+    var query = new QueryParser("subject", analyzer).parse("(agile OR extreme) AND methodology");
+    var topDocs = indexSearcher.search(query, 10);
 
-    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "Extreme Programming Explained")).isTrue();
-    assertThat(TestUtil.hitsIncludeTitle(searcher, matches, "The Pragmatic Programmer")).isTrue();
+    assertThat(TestUtil.hitsIncludeTitle(indexSearcher, topDocs, "Extreme Programming Explained")).isTrue();
+    assertThat(TestUtil.hitsIncludeTitle(indexSearcher, topDocs, "The Pragmatic Programmer")).isTrue();
   }
 
   @Test
   void testPhraseQuery() throws Exception {
-    Query query = new QueryParser("field", new StandardAnalyzer()).parse("\"This is Some Phrase*\"");
+    var query = new QueryParser("field", new StandardAnalyzer()).parse("\"This is Some Phrase*\"");
     assertThat(query.toString("field")).isEqualTo("\"this is some phrase\"");
 
     query = new QueryParser("field", analyzer).parse("\"term\"");
@@ -95,23 +94,23 @@ class QueryParserTest {
 
   @Test
   void testSlop() throws Exception {
-    Query query = new QueryParser("field", analyzer).parse("\"exact phrase\"");
+    var query = new QueryParser("field", analyzer).parse("\"exact phrase\"");
     assertThat(query.toString("field")).isEqualTo("\"exact phrase\"");
 
-    QueryParser qp = new QueryParser("field", analyzer);
-    qp.setPhraseSlop(5);
-    query = qp.parse("\"sloppy phrase\"");
+    var queryParser = new QueryParser("field", analyzer);
+    queryParser.setPhraseSlop(5);
+    query = queryParser.parse("\"sloppy phrase\"");
     assertThat(query.toString("field")).isEqualTo("\"sloppy phrase\"~5");
   }
 
   @Test
   void testLowercase() throws Exception {
-    Query q = new QueryParser("field", analyzer).parse("PrefixQuery*");
-    assertThat(q.toString("field")).isEqualTo("PrefixQuery*");
+    Query query = new QueryParser("field", analyzer).parse("PrefixQuery*");
+    assertThat(query.toString("field")).isEqualTo("PrefixQuery*");
 
-    QueryParser qp = new QueryParser("field", analyzer);
-    q = qp.parse("PrefixQuery*");
-    assertThat(q.toString("field")).isEqualTo("PrefixQuery*");
+    var queryParser = new QueryParser("field", analyzer);
+    query = queryParser.parse("PrefixQuery*");
+    assertThat(query.toString("field")).isEqualTo("PrefixQuery*");
   }
 
   @Test
@@ -121,8 +120,8 @@ class QueryParserTest {
 
   @Test
   void testBoost() throws Exception {
-    Query q = new QueryParser("field", analyzer).parse("term^2");
-    assertThat(q.toString("field")).isEqualTo("(term)^2.0");
+    var query = new QueryParser("field", analyzer).parse("term^2");
+    assertThat(query.toString("field")).isEqualTo("(term)^2.0");
   }
 
   @Test
