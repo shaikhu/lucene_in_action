@@ -2,14 +2,11 @@ package lia;
 
 import lia.common.TestUtil;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,16 +53,16 @@ class BasicSearchingTest {
 
   @Test
   void testQueryParser() throws Exception {
-    QueryParser parser = new QueryParser("contents", new StandardAnalyzer());
-    Query query = parser.parse("+JUNIT +ANT -MOCK");
-    TopDocs docs = indexSearcher.search(query, 10);
-    assertThat(docs.totalHits.value).isOne();
+    var queryParser = new QueryParser("contents", new StandardAnalyzer());
+    var query = queryParser.parse("+JUNIT +ANT -MOCK");
+    var topDocs = indexSearcher.search(query, 10);
+    assertThat(topDocs.totalHits.value).isOne();
 
-    Document doc = indexSearcher.storedFields().document(docs.scoreDocs[0].doc);
-    assertThat(doc.get("title")).isEqualTo("Ant in Action");
+    var document = indexSearcher.storedFields().document(topDocs.scoreDocs[0].doc);
+    assertThat(document.get("title")).isEqualTo("Ant in Action");
 
-    query = parser.parse("mock OR junit");
-    docs = indexSearcher.search(query, 10);
-    assertThat(docs.totalHits.value).isEqualTo(2);
+    query = queryParser.parse("mock OR junit");
+    topDocs = indexSearcher.search(query, 10);
+    assertThat(topDocs.totalHits.value).isEqualTo(2);
   }
 }
