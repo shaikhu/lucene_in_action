@@ -9,8 +9,6 @@ import org.apache.lucene.document.DateTools;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,13 +21,13 @@ class NumericQueryParserTest {
 
   private Analyzer analyzer;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setup() throws Exception {
     directory = TestUtil.getBookIndexDirectory();
     analyzer = new WhitespaceAnalyzer();
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -39,28 +37,24 @@ class NumericQueryParserTest {
 
   @Test
   void testNumericRangeQuery() throws Exception {
-    String expression = "price:[10 TO 20]";
-    QueryParser parser = new NumericRangeQueryParser("subject", analyzer);
-    Query query = parser.parse(expression);
+    var queryParser = new NumericRangeQueryParser("subject", analyzer);
+    var query = queryParser.parse("price:[10 TO 20]");
     assertThat(query).hasToString("price:[10.0 TO 20.0]");
  }
 
   @Test void testDefaultDateRangeQuery() throws Exception {
-    QueryParser parser = new QueryParser("subject", analyzer);
-    Query query = parser.parse("pubmonth:[1/1/04 TO 12/31/04]");
+    var queryParser = new QueryParser("subject", analyzer);
+    var query = queryParser.parse("pubmonth:[1/1/04 TO 12/31/04]");
     assertThat(query).hasToString("pubmonth:[1/1/04 TO 12/31/04]");
   }
 
   @Test
   void testDateRangeQuery() throws Exception {
-    String expression = "pubmonth:[01/01/2010 TO 06/01/2010]";
-
-    QueryParser parser = new NumericDateRangeQueryParser("subject", analyzer);
-
-    parser.setDateResolution("pubmonth", DateTools.Resolution.MONTH);
-    parser.setLocale(Locale.US);
-    Query query = parser.parse(expression);
-    TopDocs matches = searcher.search(query, 10);
-    assertThat(matches.totalHits.value).isNotZero();
+    var queryParser = new NumericDateRangeQueryParser("subject", analyzer);
+    queryParser.setDateResolution("pubmonth", DateTools.Resolution.MONTH);
+    queryParser.setLocale(Locale.US);
+    var query = queryParser.parse("pubmonth:[01/01/2010 TO 06/01/2010]");
+    var topDocs = indexSearcher.search(query, 10);
+    assertThat(topDocs.totalHits.value).isNotZero();
   }
 }
