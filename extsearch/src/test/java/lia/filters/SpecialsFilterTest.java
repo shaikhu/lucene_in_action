@@ -9,7 +9,6 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
@@ -19,14 +18,16 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SpecialsFilterTest {
+  private static final List<String> BOOKS_ON_SPECIAL_SALE = List.of("9780880105118");
+
   private Directory directory;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setUp() throws Exception {
     directory = TestUtil.getBookIndexDirectory();
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -36,32 +37,31 @@ class SpecialsFilterTest {
 
   @Test
   void testFilter() throws Exception {
-    // build clause 1 - all books about logo
-    TermQuery logoBooks = new TermQuery(new Term("subject", "logo"));
+    // all books about logo
+    var logoBooksQuery = new TermQuery(new Term("subject", "logo"));
 
-    // build clause 2 - all books on education which are on special sale
-    // all education books
-    WildcardQuery educationBooks = new WildcardQuery(new Term("category", "*education*"));
+    // all books on education
+    var educationBooksQuery = new WildcardQuery(new Term("category", "*education*"));
 
-    // all books on special sale
-    SpecialsAccessor accessor = new TestSpecialsAccessor(List.of("9780880105118"));
-    BooleanQuery.Builder specialSale = new BooleanQuery.Builder();
-    for (String isbn : accessor.getIsbns()) {
-      specialSale.add(new TermQuery(new Term("isbn", isbn)), Occur.SHOULD);
+    // all books which are on special sale
+    var specialSaleQuery = new BooleanQuery.Builder();
+    for (String isbn : BOOKS_ON_SPECIAL_SALE) {
+      specialSaleQuery.add(new TermQuery(new Term("isbn", isbn)), Occur.SHOULD);
     }
 
     // all education books on special sale
-    BooleanQuery educationBooksOnSpecial = new BooleanQuery.Builder()
-        .add(educationBooks, Occur.MUST)
-        .add(specialSale.build(), Occur.FILTER)
+    var educationBooksOnSpecialSaleQuery = new BooleanQuery.Builder()
+        .add(educationBooksQuery, Occur.MUST)
+        .add(specialSaleQuery.build(), Occur.FILTER)
         .build();
 
     // main query
-    BooleanQuery.Builder query = new BooleanQuery.Builder();
-    query.add(logoBooks, Occur.SHOULD);
-    query.add(educationBooksOnSpecial, Occur.SHOULD);
+    var booleanQuery = new BooleanQuery.Builder()
+      .add(logoBooksQuery, Occur.SHOULD)
+      .add(educationBooksOnSpecialSaleQuery, Occur.SHOULD)
+      .build();
 
-    TopDocs hits = searcher.search(query.build(), 10);
-    assertThat(hits.totalHits.value).isEqualTo(2);
+    var topDocs = indexSearcher.search(booleanQuery, 10);
+    assertThat(topDocs.totalHits.value).isEqualTo(2);
   }
 }
