@@ -10,9 +10,9 @@ import org.apache.lucene.analysis.tokenattributes.PayloadAttribute;
 import org.apache.lucene.util.BytesRef;
 
 public final class BulletinPayloadsFilter extends TokenFilter {
-  private final CharTermAttribute termAtt;
+  private final CharTermAttribute term;
 
-  private final PayloadAttribute payloadAttr;
+  private final PayloadAttribute payload;
 
   private final BytesRef boostPayload;
 
@@ -20,8 +20,8 @@ public final class BulletinPayloadsFilter extends TokenFilter {
 
   public BulletinPayloadsFilter(TokenStream input, float warningBoost) {
     super(input);
-    payloadAttr = addAttribute(PayloadAttribute.class);
-    termAtt = addAttribute(CharTermAttribute.class);
+    payload = addAttribute(PayloadAttribute.class);
+    term = addAttribute(CharTermAttribute.class);
     boostPayload = new BytesRef(PayloadHelper.encodeFloat(warningBoost));
   }
 
@@ -32,10 +32,10 @@ public final class BulletinPayloadsFilter extends TokenFilter {
   @Override
   public boolean incrementToken() throws IOException {
     if (input.incrementToken()) {
-      if (isBulletin && termAtt.toString().equals("warning")) {
-        payloadAttr.setPayload(boostPayload);
+      if (isBulletin && term.toString().equals("warning")) {
+        payload.setPayload(boostPayload);
       } else {
-        payloadAttr.setPayload(null);
+        payload.setPayload(null);
       }
       return true;
     } else {
