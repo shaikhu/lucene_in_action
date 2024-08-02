@@ -1,13 +1,14 @@
 package lia.queryparser;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.spans.SpanNearQuery;
 import org.apache.lucene.queries.spans.SpanTermQuery;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
+
+import java.util.Arrays;
 
 public class CustomQueryParser extends QueryParser {
   public CustomQueryParser(String field, Analyzer analyzer) {
@@ -30,18 +31,16 @@ public class CustomQueryParser extends QueryParser {
    */
   @Override
   public Query getFieldQuery(String field, String queryText, int slop) throws ParseException {
-    Query orig = super.getFieldQuery(field, queryText, slop);
+    var originalQuery = super.getFieldQuery(field, queryText, slop);
 
-    if (!(orig instanceof PhraseQuery phraseQuery)) {
-      return orig;
+    if (!(originalQuery instanceof PhraseQuery phraseQuery)) {
+      return originalQuery;
     }
 
-    Term[] terms = phraseQuery.getTerms();
-    SpanTermQuery[] clauses = new SpanTermQuery[terms.length];
-    for (int i = 0; i < terms.length; i++) {
-      clauses[i] = new SpanTermQuery(terms[i]);
-    }
+    var spanTermQueryClauses = Arrays.stream(phraseQuery.getTerms())
+            .map(SpanTermQuery::new)
+            .toArray(SpanTermQuery[]::new);
 
-    return new SpanNearQuery(clauses, slop, true);
+    return new SpanNearQuery(spanTermQueryClauses, slop, true);
   }
 }
