@@ -15,23 +15,22 @@ public class AnalyzerUtils {
     displayTokens(analyzer.tokenStream("contents", new StringReader(text)));
   }
 
-  public static void displayTokens(TokenStream stream) throws IOException {
-    CharTermAttribute term = stream.addAttribute(CharTermAttribute.class);
-    stream.reset();
-    while(stream.incrementToken()) {
-      System.out.print("[" + term.toString() + "] ");
+  public static void displayTokens(TokenStream tokenStream) throws IOException {
+    var charTerm = tokenStream.addAttribute(CharTermAttribute.class);
+    tokenStream.reset();
+    while(tokenStream.incrementToken()) {
+      System.out.print("[" + charTerm.toString() + "] ");
     }
-    stream.end();
-    stream.close();
+    tokenStream.end();
+    tokenStream.close();
   }
 
   public static void displayTokensWithFullDetails(Analyzer analyzer, String text) throws IOException {
-    TokenStream tokenStream = analyzer.tokenStream("contents", new StringReader(text));
-
-    CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
-    PositionIncrementAttribute positionIncrement = tokenStream.addAttribute(PositionIncrementAttribute.class);
-    OffsetAttribute offset = tokenStream.addAttribute(OffsetAttribute.class);
-    TypeAttribute type = tokenStream.addAttribute(TypeAttribute.class);
+    var tokenStream = analyzer.tokenStream("contents", new StringReader(text));
+    var charTerm = tokenStream.addAttribute(CharTermAttribute.class);
+    var positionIncrement = tokenStream.addAttribute(PositionIncrementAttribute.class);
+    var offset = tokenStream.addAttribute(OffsetAttribute.class);
+    var type = tokenStream.addAttribute(TypeAttribute.class);
 
     var position = 0;
     tokenStream.reset();
@@ -42,7 +41,7 @@ public class AnalyzerUtils {
         System.out.print(position + ": ");
       }
 
-      System.out.print("[" + term.toString() + ":" + offset.startOffset() + "->" + offset.endOffset() + ":" + type.type() + "] ");
+      System.out.print("[" + charTerm.toString() + ":" + offset.startOffset() + "->" + offset.endOffset() + ":" + type.type() + "] ");
     }
     tokenStream.end();
     tokenStream.close();
@@ -50,9 +49,9 @@ public class AnalyzerUtils {
   }
 
   public static void displayTokensWithPositions(Analyzer analyzer, String text) throws IOException {
-    TokenStream tokenStream = analyzer.tokenStream("contents", new StringReader(text));
-    CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
-    PositionIncrementAttribute positionIncrement = tokenStream.addAttribute(PositionIncrementAttribute.class);
+    var tokenStream = analyzer.tokenStream("contents", new StringReader(text));
+    var charTerm = tokenStream.addAttribute(CharTermAttribute.class);
+    var positionIncrement = tokenStream.addAttribute(PositionIncrementAttribute.class);
 
     var position = 0;
     tokenStream.reset();
@@ -62,7 +61,7 @@ public class AnalyzerUtils {
         System.out.println();
         System.out.print(position + ": ");
       }
-      System.out.print("[" + term.toString() + "] ");
+      System.out.print("[" + charTerm.toString() + "] ");
     }
     tokenStream.end();
     tokenStream.close();
