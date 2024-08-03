@@ -1,7 +1,6 @@
 package lia;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import lia.common.AnalyzerUtils;
@@ -13,10 +12,6 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 public class AnalyzerDemo {
-  private static final List<String> EXAMPLES = List.of(
-      "The quick brown fox jumped over the lazy dog",
-      "XY&Z Corporation - xyz@example.com");
-
   public static final List<Analyzer> ANALYZERS = List.of(
       new WhitespaceAnalyzer(),
       new SimpleAnalyzer(),
@@ -24,27 +19,32 @@ public class AnalyzerDemo {
       new StandardAnalyzer()
   );
 
-  private static void analyze(String text) throws IOException {
-    System.out.println("Analyzing \"" + text + "\"");
-    for (Analyzer analyzer : ANALYZERS) {
-      String name = analyzer.getClass().getSimpleName();
-      System.out.println(" " + name + ":");
-      System.out.print("    ");
-      AnalyzerUtils.displayTokens(analyzer, text);
-      System.out.println("\n");
+  private static final List<String> ANALYZER_TEXT_EXAMPLES = List.of(
+      "The quick brown fox jumped over the lazy dog",
+      "XY&Z Corporation - xyz@example.com");
+
+
+  private static void analyze() throws IOException {
+    for (var text : ANALYZER_TEXT_EXAMPLES) {
+      System.out.println("Analyzing \"" + text + "\"");
+      for (var analyzer : ANALYZERS) {
+        System.out.println(" " + analyzer.getClass().getSimpleName() + ":");
+        System.out.print("    ");
+        AnalyzerUtils.displayTokens(analyzer, text);
+        System.out.println("\n");
+      }
     }
+  }
 
-    System.out.println("SimpleAnalyzer - displayTokensWithFullDetails");
-    AnalyzerUtils.displayTokensWithFullDetails(new SimpleAnalyzer(), "The quick brown fox....");
-
+  private static void displayTokensWithFullDetails(Analyzer analyzer, String text) throws IOException{
+    System.out.println(analyzer.getClass().getSimpleName() + " - displayTokensWithFullDetails");
+    AnalyzerUtils.displayTokensWithFullDetails(analyzer, text);
     System.out.println("\n----");
-    System.out.println("StandardAnalyzer - displayTokensWithFullDetails");
-    AnalyzerUtils.displayTokensWithFullDetails(new StandardAnalyzer(), "I'll email you at xyz@example.com");
   }
 
   public static void main(String... args) throws IOException {
-    for (String text : EXAMPLES) {
-      analyze(text);
-    }
+    analyze();
+    displayTokensWithFullDetails(new SimpleAnalyzer(), "The quick brown fox....");
+    displayTokensWithFullDetails(new StandardAnalyzer(), "I'll email you at xyz@example.com");
   }
 }
