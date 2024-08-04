@@ -17,7 +17,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
@@ -30,21 +29,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 class KeywordAnalyzerTest {
   private Directory directory;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setUp() throws Exception {
     directory = new ByteBuffersDirectory();
-
-    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new SimpleAnalyzer()));
-
-    Document doc = new Document();
-    doc.add(new StringField("partnum", "Q36", Store.NO));
-    doc.add(new TextField("description", "Illidium Space Modulator", Store.YES));
-    writer.addDocument(doc);
-    writer.close();
-
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new SimpleAnalyzer()))) {
+      var document = new Document();
+      document.add(new StringField("partnum", "Q36", Store.NO));
+      document.add(new TextField("description", "Illidium Space Modulator", Store.YES));
+      indexWriter.addDocument(document);
+    }
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -54,24 +50,24 @@ class KeywordAnalyzerTest {
 
   @Test
   void testTermQuery() throws Exception {
-    Query query = new TermQuery(new Term("partnum", "Q36"));
-    assertThat(TestUtil.hitCount(searcher, query)).isOne();
+    var termQuery = new TermQuery(new Term("partnum", "Q36"));
+    assertThat(TestUtil.hitCount(indexSearcher, termQuery)).isOne();
   }
 
   @Test
   void testBasicQueryParser() throws Exception {
-    Query query = new QueryParser("description", new SimpleAnalyzer()).parse("partnum:Q36 AND SPACE");
+    var queryParser = new QueryParser("description", new SimpleAnalyzer());
+    var query = queryParser.parse("partnum:Q36 AND SPACE");
     assertThat(query.toString("description")).isEqualTo("+partnum:q36 +space");
-    assertThat(TestUtil.hitCount(searcher, query)).isZero();
+    assertThat(TestUtil.hitCount(indexSearcher, query)).isZero();
   }
 
   @Test
   void testPerFieldAnalyzer() throws Exception {
     Map<String, Analyzer> fieldAnalyzers = Map.of("partnum", new KeywordAnalyzer());
-    PerFieldAnalyzerWrapper analyzer = new PerFieldAnalyzerWrapper(new SimpleAnalyzer(), fieldAnalyzers);
-    Query query = new QueryParser("description", analyzer).parse("partnum:Q36 AND SPACE");
-
+    var analyzerWrapper = new PerFieldAnalyzerWrapper(new SimpleAnalyzer(), fieldAnalyzers);
+    var query = new QueryParser("description", analyzerWrapper).parse("partnum:Q36 AND SPACE");
     assertThat(query.toString("description")).isEqualTo("+partnum:Q36 +space");
-    assertThat(TestUtil.hitCount(searcher, query)).isOne();
+    assertThat(TestUtil.hitCount(indexSearcher, query)).isOne();
   }
 }

@@ -10,8 +10,8 @@ class CodecTest {
 
   @Test
   void testMetaphone() {
-    String encoding1 = metaphoner.encode("cute");
-    String encoding2 = metaphoner.encode("cat");
-    assertThat(encoding1).isEqualTo(encoding2);
+    var encodedText1 = metaphoner.encode("cute");
+    var encodedText2 = metaphoner.encode("cat");
+    assertThat(encodedText1).isEqualTo(encodedText2);
   }
 }

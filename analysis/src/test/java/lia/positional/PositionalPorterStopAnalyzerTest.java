@@ -25,25 +25,23 @@ class PositionalPorterStopAnalyzerTest {
 
   private Directory directory;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
-  private QueryParser parser;
+  private QueryParser queryParser;
 
   @BeforeEach
   void setup() throws IOException {
     porterAnalyzer = new PositionalPorterStopAnalyzer();
-
     directory = new ByteBuffersDirectory();
 
-    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(porterAnalyzer));
+    try (IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(porterAnalyzer))) {
+      var document = new Document();
+      document.add(new TextField("contents", "The quick brown fox jumps over the lazy dog", Store.YES));
+      indexWriter.addDocument(document);
+    }
 
-    Document doc = new Document();
-    doc.add(new TextField("contents", "The quick brown fox jumps over the lazy dog", Store.YES));
-    writer.addDocument(doc);
-    writer.close();
-
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
-    parser = new QueryParser("contents", porterAnalyzer);
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
+    queryParser = new QueryParser("contents", porterAnalyzer);
   }
 
   @AfterEach
@@ -53,17 +51,17 @@ class PositionalPorterStopAnalyzerTest {
 
   @Test
   void testWithSlop() throws Exception {
-    parser.setPhraseSlop(1);
-    Query query = parser.parse("\"over the lazy\"");
-    assertThat(TestUtil.hitCount(searcher, query)).isOne();
+    queryParser.setPhraseSlop(1);
+    var query = queryParser.parse("\"over the lazy\"");
+    assertThat(TestUtil.hitCount(indexSearcher, query)).isOne();
   }
 
   @Test
   void testStems() throws Exception {
-    Query query = new QueryParser("contents", porterAnalyzer).parse("laziness");
-    assertThat(TestUtil.hitCount(searcher, query)).isOne();
+    var query = new QueryParser("contents", porterAnalyzer).parse("laziness");
+    assertThat(TestUtil.hitCount(indexSearcher, query)).isOne();
 
-    query = parser.parse("\"fox jumped\"");
-    assertThat(TestUtil.hitCount(searcher, query)).isOne();
+    query = queryParser.parse("\"fox jumped\"");
+    assertThat(TestUtil.hitCount(indexSearcher, query)).isOne();
   }
 }

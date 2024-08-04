@@ -11,27 +11,27 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 public final class PositionalStopFilter extends TokenFilter {
   private final CharArraySet stopWords;
 
-  private final PositionIncrementAttribute posIncrAttr;
+  private final PositionIncrementAttribute positionIncrement;
 
-  private final CharTermAttribute termAttr;
+  private final CharTermAttribute charTerm;
 
   public PositionalStopFilter(TokenStream input, CharArraySet stopWords) {
     super(input);
     this.stopWords = stopWords;
-    this.posIncrAttr = addAttribute(PositionIncrementAttribute.class);
-    this.termAttr = addAttribute(CharTermAttribute.class);
+    this.positionIncrement = addAttribute(PositionIncrementAttribute.class);
+    this.charTerm = addAttribute(CharTermAttribute.class);
   }
 
   @Override
   public boolean incrementToken() throws IOException {
-    int increment = 0;
+    var increment = 0;
     while(input.incrementToken()) {
-      if (!stopWords.contains(termAttr.toString())) {
-        posIncrAttr.setPositionIncrement(posIncrAttr.getPositionIncrement() + increment);
+      if (!stopWords.contains(charTerm.toString())) {
+        positionIncrement.setPositionIncrement(positionIncrement.getPositionIncrement() + increment);
         return true;
       }
 
-      increment += posIncrAttr.getPositionIncrement();
+      increment += positionIncrement.getPositionIncrement();
     }
 
     return false;

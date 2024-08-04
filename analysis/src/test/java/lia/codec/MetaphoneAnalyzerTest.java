@@ -9,35 +9,31 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.ByteBuffersDirectory;
-import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MetaphoneAnalyzerTest {
+  private static final Analyzer METAPHONE_ANALYZER = new MetaphoneReplacementAnalyzer();
+  
   @Test
   void testKoolKat() throws Exception {
-    try (Directory directory = new ByteBuffersDirectory()) {
-      Analyzer analyzer = new MetaphoneReplacementAnalyzer();
-      IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(analyzer));
+    try (var directory = new ByteBuffersDirectory()) {
+      try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(METAPHONE_ANALYZER))) {
+        var document = new Document();
+        document.add(new TextField("contents", "cool cat", Store.YES));
+        indexWriter.addDocument(document);
+      }
 
-      Document doc = new Document();
-      doc.add(new TextField("contents", "cool cat", Store.YES));
-      writer.addDocument(doc);
-      writer.close();
+      var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
+      var query = new QueryParser("contents", METAPHONE_ANALYZER).parse("kool kat");
 
-      IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
-      Query query = new QueryParser("contents", analyzer).parse("kool kat");
+      var topDocs = indexSearcher.search(query, 1);
+      assertThat(topDocs.totalHits.value).isOne();
 
-      TopDocs hits = searcher.search(query, 1);
-      assertThat(hits.totalHits.value).isOne();
-
-      int docID = hits.scoreDocs[0].doc;
-      doc = searcher.storedFields().document(docID);
-      assertThat(doc.get("contents")).isEqualTo("cool cat");
+      Document document = indexSearcher.storedFields().document(topDocs.scoreDocs[0].doc);
+      assertThat(document.get("contents")).isEqualTo("cool cat");
     }
   }
 }

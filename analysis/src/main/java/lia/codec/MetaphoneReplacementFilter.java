@@ -13,14 +13,14 @@ public final class MetaphoneReplacementFilter extends TokenFilter {
 
   private final Metaphone metaphoner = new Metaphone();
 
-  private final CharTermAttribute termAttr;
+  private final CharTermAttribute charTerm;
 
-  private final TypeAttribute typeAttr;
+  private final TypeAttribute type;
 
   public MetaphoneReplacementFilter(TokenStream input) {
     super(input);
-    termAttr = addAttribute(CharTermAttribute.class);
-    typeAttr = addAttribute(TypeAttribute.class);
+    charTerm = addAttribute(CharTermAttribute.class);
+    type = addAttribute(TypeAttribute.class);
   }
 
   @Override
@@ -29,9 +29,9 @@ public final class MetaphoneReplacementFilter extends TokenFilter {
       return false;
     }
 
-    String encoded = metaphoner.encode(termAttr.toString());
-    termAttr.setEmpty().append(encoded);
-    typeAttr.setType(METAPHONE);
+    String encodedCharTerm = metaphoner.encode(charTerm.toString());
+    charTerm.setEmpty().append(encodedCharTerm);
+    type.setType(METAPHONE);
     return true;
   }
 }

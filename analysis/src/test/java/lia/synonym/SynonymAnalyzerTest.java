@@ -1,9 +1,9 @@
 package lia.synonym;
 
 import java.io.StringReader;
+import java.util.List;
 
 import lia.common.TestUtil;
-import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
@@ -17,7 +17,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
-import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
@@ -30,24 +29,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SynonymAnalyzerTest {
   private Directory directory;
 
-  private SynonymAnalyzer analyzer;
+  private SynonymAnalyzer synonymAnalyzer;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setUp() throws Exception {
     directory = new ByteBuffersDirectory();
+    synonymAnalyzer = new SynonymAnalyzer(new TestSynonymEngine());
 
-    analyzer = new SynonymAnalyzer(new TestSynonymEngine());
-    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(analyzer));
+    try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(synonymAnalyzer))) {
+      var document = new Document();
+      document.add(new TextField("content", "The quick brown fox jumps over the lazy dog", Store.YES));
+      indexWriter.addDocument(document);
+    }
 
-    Document doc = new Document();
-    doc.add(new TextField("content", "The quick brown fox jumps over the lazy dog", Store.YES));
-    writer.addDocument(doc);
-
-    writer.close();
-
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -57,46 +54,43 @@ class SynonymAnalyzerTest {
 
   @Test
   void testJumps() throws Exception {
-    TokenStream stream = analyzer.tokenStream("contents", new StringReader("jumps"));
-    CharTermAttribute term = stream.addAttribute(CharTermAttribute.class);
-    PositionIncrementAttribute posIncr = stream.addAttribute(PositionIncrementAttribute.class);
+    var tokenStream = synonymAnalyzer.tokenStream("contents", new StringReader("jumps"));
+    var charTerm = tokenStream.addAttribute(CharTermAttribute.class);
+    var positionIncrement = tokenStream.addAttribute(PositionIncrementAttribute.class);
 
-    int i = 0;
-    String[] expected = new String[]{"jumps", "hops", "leaps"};
-    stream.reset();
-    while(stream.incrementToken()) {
-      assertThat(term.toString()).isEqualTo(expected[i]);
-      int expectedPos;
-      if (i == 0) {
-        expectedPos = 1;
-      } else {
-        expectedPos = 0;
-      }
-      assertThat(posIncr.getPositionIncrement()).isEqualTo(expectedPos);
-      i++;
+    List<String> expected = List.of("jumps", "hops", "leaps");
+    var index = 0;
+    tokenStream.reset();
+    while(tokenStream.incrementToken()) {
+      assertThat(charTerm.toString()).isEqualTo(expected.get(index));
+      var expectedPosition = index == 0 ? 1 : 0;
+      assertThat(positionIncrement.getPositionIncrement()).isEqualTo(expectedPosition);
+      index++;
     }
-    stream.close();
-    assertThat(i).isEqualTo(3);
+    tokenStream.close();
+    assertThat(index).isEqualTo(3);
   }
 
   @Test
   void testSearchByAPI() throws Exception {
-    TermQuery tq = new TermQuery(new Term("content", "hops"));
-    assertThat(TestUtil.hitCount(searcher, tq)).isOne();
+    var termQuery = new TermQuery(new Term("content", "hops"));
+    assertThat(TestUtil.hitCount(indexSearcher, termQuery)).isOne();
 
-    PhraseQuery pq = new PhraseQuery.Builder()
+    var phraseQuery = new PhraseQuery.Builder()
         .add(new Term("content", "fox"))
         .add(new Term("content", "hops"))
         .build();
-    assertThat(TestUtil.hitCount(searcher, pq)).isOne();
+    assertThat(TestUtil.hitCount(indexSearcher, phraseQuery)).isOne();
   }
 
   @Test
   void testWithQueryParser() throws Exception {
-    Query query = new QueryParser("content", analyzer).parse("\"fox jumps\"");
-    assertThat(TestUtil.hitCount(searcher, query)).isOne();
+    var queryParser = new QueryParser("content", synonymAnalyzer);
+    var query = queryParser.parse("\"fox jumps\"");
+    assertThat(TestUtil.hitCount(indexSearcher, query)).isOne();
 
-    query = new QueryParser("content", new StandardAnalyzer()).parse("\"fox jumps\"");
-    assertThat(TestUtil.hitCount(searcher, query)).isOne();
+    queryParser = new QueryParser("content", new StandardAnalyzer());
+    query = queryParser.parse("\"fox jumps\"");
+    assertThat(TestUtil.hitCount(indexSearcher, query)).isOne();
   }
 }
