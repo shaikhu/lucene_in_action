@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.StoredFields;
 import org.apache.lucene.search.ScoreMode;
 import org.apache.lucene.search.SimpleCollector;
@@ -20,10 +19,10 @@ public class BookLinkCollector extends SimpleCollector {
   }
 
   @Override
-  public void collect(int doc) throws IOException {
-    Document document = fields.document(doc);
-    String url = document.get("url");
-    String title = document.get("title2");
+  public void collect(int docId) throws IOException {
+    var document = fields.document(docId);
+    var url = document.get("url");
+    var title = document.get("title2");
     documents.put(url, title);
   }
 

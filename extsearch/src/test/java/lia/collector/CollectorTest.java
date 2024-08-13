@@ -1,7 +1,5 @@
 package lia.collector;
 
-import java.util.Map;
-
 import lia.common.TestUtil;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Term;
@@ -29,13 +27,11 @@ class CollectorTest {
 
   @Test
   void testCollecting() throws Exception {
-    TermQuery query = new TermQuery(new Term("contents", "junit"));
+    var query = new TermQuery(new Term("contents", "junit"));
 
-    try (DirectoryReader reader = DirectoryReader.open(directory)) {
-      IndexSearcher searcher = new IndexSearcher(reader);
-      BookLinkCollector collector = new BookLinkCollector(reader.storedFields());
-      searcher.search(query, collector);
-      Map<String,String> links = collector.getLinks();
+    try (var directoryReader = DirectoryReader.open(directory)) {
+      var indexSearcher = new IndexSearcher(directoryReader);
+      var links = indexSearcher.search(query, new BookLinkCollectorManager(directoryReader.storedFields()));
       assertThat(links).containsEntry("http://www.manning.com/loughran", "ant in action");
     }
   }
