@@ -20,8 +20,6 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MultiPhraseQuery;
 import org.apache.lucene.search.PhraseQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
@@ -31,24 +29,27 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MultiPhraseQueryTest {
+  private static final SynonymEngine SYNONYM_ENGINE = text -> text.equals("quick") ? List.of("fast") : Collections.emptyList();
+
   private Directory directory;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setUp() throws Exception {
     directory = new ByteBuffersDirectory();
-    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()));
-    Document doc = new Document();
-    doc.add(new TextField("field", "the quick brown fox jumped over the lazy dog", Store.YES));
-    writer.addDocument(doc);
 
-    doc = new Document();
-    doc.add(new TextField("field", "the fast fox hopped over the hound", Store.YES));
-    writer.addDocument(doc);
-    writer.close();
+    try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
+      var document = new Document();
+      document.add(new TextField("field", "the quick brown fox jumped over the lazy dog", Store.YES));
+      indexWriter.addDocument(document);
 
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+      document = new Document();
+      document.add(new TextField("field", "the fast fox hopped over the hound", Store.YES));
+      indexWriter.addDocument(document);
+    }
+
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -58,57 +59,47 @@ class MultiPhraseQueryTest {
 
   @Test
   void testBasic() throws Exception {
-    MultiPhraseQuery.Builder builder = new MultiPhraseQuery.Builder();
-    builder
+    var builder = new MultiPhraseQuery.Builder()
         .add(new Term[]{new Term("field", "quick"), new Term("field", "fast")})
         .add(new Term("field", "fox"));
 
-    MultiPhraseQuery query = builder.build();
-    TopDocs hits = searcher.search(query, 10);
-    assertThat(hits.totalHits.value).isOne();
+    var multiPhraseQuery = builder.build();
+    var topDocs = indexSearcher.search(multiPhraseQuery, 10);
+    assertThat(topDocs.totalHits.value).isOne();
 
     builder.setSlop(1);
-    query = builder.build();
-
-    hits = searcher.search(query, 10);
-    assertThat(hits.totalHits.value).isEqualTo(2);
+    multiPhraseQuery = builder.build();
+    topDocs = indexSearcher.search(multiPhraseQuery, 10);
+    assertThat(topDocs.totalHits.value).isEqualTo(2);
   }
 
 
   @Test
   void testAgainstOR() throws Exception {
-    PhraseQuery quickFox = new PhraseQuery.Builder()
+    var quickFoxQuery = new PhraseQuery.Builder()
         .add(new Term("field", "quick"))
         .add(new Term("field", "fox"))
         .setSlop(1)
         .build();
 
-    PhraseQuery fastFox = new PhraseQuery.Builder()
+    var fastFoxQuery = new PhraseQuery.Builder()
         .add(new Term("field", "fast"))
         .add(new Term("field", "fox"))
         .build();
 
-    BooleanQuery query = new BooleanQuery.Builder()
-        .add(new BooleanClause(quickFox, Occur.SHOULD))
-        .add(new BooleanClause(fastFox, Occur.SHOULD))
+    var booleanQuery = new BooleanQuery.Builder()
+        .add(new BooleanClause(quickFoxQuery, Occur.SHOULD))
+        .add(new BooleanClause(fastFoxQuery, Occur.SHOULD))
         .build();
 
-    TopDocs hits = searcher.search(query, 10);
-    assertThat(hits.totalHits.value).isEqualTo(2);
+    var topDocs = indexSearcher.search(booleanQuery, 10);
+    assertThat(topDocs.totalHits.value).isEqualTo(2);
   }
 
   @Test
   void testQueryParser() throws Exception {
-    SynonymEngine engine = s -> {
-      if (s.equals("quick")) {
-        return List.of("fast");
-      } else {
-        return Collections.emptyList();
-      }
-    };
-
-    Query query = new QueryParser("field", new SynonymAnalyzer(engine)).parse("\"quick fox\"");
-
+    var queryParser = new QueryParser("field", new SynonymAnalyzer(SYNONYM_ENGINE));
+    var query = queryParser.parse("\"quick fox\"");
     assertThat(query).hasToString("field:\"(quick fast) fox\"");
     assertThat(query).isInstanceOf(MultiPhraseQuery.class);
   }

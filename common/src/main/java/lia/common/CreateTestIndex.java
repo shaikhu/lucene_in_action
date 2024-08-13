@@ -9,14 +9,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.DateTools;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
+import org.apache.lucene.document.*;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.LongField;
-import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -61,8 +55,9 @@ public class CreateTestIndex
     }
 
     document.add(new StringField("url", url, Store.YES));
-    document.add(new Field("subject", subject, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, true)));
-    document.add(new LongField("pubmonth", Long.parseLong(pubmonth), Store.NO));
+    document.add(new Field("subject", subject, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, false, true)));
+    document.add(new SortedNumericDocValuesField("pubmonth", Long.parseLong(pubmonth)));
+    document.add(new LongField("pubmonth", Long.parseLong(pubmonth), Store.YES));
 
     try {
       var date = DateTools.stringToDate(pubmonth);

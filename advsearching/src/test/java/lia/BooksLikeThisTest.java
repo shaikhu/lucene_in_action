@@ -1,44 +1,36 @@
 package lia;
 
 import lia.common.TestUtil;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.search.*;
 import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.BoostQuery;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.util.BytesRef;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BooksLikeThisTest {
+  private static final String ANT_IN_ACTION_ISBN = "193239480X";
+
   private Directory directory;
 
-  private DirectoryReader reader;
+  private DirectoryReader directoryReader;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
-  private TopDocs hits;
+  private TopDocs topDocs;
 
   @BeforeEach
   void setup() throws Exception {
     directory = TestUtil.getBookIndexDirectory();
-    reader = DirectoryReader.open(directory);
-    searcher = new IndexSearcher(reader);
-
-    Term term = new Term("isbn", "193239480X");
-    Query query = new TermQuery(term);
-    hits = searcher.search(query, 1);
+    directoryReader = DirectoryReader.open(directory);
+    indexSearcher = new IndexSearcher(directoryReader);
+    topDocs = indexSearcher.search(new TermQuery(new Term("isbn", ANT_IN_ACTION_ISBN)), 1);
   }
 
   @AfterEach
@@ -48,34 +40,39 @@ class BooksLikeThisTest {
 
   @Test
   void testMoreLikeThis() throws Exception {
-    Document document = reader.storedFields().document(hits.scoreDocs[0].doc);
+    var antInActionDocument = directoryReader.storedFields().document(topDocs.scoreDocs[0].doc);
 
-    BooleanQuery.Builder authorQueryBuilder = new BooleanQuery.Builder();
-    for (String author : document.getValues("author")) {
+    var authorQueryBuilder = new BooleanQuery.Builder();
+    for (var author : antInActionDocument.getValues("author")) {
       authorQueryBuilder.add(new BoostQuery(new TermQuery(new Term("author", author)), 2.0f), Occur.SHOULD);
     }
 
-    BooleanQuery.Builder subjectQueryBuilder = new BooleanQuery.Builder();
-    Terms terms = reader.termVectors().get(hits.scoreDocs[0].doc, "subject");
-    TermsEnum enumIterator = terms.iterator();
-    BytesRef bytesRef = enumIterator.next();
+    var subjectQueryBuilder = new BooleanQuery.Builder();
+    var terms = directoryReader.termVectors().get(topDocs.scoreDocs[0].doc, "subject");
+    var termsEnum = terms.iterator();
+    var bytesRef = terms.iterator().next();
     while (bytesRef != null) {
       subjectQueryBuilder.add(new TermQuery(new Term("subject", bytesRef.utf8ToString())), Occur.SHOULD);
-      bytesRef = enumIterator.next();
+      bytesRef = termsEnum.next();
     }
 
-    BooleanQuery likeThisQuery = new BooleanQuery.Builder()
+    var likeThisQuery = new BooleanQuery.Builder()
         .add(authorQueryBuilder.build(), Occur.SHOULD)
         .add(subjectQueryBuilder.build(), Occur.SHOULD)
-        .add(new TermQuery(new Term("isbn", document.get("isbn"))), Occur.MUST_NOT)
+        .add(new TermQuery(new Term("isbn", ANT_IN_ACTION_ISBN)), Occur.MUST_NOT)
         .build();
 
-    TopDocs matches = searcher.search(likeThisQuery, 10);
-    assertThat(matches.scoreDocs)
-        .extracting(scoreDoc -> searcher.storedFields().document(scoreDoc.doc).get("title"))
-        .containsOnly(
-            "Lucene in Action, Second Edition",
-            "JUnit in Action, Second Edition",
-            "Extreme Programming Explained");
+    topDocs = indexSearcher.search(likeThisQuery, 10);
+    assertThat(topDocs.scoreDocs)
+        .extracting(this::mapToTitle)
+        .containsOnly("Lucene in Action, Second Edition", "JUnit in Action, Second Edition", "Extreme Programming Explained");
+  }
+
+  private String mapToTitle(ScoreDoc scoreDoc) {
+    try {
+      return indexSearcher.storedFields().document(scoreDoc.doc).get("title");
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

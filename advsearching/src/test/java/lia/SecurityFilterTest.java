@@ -14,7 +14,6 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
@@ -26,25 +25,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SecurityFilterTest {
   private Directory directory;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setup() throws Exception {
     directory = new ByteBuffersDirectory();
-    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()));
+    try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
+      var document = new Document();
+      document.add(new StringField("owner", "elwood", Store.YES));
+      document.add(new TextField("keywords", "elwood's sensitive info", Store.YES));
+      indexWriter.addDocument(document);
 
-    Document document = new Document();
-    document.add(new StringField("owner", "elwood", Store.YES));
-    document.add(new TextField("keywords", "elwood's sensitive info", Store.YES));
-    writer.addDocument(document);
+      document = new Document();
+      document.add(new StringField("owner", "jake", Store.YES));
+      document.add(new TextField("keywords", "jake's sensitive info", Store.YES));
+      indexWriter.addDocument(document);
+    }
 
-    document = new Document();
-    document.add(new StringField("owner","jake", Store.YES));
-    document.add(new TextField("keywords", "jake's sensitive info", Store.YES));
-    writer.addDocument(document);
-    writer.close();
-
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -54,18 +52,21 @@ class SecurityFilterTest {
 
   @Test
   void testSecurityFilter() throws Exception {
-    TermQuery query = new TermQuery(new Term("keywords", "info"));
-    assertThat(TestUtil.hitCount(searcher, query)).isEqualTo(2);
+    var keywordQuery = new TermQuery(new Term("keywords", "info"));
+    assertThat(TestUtil.hitCount(indexSearcher, keywordQuery)).isEqualTo(2);
 
-    BooleanQuery jakeFilter = new BooleanQuery.Builder()
-        .add(query, Occur.MUST)
-        .add(new TermQuery(new Term("owner", "jake")), Occur.FILTER)
+    var ownerQuery = new TermQuery(new Term("owner", "jake"));
+    assertThat(TestUtil.hitCount(indexSearcher, ownerQuery)).isOne();
+
+    var booleanFilterQuery = new BooleanQuery.Builder()
+        .add(keywordQuery, Occur.MUST)
+        .add(ownerQuery, Occur.FILTER)
         .build();
 
-    TopDocs hits = searcher.search(jakeFilter, 10);
-    assertThat(hits.totalHits.value).isOne();
+    var topDocs = indexSearcher.search(booleanFilterQuery, 10);
+    assertThat(topDocs.totalHits.value).isOne();
 
-    Document doc = searcher.storedFields().document(hits.scoreDocs[0].doc);
-    assertThat(doc.get("keywords")).isEqualTo("jake's sensitive info");
+    var document = indexSearcher.storedFields().document(topDocs.scoreDocs[0].doc);
+    assertThat(document.get("keywords")).isEqualTo("jake's sensitive info");
   }
 }

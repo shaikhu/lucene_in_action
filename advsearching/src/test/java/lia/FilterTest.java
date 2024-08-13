@@ -20,17 +20,17 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FilterTest {
-  private Query allBooks;
-
-  private IndexSearcher searcher;
-
   private Directory directory;
+
+  private IndexSearcher indexSearcher;
+
+  private Query allBooksQuery;
 
   @BeforeEach
   void setup() throws Exception {
-    allBooks = new MatchAllDocsQuery();
+    allBooksQuery = new MatchAllDocsQuery();
     directory = TestUtil.getBookIndexDirectory();
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -40,40 +40,42 @@ class FilterTest {
 
   @Test
   void testQueryFiltering() throws Exception {
-    BooleanQuery query = new BooleanQuery.Builder()
-        .add(allBooks, Occur.MUST)
+    var query = new BooleanQuery.Builder()
+        .add(allBooksQuery, Occur.MUST)
         .add(new TermRangeQuery("title2", new BytesRef("d"), new BytesRef("j"), true, true), Occur.FILTER)
         .build();
 
-    assertThat(TestUtil.hitCount(searcher, query)).isEqualTo(3);
+    assertThat(TestUtil.hitCount(indexSearcher, query)).isEqualTo(3);
   }
 
   @Test
   void testNumericDateFilter() throws Exception {
-    BooleanQuery query = new BooleanQuery.Builder()
-        .add(allBooks, Occur.MUST)
+    var query = new BooleanQuery.Builder()
+        .add(allBooksQuery, Occur.MUST)
         .add(LongPoint.newRangeQuery("pubmonth", 201001, 201006), Occur.FILTER)
         .build();
-    assertThat(TestUtil.hitCount(searcher, query)).isEqualTo(2);
+
+    assertThat(TestUtil.hitCount(indexSearcher, query)).isEqualTo(2);
   }
 
   @Test
   void testStringRangeFilter() throws Exception {
-    Query query = new BooleanQuery.Builder()
-        .add(allBooks, Occur.MUST)
+    var query = new BooleanQuery.Builder()
+        .add(allBooksQuery, Occur.MUST)
         .add(TermRangeQuery.newStringRange("title2", "d", "j", true, true), Occur.FILTER)
         .build();
-    assertThat(TestUtil.hitCount(searcher, query)).isEqualTo(3);
+
+    assertThat(TestUtil.hitCount(indexSearcher, query)).isEqualTo(3);
   }
 
   @Test
   void testPrefixFilter() throws Exception {
-    PrefixQuery prefixQuery = new PrefixQuery(new Term("category", "/technology/computers"));
-    BooleanQuery query = new BooleanQuery.Builder()
-        .add(allBooks, Occur.MUST)
+    var prefixQuery = new PrefixQuery(new Term("category", "/technology/computers"));
+    var booleanQuery = new BooleanQuery.Builder()
+        .add(allBooksQuery, Occur.MUST)
         .add(prefixQuery, Occur.FILTER)
         .build();
 
-    assertThat(TestUtil.hitCount(searcher, query)).isEqualTo(8);
+    assertThat(TestUtil.hitCount(indexSearcher, booleanQuery)).isEqualTo(8);
   }
 }

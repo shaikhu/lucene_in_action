@@ -5,8 +5,6 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,12 +15,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MultiFieldQueryParserTest {
   private Directory directory;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setup() throws Exception {
     directory = TestUtil.getBookIndexDirectory();
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -32,23 +30,21 @@ class MultiFieldQueryParserTest {
 
   @Test
   void testDefaultOperator() throws Exception {
-    Query query = new MultiFieldQueryParser(new String[]{"title", "subject"}, new SimpleAnalyzer()).parse("development");
-    TopDocs hits = searcher.search(query, 10);
+    var queryParser = new MultiFieldQueryParser(new String[]{"title", "subject"}, new SimpleAnalyzer());
+    var query = queryParser.parse("development");
+    var topDocs = indexSearcher.search(query, 10);
 
-    assertThat(TestUtil.hitsIncludeTitle(searcher, hits, "Ant in Action")).isTrue();
-    assertThat(TestUtil.hitsIncludeTitle(searcher, hits, "Extreme Programming Explained")).isTrue();
+    assertThat(TestUtil.hitsIncludeTitle(indexSearcher, topDocs, "Ant in Action")).isTrue();
+    assertThat(TestUtil.hitsIncludeTitle(indexSearcher, topDocs, "Extreme Programming Explained")).isTrue();
   }
 
   @Test
   void testSpecifiedOperator() throws Exception {
-    Query query = MultiFieldQueryParser.parse("lucene", new String[]{"title", "subject"},
-        new Occur[] { Occur.MUST, Occur.MUST},
-        new SimpleAnalyzer());
+    var query = MultiFieldQueryParser.parse("lucene", new String[]{"title", "subject"},
+            new Occur[]{Occur.MUST, Occur.MUST}, new SimpleAnalyzer());
+    var topDocs = indexSearcher.search(query, 10);
 
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
-    TopDocs hits = searcher.search(query, 10);
-
-    assertThat(TestUtil.hitsIncludeTitle(searcher, hits, "Lucene in Action, Second Edition")).isTrue();
-    assertThat(hits.scoreDocs).hasSize(1);
+    assertThat(TestUtil.hitsIncludeTitle(indexSearcher, topDocs, "Lucene in Action, Second Edition")).isTrue();
+    assertThat(topDocs.scoreDocs).hasSize(1);
   }
 }

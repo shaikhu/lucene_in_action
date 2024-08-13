@@ -18,6 +18,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
+import org.apache.lucene.search.SortedNumericSortField;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
@@ -27,25 +28,25 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SortingTest {
-  Directory directory;
+  private Directory directory;
 
-  IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
-  BooleanQuery query;
+  private BooleanQuery booleanQuery;
 
   @BeforeEach
   void setup() throws Exception {
     directory = TestUtil.getBookIndexDirectory();
 
+    Query javaBook = new QueryParser("contents", new StandardAnalyzer()).parse("java OR action");
     Query allBooks = new MatchAllDocsQuery();
 
-    QueryParser parser = new QueryParser("contents", new StandardAnalyzer());
-    query = new BooleanQuery.Builder()
+    booleanQuery = new BooleanQuery.Builder()
         .add(allBooks, Occur.SHOULD)
-        .add(parser.parse("java OR action"), Occur.SHOULD)
+        .add(javaBook, Occur.SHOULD)
         .build();
 
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
@@ -55,38 +56,62 @@ class SortingTest {
 
   @Test
   void testSortByRelevance() throws Exception {
-    TopDocs results = searcher.search(query, 10, Sort.RELEVANCE, true);
-    List<Float> scores = Arrays.stream(results.scoreDocs).map(scoreDoc -> scoreDoc.score).toList();
+    TopDocs results = indexSearcher.search(booleanQuery, 10, Sort.RELEVANCE, true);
+    List<Float> scores = Arrays.stream(results.scoreDocs).map(this::mapToScore).toList();
     assertThat(scores).isSortedAccordingTo(Comparator.reverseOrder());
   }
 
   @Test
   void testSortByIndexOrder() throws Exception {
-    // sorted by index / document number
-    TopDocs results = searcher.search(query, 10, Sort.INDEXORDER, true);
-    List<Integer> documentNumbers = Arrays.stream(results.scoreDocs).map(scoreDoc -> scoreDoc.doc).toList();
+    TopDocs results = indexSearcher.search(booleanQuery, 10, Sort.INDEXORDER, true);
+    List<Integer> documentNumbers = Arrays.stream(results.scoreDocs).map(this::mapToDocumentID).toList();
     assertThat(documentNumbers).isSorted();
   }
 
   @Test
   void testSortByField() throws Exception {
-    TopDocs results = searcher.search(query, 10, new Sort(new SortField("category", Type.STRING)), true);
+    TopDocs results = indexSearcher.search(booleanQuery, 10, new Sort(new SortField("category", Type.STRING)), true);
     List<String> titles = Arrays.stream(results.scoreDocs).map(this::mapToCategory).toList();
     assertThat(titles).isSorted();
   }
 
   @Test
+  void testSortByMultipleFields() throws Exception {
+    TopDocs results = indexSearcher.search(booleanQuery, 10,
+            new Sort(new SortField("category", Type.STRING),
+                     new SortedNumericSortField("pubmonth", Type.LONG)), true);
+    List<ScoreDoc> docs = Arrays.stream(results.scoreDocs).toList();
+    assertThat(docs).isSortedAccordingTo(Comparator.comparing(this::mapToCategory).thenComparing(this::mapToPubMonth));
+  }
+
+  @Test
   void testSortByFieldReverse() throws Exception {
-    TopDocs results = searcher.search(query, 10, new Sort(new SortField("category", Type.STRING, true)), true);
+    TopDocs results = indexSearcher.search(booleanQuery, 10, new Sort(new SortField("category", Type.STRING, true)), true);
     List<String> titles = Arrays.stream(results.scoreDocs).map(this::mapToCategory).toList();
     assertThat(titles).isSortedAccordingTo(Comparator.reverseOrder());
   }
 
   private String mapToCategory(ScoreDoc scoreDoc) {
     try {
-      return searcher.storedFields().document(scoreDoc.doc).get("category");
+      return indexSearcher.storedFields().document(scoreDoc.doc).get("category");
     } catch (IOException e) {
-      return null;
+      throw new RuntimeException((e));
     }
+  }
+
+  private String mapToPubMonth(ScoreDoc scoreDoc) {
+    try {
+      return indexSearcher.storedFields().document(scoreDoc.doc).get("pubmonth");
+    } catch (IOException e) {
+      throw new RuntimeException((e));
+    }
+  }
+
+  private int mapToDocumentID(ScoreDoc scoreDoc) {
+    return scoreDoc.doc;
+  }
+
+  private float mapToScore(ScoreDoc scoreDoc) {
+    return scoreDoc.score;
   }
 }

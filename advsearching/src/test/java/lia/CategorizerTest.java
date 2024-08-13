@@ -2,7 +2,6 @@ package lia;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -11,7 +10,6 @@ import lia.common.TestUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.TermVectors;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.util.BytesRef;
@@ -25,32 +23,25 @@ class CategorizerTest {
 
   @BeforeEach
   void setup() throws Exception {
-    buildCategoryVectors();
-  }
+    try (IndexReader indexReader = DirectoryReader.open(TestUtil.getBookIndexDirectory())) {
+      for (int i = 0; i < indexReader.maxDoc(); i++) {
+        Document document = indexReader.storedFields().document(i);
+        String category = document.get("category");
 
-  private void buildCategoryVectors() throws Exception {
-    IndexReader reader = DirectoryReader.open(TestUtil.getBookIndexDirectory());
-    int maxDoc = reader.maxDoc();
-    for (int i = 0; i < maxDoc; i++) {
-      Document doc = reader.storedFields().document(i);
-      String category = doc.get("category");
-
-      Map<String, Integer> vectorMap = categories.computeIfAbsent(category, k -> new TreeMap<>());
-
-      TermVectors termVectors = reader.termVectors();
-      Terms terms = termVectors.get(i, "subject");
-      addTermFreqToMap(vectorMap, terms);
+        Map<String, Integer> vectorMap = categories.computeIfAbsent(category, frequency -> new TreeMap<>());
+        Terms terms = indexReader.termVectors().get(i, "subject");
+        addTermFreqToMap(vectorMap, terms);
+      }
     }
   }
 
   private void addTermFreqToMap(Map<String, Integer> vectorMap, Terms terms) throws Exception {
     List<String> subjectTerms = new ArrayList<>();
 
-    TermsEnum enumIterator = terms.iterator();
-    BytesRef bytesRef = enumIterator.next();
-    while (bytesRef != null) {
+    TermsEnum termsIterator = terms.iterator();
+    BytesRef bytesRef;
+    while ((bytesRef = termsIterator.next()) != null) {
       subjectTerms.add(bytesRef.utf8ToString());
-      bytesRef = enumIterator.next();
     }
 
     int sumTotalTermFreq =  Long.valueOf(terms.getSumTotalTermFreq()).intValue();
@@ -60,14 +51,11 @@ class CategorizerTest {
   }
 
   private String getCategory(String subject) {
-    String[] words = subject.split(" ");
-
-    Iterator<String> categoryIterator = categories.keySet().iterator();
     double bestAngle = Double.MAX_VALUE;
-    String bestCategory = null;
-    while (categoryIterator.hasNext()) {
-      String category = categoryIterator.next();
-      double angle = computeAngle(words, category);
+    String bestCategory = "";
+
+    for (String category : categories.keySet()) {
+      double angle = computeAngle(subject.split(" "), category);
       if (angle < bestAngle) {
         bestAngle = angle;
         bestCategory = category;
@@ -85,7 +73,6 @@ class CategorizerTest {
       dotProduct += categoryWordFreq;
       sumOfSquares += categoryWordFreq * categoryWordFreq;
     }
-
     double denominator = sumOfSquares == words.length ? sumOfSquares : Math.sqrt(sumOfSquares) * Math.sqrt(words.length);
     double ratio = dotProduct / denominator;
     return Math.acos(ratio);

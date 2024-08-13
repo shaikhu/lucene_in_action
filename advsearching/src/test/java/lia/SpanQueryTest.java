@@ -18,7 +18,6 @@ import org.apache.lucene.queries.spans.SpanTermQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SpanQueryTest {
   private ByteBuffersDirectory directory;
 
-  private IndexSearcher searcher;
+  private IndexSearcher indexSearcher;
 
   private SpanTermQuery quick;
 
@@ -47,27 +46,21 @@ class SpanQueryTest {
 
   private SpanTermQuery cat;
 
-  private Analyzer analyzer;
-
   @BeforeEach
   void setUp() throws Exception {
     directory = new ByteBuffersDirectory();
 
-    analyzer = new WhitespaceAnalyzer();
+    try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
+      var document = new Document();
+      document.add(new TextField("f", "the quick brown fox jumps over the lazy dog", Store.YES));
+      indexWriter.addDocument(document);
 
-    IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(analyzer));
+      document = new Document();
+      document.add(new TextField("f", "the quick red fox jumps over the sleepy cat", Store.YES));
+      indexWriter.addDocument(document);
+    }
 
-    Document doc = new Document();
-    doc.add(new TextField("f", "the quick brown fox jumps over the lazy dog", Store.YES));
-    writer.addDocument(doc);
-
-    doc = new Document();
-    doc.add(new TextField("f", "the quick red fox jumps over the sleepy cat", Store.YES));
-    writer.addDocument(doc);
-
-    writer.close();
-
-    searcher = new IndexSearcher(DirectoryReader.open(directory));
+    indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
     quick = new SpanTermQuery(new Term("f", "quick"));
     brown = new SpanTermQuery(new Term("f", "brown"));
     red = new SpanTermQuery(new Term("f", "red"));
@@ -99,70 +92,69 @@ class SpanQueryTest {
 
   @Test
   void testSpanNearQuery() throws Exception {
-    SpanQuery[] quickBrownDog = new SpanQuery[]{quick, brown, dog};
-    SpanNearQuery snq = new SpanNearQuery(quickBrownDog, 0, true);
-    assertNoMatches(snq);
+    var quickBrownDog = new SpanQuery[]{quick, brown, dog};
+    var spanNearQuery = new SpanNearQuery(quickBrownDog, 0, true);
+    assertNoMatches(spanNearQuery);
 
-    snq = new SpanNearQuery(quickBrownDog, 4, true);
-    assertNoMatches(snq);
+    spanNearQuery = new SpanNearQuery(quickBrownDog, 4, true);
+    assertNoMatches(spanNearQuery);
 
-    snq = new SpanNearQuery(quickBrownDog, 5, true);
-    assertOnlyBrownFox(snq);
+    spanNearQuery = new SpanNearQuery(quickBrownDog, 5, true);
+    assertOnlyBrownFox(spanNearQuery);
 
-    // interesting - even a sloppy phrase query would require
-    // more slop to match
-    snq = new SpanNearQuery(new SpanQuery[]{lazy, fox}, 3, false);
-    assertOnlyBrownFox(snq);
+    // interesting - even a sloppy phrase query would require more slop to match
+    spanNearQuery = new SpanNearQuery(new SpanQuery[]{lazy, fox}, 3, false);
+    assertOnlyBrownFox(spanNearQuery);
 
-    PhraseQuery.Builder builder = new PhraseQuery.Builder();
-    builder.add(new Term("f", "lazy"));
-    builder.add(new Term("f", "fox"));
-    builder.setSlop(4);
-    assertNoMatches(builder.build());
+    var phraseQueryBuilder = new PhraseQuery.Builder()
+        .add(new Term("f", "lazy"))
+        .add(new Term("f", "fox"))
+        .setSlop(4);
+    assertNoMatches(phraseQueryBuilder.build());
 
-    builder.setSlop(5);
-    assertOnlyBrownFox(builder.build());
+    phraseQueryBuilder.setSlop(5);
+    assertOnlyBrownFox(phraseQueryBuilder.build());
   }
 
   @Test
   void testSpanNotQuery() throws Exception {
-    SpanNearQuery quickFox = new SpanNearQuery(new SpanQuery[]{quick, fox}, 1, true);
+    var quickFox = new SpanNearQuery(new SpanQuery[]{quick, fox}, 1, true);
     assertBothFoxes(quickFox);
 
-    SpanNotQuery quickFoxDog = new SpanNotQuery(quickFox, dog);
+    var quickFoxDog = new SpanNotQuery(quickFox, dog);
     assertBothFoxes(quickFoxDog);
 
-    SpanNotQuery noQuickRedFox = new SpanNotQuery(quickFox, red);
+    var noQuickRedFox = new SpanNotQuery(quickFox, red);
     assertOnlyBrownFox(noQuickRedFox);
   }
 
   @Test
   void testSpanOrQuery() throws Exception {
-    SpanNearQuery quickFox = new SpanNearQuery(new SpanQuery[]{quick, fox}, 1, true);
-    SpanNearQuery lazyDog = new SpanNearQuery(new SpanQuery[]{lazy, dog}, 0, true);
-    SpanNearQuery sleepyCat = new SpanNearQuery(new SpanQuery[]{sleepy, cat}, 0, true);
+    var quickFox = new SpanNearQuery(new SpanQuery[]{quick, fox}, 1, true);
+    var lazyDog = new SpanNearQuery(new SpanQuery[]{lazy, dog}, 0, true);
+    var sleepyCat = new SpanNearQuery(new SpanQuery[]{sleepy, cat}, 0, true);
 
-    SpanNearQuery quickFoxNearLazyDog = new SpanNearQuery(new SpanQuery[]{quickFox, lazyDog}, 3, true);
+    var quickFoxNearLazyDog = new SpanNearQuery(new SpanQuery[]{quickFox, lazyDog}, 3, true);
     assertOnlyBrownFox(quickFoxNearLazyDog);
 
-    SpanNearQuery quickFoxNearSleepyCat = new SpanNearQuery(new SpanQuery[]{quickFox, sleepyCat}, 3, true);
-    SpanOrQuery or = new SpanOrQuery(quickFoxNearLazyDog, quickFoxNearSleepyCat);
-    assertBothFoxes(or);
+    var quickFoxNearSleepyCat = new SpanNearQuery(new SpanQuery[]{quickFox, sleepyCat}, 3, true);
+    var bothFoxes = new SpanOrQuery(quickFoxNearLazyDog, quickFoxNearSleepyCat);
+    assertBothFoxes(bothFoxes);
   }
 
   private void assertOnlyBrownFox(Query query) throws Exception {
-    TopDocs hits = searcher.search(query, 10);
-    assertThat(hits.totalHits.value).isOne();
-    assertThat(hits.scoreDocs[0].doc).isZero();
+    var topDocs = indexSearcher.search(query, 10);
+    assertThat(topDocs.totalHits.value).isOne();
+    assertThat(topDocs.scoreDocs[0].doc).isZero();
   }
 
   private void assertBothFoxes(Query query) throws Exception {
-    TopDocs hits = searcher.search(query, 10);
-    assertThat(hits.totalHits.value).isEqualTo(2);
+    var topDocs = indexSearcher.search(query, 10);
+    assertThat(topDocs.totalHits.value).isEqualTo(2);
   }
 
   private void assertNoMatches(Query query) throws Exception {
-    TopDocs hits = searcher.search(query, 10);
-    assertThat(hits.totalHits.value).isZero();
+    var topDocs = indexSearcher.search(query, 10);
+    assertThat(topDocs.totalHits.value).isZero();
   }
 }
