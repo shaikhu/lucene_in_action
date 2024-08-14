@@ -4,53 +4,53 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.digester.Digester;
+import org.apache.commons.digester3.Digester;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
 import org.xml.sax.SAXException;
 
 public class DigesterXMLDocument {
-  private Digester dig;
+  private Digester digester;
 
-  private static Document doc;
+  private static Document document;
 
   public DigesterXMLDocument() {
-    dig = new Digester();
-    dig.setValidating(false);
-    dig.addObjectCreate("address-book", DigesterXMLDocument.class);
-    dig.addObjectCreate("address-book/contact", Contact.class);
-    dig.addSetProperties("address-book/contact", "type", "type");
-    dig.addCallMethod("address-book/contact/name", "setName", 0);
-    dig.addCallMethod("address-book/contact/address", "setAddress", 0);
-    dig.addCallMethod("address-book/contact/city", "setCity", 0);
-    dig.addCallMethod("address-book/contact/province", "setProvince", 0);
-    dig.addCallMethod("address-book/contact/postalcode", "setPostalcode", 0);
-    dig.addCallMethod("address-book/contact/country", "setCountry", 0);
-    dig.addCallMethod("address-book/contact/telephone","setTelephone", 0);
-    dig.addSetNext("address-book/contact", "populateDocument");
+    digester = new Digester();
+    digester.setValidating(false);
+    digester.addObjectCreate("address-book", DigesterXMLDocument.class);
+    digester.addObjectCreate("address-book/contact", Contact.class);
+    digester.addSetProperties("address-book/contact", "type", "type");
+    digester.addCallMethod("address-book/contact/name", "setName", 0);
+    digester.addCallMethod("address-book/contact/address", "setAddress", 0);
+    digester.addCallMethod("address-book/contact/city", "setCity", 0);
+    digester.addCallMethod("address-book/contact/province", "setProvince", 0);
+    digester.addCallMethod("address-book/contact/postalcode", "setPostalcode", 0);
+    digester.addCallMethod("address-book/contact/country", "setCountry", 0);
+    digester.addCallMethod("address-book/contact/telephone","setTelephone", 0);
+    digester.addSetNext("address-book/contact", "populateDocument");
   }
 
-  public synchronized Document getDocument(InputStream is) throws DocumentHandlerException {
+  public synchronized Document getDocument(InputStream inputStream) throws DocumentHandlerException {
     try {
-      dig.parse(is);
+      digester.parse(inputStream);
     }
     catch (IOException | SAXException e) {
       throw new DocumentHandlerException("Cannot parse XML document", e);
     }
-    return doc;
+    return document;
   }
 
   public void populateDocument(Contact contact) {
-    doc = new Document();
-    doc.add(new StringField("type", contact.getType(), Store.YES));
-    doc.add(new StringField("name", contact.getName(), Store.YES));
-    doc.add(new StringField("address", contact.getAddress(), Store.YES));
-    doc.add(new StringField("city", contact.getCity(), Store.YES));
-    doc.add(new StringField("province", contact.getProvince(), Store.YES));
-    doc.add(new StringField("postalcode", contact.getPostalcode(), Store.YES));
-    doc.add(new StringField("country", contact.getCountry(), Store.YES));
-    doc.add(new StringField("telephone", contact.getTelephone(), Store.YES));
+    document = new Document();
+    document.add(new StringField("type", contact.getType(), Store.YES));
+    document.add(new StringField("name", contact.getName(), Store.YES));
+    document.add(new StringField("address", contact.getAddress(), Store.YES));
+    document.add(new StringField("city", contact.getCity(), Store.YES));
+    document.add(new StringField("province", contact.getProvince(), Store.YES));
+    document.add(new StringField("postalcode", contact.getPostalcode(), Store.YES));
+    document.add(new StringField("country", contact.getCountry(), Store.YES));
+    document.add(new StringField("telephone", contact.getTelephone(), Store.YES));
   }
 
   public static class Contact {
@@ -129,8 +129,12 @@ public class DigesterXMLDocument {
   }
 
   public static void main(String... args) throws Exception {
-    DigesterXMLDocument handler = new DigesterXMLDocument();
-    Document doc = handler.getDocument(new FileInputStream(args[0]));
-    System.out.println(doc);
+    if (args.length != 1) {
+      throw new IllegalArgumentException("Usage: java " + DigesterXMLDocument.class.getName() + " <xml file>");
+    }
+
+    var xmlDocument = new DigesterXMLDocument();
+    var document = xmlDocument.getDocument(new FileInputStream(args[0]));
+    System.out.println(document);
   }
 }

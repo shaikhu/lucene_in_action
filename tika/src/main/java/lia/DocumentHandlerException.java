@@ -31,22 +31,22 @@ public class DocumentHandlerException extends Exception {
     printStackTrace(System.err);
   }
 
-  public void printStackTrace(PrintStream ps) {
-    synchronized (ps) {
-      super.printStackTrace(ps);
+  public void printStackTrace(PrintStream printStream) {
+    synchronized (printStream) {
+      super.printStackTrace(printStream);
       if (cause != null) {
-        ps.println("--- Nested Exception ---");
-        cause.printStackTrace(ps);
+        printStream.println("--- Nested Exception ---");
+        cause.printStackTrace(printStream);
       }
     }
   }
 
-  public void printStackTrace(PrintWriter pw) {
-    synchronized (pw) {
-      super.printStackTrace(pw);
+  public void printStackTrace(PrintWriter printWriter) {
+    synchronized (printWriter) {
+      super.printStackTrace(printWriter);
       if (cause != null) {
-        pw.println("--- Nested Exception ---");
-        cause.printStackTrace(pw);
+        printWriter.println("--- Nested Exception ---");
+        cause.printStackTrace(printWriter);
       }
     }
   }

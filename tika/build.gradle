@@ -5,7 +5,7 @@ plugins {
 dependencies {
   implementation project(':meetlucene')
 
-  implementation 'commons-digester:commons-digester:2.1'
+  implementation 'org.apache.commons:commons-digester3:3.2'
   implementation "org.apache.tika:tika-core:${tikaVersion}"
   implementation "org.apache.tika:tika-parsers-standard-package:${tikaVersion}"
 }
@@ -15,4 +15,18 @@ tasks.register('tikaIndexer', JavaExec) {
   mainClass = 'lia.TikaIndexer'
   classpath = sourceSets.main.runtimeClasspath
   args "${getRootDir()}/tikaIndex", "${getRootDir()}/tika/data"
+}
+
+tasks.register('digester', JavaExec) {
+  dependsOn 'classes'
+  mainClass = 'lia.DigesterXMLDocument'
+  classpath = sourceSets.main.runtimeClasspath
+  args "${getRootDir()}/tika/data/addressbook.xml"
+}
+
+tasks.register('saxDocument', JavaExec) {
+  dependsOn 'classes'
+  mainClass = 'lia.SAXXMLDocument'
+  classpath = sourceSets.main.runtimeClasspath
+  args "${getRootDir()}/tika/data/addressbook.xml"
 }
