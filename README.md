@@ -6,11 +6,13 @@ This is an attempt to update the code examples (where possible) using Apache Luc
 
 ## Versions
 
-- Lucene: 9.11.1
+- Lucene: 9.11.0
 - Tika 2.8.0
-- Gradle 8.5
+- Gradle 8.9
 - JDK 17
 
+<!--
 ## Shout out from Mike!
 ![image](shout_out.png)
 Original [tweet](https://twitter.com/mikemccand/status/1663855254545346561?s=20)
+-->
