@@ -12,7 +12,7 @@ import org.apache.lucene.store.FSDirectory;
 public class Explainer {
   public static void main(String... args) throws Exception {
     if (args.length != 2) {
-      throw new IllegalArgumentException("Usage: Explainer <index dir> <query>");
+      throw new IllegalArgumentException("Usage: java " + Explainer.class.getName()  + " <index dir> <query>");
     }
 
     var indexDirectory = args[0];
