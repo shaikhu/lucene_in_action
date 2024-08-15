@@ -30,7 +30,10 @@ public class NGramFilterSample {
   }
 
   public static void main(String... args) throws IOException {
-    AnalyzerUtils.displayTokensWithPositions(new NGramAnalyzer(), "lettuce");
-    AnalyzerUtils.displayTokensWithPositions(new EdgeNGramAnalyzer(), "lettuce");
+    if (args.length != 1) {
+      throw new IllegalArgumentException("Usage: java " + NGramFilterSample.class.getName() + " <spell checker index dir> <word>");
+    }
+    AnalyzerUtils.displayTokensWithPositions(new NGramAnalyzer(), args[0]);
+    AnalyzerUtils.displayTokensWithPositions(new EdgeNGramAnalyzer(), args[0]);
   }
 }

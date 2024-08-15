@@ -23,3 +23,9 @@ tasks.register('spellCheckerExample', JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
   args "${getRootDir()}/spellIndex", project.hasProperty("word") ? project.getProperties().get("word") : "frie"
 }
+
+tasks.register('ngramFilter', JavaExec) {
+  mainClass = 'lia.NGramFilterSample'
+  classpath = sourceSets.main.runtimeClasspath
+  args project.hasProperty("word") ? project.getProperties().get("word") : "lettuce"
+}
