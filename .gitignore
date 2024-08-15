@@ -12,3 +12,6 @@ index/*
 testIndex/*
 tikaIndex/*
 spellIndex/*
+
+# html result file
+**/result.html

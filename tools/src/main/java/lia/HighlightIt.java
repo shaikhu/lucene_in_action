@@ -12,44 +12,44 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
 
-public class HighlightIt
-{
+public class HighlightIt {
+  private static final String OUTPUT_HTML_FILE = "result.html";
+
   private static final String TEXT = """
-      In this section we'll show you how to make the simplest
-      programmatic query, searching for a single term, and then
-      we'll see how to use QueryParser to accept textual queries.
-      In the sections that follow, we’ll take this simple example
-      further by detailing all the query types built into Lucene.
-      We begin with the simplest search of all: searching for all
-      documents that contain a single term.""";
+          In this section we'll show you how to make the simplest
+          programmatic query, searching for a single term, and then
+          we'll see how to use QueryParser to accept textual queries.
+          In the sections that follow, we’ll take this simple example
+          further by detailing all the query types built into Lucene.
+          We begin with the simplest search of all: searching for all
+          documents that contain a single term.""";
 
   public static void main(String... args) throws Exception {
-    String filename = args.length > 0 ? args[0] : "results.html";
-    String searchText = "term";
-    QueryParser parser = new QueryParser("f", new StandardAnalyzer());
-    Query query = parser.parse(searchText);
+    if (args.length != 1) {
+      throw new IllegalArgumentException("Usage: java " + HighlightIt.class.getName() + " <word>");
+    }
 
-    SimpleHTMLFormatter formatter = new SimpleHTMLFormatter("<span class=\"highlight\">", "</span>");
+    var queryParser = new QueryParser("f", new StandardAnalyzer());
+    Query query = queryParser.parse(args[0]);
 
-    TokenStream tokens = new StandardAnalyzer().tokenStream("f", new StringReader(TEXT));
-    QueryScorer scorer = new QueryScorer(query, "f");
+    var htmlFormatter = new SimpleHTMLFormatter("<span class=\"highlight\">", "</span>");
+    var tokenStream = new StandardAnalyzer().tokenStream("f", new StringReader(TEXT));
+    var queryScorer = new QueryScorer(query, "f");
 
-    Highlighter highlighter = new Highlighter(formatter, scorer);
-    highlighter.setTextFragmenter(new SimpleSpanFragmenter(scorer));
+    var highlighter = new Highlighter(htmlFormatter, queryScorer);
+    highlighter.setTextFragmenter(new SimpleSpanFragmenter(queryScorer));
 
-    String result = highlighter.getBestFragments(tokens, TEXT, 3, "...");
-
-    FileWriter writer = new FileWriter(filename);
-    writer.write("<html>");
-    writer.write("""
-        <style>
-        .highlight {
-         background: yellow;
-        }
-        </style>""");
-    writer.write("<body>");
-    writer.write(result);
-    writer.write("</body></html>");
-    writer.close();
+    try (var fileWriter = new FileWriter(OUTPUT_HTML_FILE)) {
+      fileWriter.write("<html>");
+      fileWriter.write("""
+            <style>
+              .highlight {
+                background: yellow;
+              }
+            </style>""");
+      fileWriter.write("<body>");
+      fileWriter.write(highlighter.getBestFragments(tokenStream, TEXT, 3, "..."));
+      fileWriter.write("</body></html>");
+    }
   }
 }

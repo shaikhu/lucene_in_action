@@ -29,3 +29,9 @@ tasks.register('ngramFilter', JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
   args project.hasProperty("word") ? project.getProperties().get("word") : "lettuce"
 }
+
+tasks.register('highlight', JavaExec) {
+  mainClass = 'lia.HighlightIt'
+  classpath = sourceSets.main.runtimeClasspath
+  args project.hasProperty("word") ? project.getProperties().get("word") : "term"
+}
