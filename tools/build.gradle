@@ -35,3 +35,8 @@ tasks.register('highlight', JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
   args project.hasProperty("word") ? project.getProperties().get("word") : "term"
 }
+
+tasks.register('fastVectorHighlight', JavaExec) {
+  mainClass = 'lia.FastVectorHighlighterSample'
+  classpath = sourceSets.main.runtimeClasspath
+}

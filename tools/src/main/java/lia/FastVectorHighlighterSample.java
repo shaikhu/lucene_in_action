@@ -4,7 +4,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -15,36 +14,27 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.vectorhighlight.BaseFragmentsBuilder;
 import org.apache.lucene.search.vectorhighlight.FastVectorHighlighter;
-import org.apache.lucene.search.vectorhighlight.FieldQuery;
-import org.apache.lucene.search.vectorhighlight.FragListBuilder;
-import org.apache.lucene.search.vectorhighlight.FragmentsBuilder;
 import org.apache.lucene.search.vectorhighlight.ScoreOrderFragmentsBuilder;
 import org.apache.lucene.search.vectorhighlight.SimpleFragListBuilder;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 
 public class FastVectorHighlighterSample {
-  private static final List<String> DOCUMENTS = List.of(
+  private static final String OUTPUT_HTML_FILE = "result.html";
+
+  private static final String QUERY = "quick OR fox OR \"lazy dog\"~1";
+
+  private static final List<String> TEXT_SAMPLES = List.of(
       "the quick brown fox jumps over the lazy dog",
       "the quick gold fox jumped over the lazy black dog",
       "the quick fox jumps over the black dog",
       "the red fox jumped over the lazy dark gray dog");
 
-  private static final String QUERY = "quick OR fox OR \"lazy dog\"~1";
 
-  private static final String FIELD = "f";
-
-  private static final Directory DIRECTORY = new ByteBuffersDirectory();
-
-  private static final Analyzer ANALYZER = new StandardAnalyzer();
-
-  private static void makeIndex() throws IOException {
-    FieldType fieldType = new FieldType();
+  private static void makeIndex(Directory directory) throws IOException {
+    var fieldType = new FieldType();
     fieldType.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS);
     fieldType.setStored(true);
     fieldType.setTokenized(true);
@@ -52,47 +42,46 @@ public class FastVectorHighlighterSample {
     fieldType.setStoreTermVectorOffsets(true);
     fieldType.setStoreTermVectorPositions(true);
 
-    IndexWriter writer = new IndexWriter(DIRECTORY, new IndexWriterConfig(ANALYZER));
-    for(String d : DOCUMENTS) {
-      Document doc = new Document();
-      doc.add(new Field(FIELD, d, fieldType));
-      writer.addDocument(doc);
-    }
-    writer.close();
-  }
-
-  private static void searchIndex(String outputFile) throws Exception {
-    QueryParser parser = new QueryParser(FIELD, ANALYZER);
-    Query query = parser.parse(QUERY);
-    FastVectorHighlighter highlighter = getHighlighter();
-    FieldQuery fieldQuery = highlighter.getFieldQuery(query);
-    IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(DIRECTORY));
-    TopDocs docs = searcher.search(query, 10);
-
-    FileWriter writer = new FileWriter(outputFile);
-    writer.write("<html>");
-    writer.write("<body>");
-    writer.write("<p>QUERY : " + QUERY + "</p>");
-    for(ScoreDoc scoreDoc : docs.scoreDocs) {
-      String snippet = highlighter.getBestFragment(fieldQuery, searcher.getIndexReader(), scoreDoc.doc, FIELD, 100 );
-      if (snippet != null) {
-        writer.write(scoreDoc.doc + " : " + snippet + "<br/>");
+    try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()))) {
+      for(var text : TEXT_SAMPLES) {
+        var document = new Document();
+        document.add(new Field("f", text, fieldType));
+        indexWriter.addDocument(document);
       }
     }
-    writer.write("</body></html>");
-    writer.close();
   }
 
-  private static FastVectorHighlighter getHighlighter() {
-    FragListBuilder fragListBuilder = new SimpleFragListBuilder();
-    FragmentsBuilder fragmentBuilder = new ScoreOrderFragmentsBuilder(
-            BaseFragmentsBuilder.COLORED_PRE_TAGS,
-            BaseFragmentsBuilder.COLORED_POST_TAGS);
-    return new FastVectorHighlighter(true, true, fragListBuilder, fragmentBuilder);
+  private static void searchIndex(Directory directory) throws Exception {
+    try (var directoryReader = DirectoryReader.open(directory)) {
+      var indexSearcher = new IndexSearcher(directoryReader);
+      var query = new QueryParser("f", new StandardAnalyzer()).parse(QUERY);
+      var topDocs = indexSearcher.search(query, 10);
+
+      var highlighter = getFastVectorHighlighter();
+      var fieldQuery = highlighter.getFieldQuery(query);
+      try (var fileWriter = new FileWriter(OUTPUT_HTML_FILE)) {
+        fileWriter.write("<html>");
+        fileWriter.write("<body>");
+        fileWriter.write("<p>QUERY : " + QUERY + "</p>");
+        for(var scoreDoc : topDocs.scoreDocs) {
+          var htmlString = highlighter.getBestFragment(fieldQuery, indexSearcher.getIndexReader(), scoreDoc.doc, "f", 100);
+          fileWriter.write(scoreDoc.doc + " : " + htmlString + "<br/>");
+        }
+        fileWriter.write("</body></html>");
+      }
+    }
+  }
+
+  private static FastVectorHighlighter getFastVectorHighlighter() {
+    return new FastVectorHighlighter(true, true,
+            new SimpleFragListBuilder(),
+            new ScoreOrderFragmentsBuilder(BaseFragmentsBuilder.COLORED_PRE_TAGS, BaseFragmentsBuilder.COLORED_POST_TAGS));
   }
 
   public static void main(String... args) throws Exception {
-    makeIndex();
-    searchIndex(args.length > 0 ? args[0] : "results.html");
+    try (var directory = new ByteBuffersDirectory()) {
+      makeIndex(directory);
+      searchIndex(directory);
+    }
   }
 }
