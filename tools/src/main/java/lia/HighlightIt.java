@@ -3,7 +3,6 @@ package lia;
 import java.io.FileWriter;
 import java.io.StringReader;
 
-import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
