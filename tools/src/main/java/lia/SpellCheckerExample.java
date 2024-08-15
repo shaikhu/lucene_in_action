@@ -1,36 +1,33 @@
 package lia;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.search.spell.LevenshteinDistance;
 import org.apache.lucene.search.spell.SpellChecker;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 public class SpellCheckerExample {
   public static void main(String... args) throws Exception {
     if (args.length != 2) {
-      System.out.println("Usage: java lia.tools.SpellCheckerTest SpellCheckerIndexDir wordToRespell");
-      System.exit(1);
+      throw new IllegalArgumentException("Usage: java " + SpellCheckerExample.class.getName() + " + <spell checker index dir> <word to respell>");
     }
 
-    String spellCheckDir = args[0];
-    String wordToRespell = args[1];
+    var spellCheckDir = args[0];
+    var wordToRespell = args[1];
 
-    try (Directory directory = FSDirectory.open(Paths.get(spellCheckDir))) {
+    try (var directory = FSDirectory.open(Paths.get(spellCheckDir))) {
       if (!DirectoryReader.indexExists(directory)) {
-        System.out.println("ERROR: No spellchecker index at path \"" + spellCheckDir + "\"; please run CreateSpellCheckerIndex first");
-        System.exit(1);
+        throw new RuntimeException("ERROR: No spellchecker index at path \"" + spellCheckDir + "\"; please run gradle task createSpellCheckerIndex first");
       }
 
-      SpellChecker spell = new SpellChecker(directory);
-      spell.setStringDistance(new LevenshteinDistance());
-      String[] suggestions = spell.suggestSimilar(wordToRespell, 5);
-      System.out.println(suggestions.length + " suggestions for '" + wordToRespell + "':");
-      for (String suggestion : suggestions) {
-        System.out.println(" " + suggestion);
-      }
+      var spellChecker = new SpellChecker(directory);
+      spellChecker.setStringDistance(new LevenshteinDistance());
+
+      var suggestionsArray = spellChecker.suggestSimilar(wordToRespell, 5);
+      System.out.println(suggestionsArray.length + " suggestions for '" + wordToRespell + "':");
+      Arrays.stream(suggestionsArray).forEach(System.out::println);
     }
   }
 }

@@ -11,15 +11,15 @@ dependencies {
 }
 
 tasks.register('createSpellCheckerIndex', JavaExec) {
-  dependsOn['classes', ':meetlucene:indexer']
+  dependsOn(['classes', ':meetlucene:indexer'])
   mainClass = 'lia.CreateSpellCheckerIndex'
   classpath = sourceSets.main.runtimeClasspath
-  args "${getRootDir()}/spellIndex", "${getRootDir()}/index/", "contents"
+  args "${getRootDir()}/spellIndex", "${getRootDir()}/index/", project.hasProperty("field") ? project.getProperties().get("field") : "contents"
 }
 
 tasks.register('spellCheckerExample', JavaExec) {
-  dependsOn 'classes'
+  dependsOn(['classes', 'createSpellCheckerIndex'])
   mainClass = 'lia.SpellCheckerExample'
   classpath = sourceSets.main.runtimeClasspath
-  args "${getRootDir()}/spellIndex", "frie"
+  args "${getRootDir()}/spellIndex", project.hasProperty("word") ? project.getProperties().get("word") : "frie"
 }
