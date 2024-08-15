@@ -18,8 +18,8 @@ public class OpenFileLimitCheck {
       e.printStackTrace();
     } finally {
       int i = 0;
-      for (RandomAccessFile raf : files) {
-        raf.close();
+      for (RandomAccessFile file : files) {
+        file.close();
         new File("tmp" + i++).delete();
       }
     }

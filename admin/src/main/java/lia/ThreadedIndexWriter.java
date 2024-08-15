@@ -18,27 +18,27 @@ public class ThreadedIndexWriter extends IndexWriter {
 
   private Analyzer defaultAnalyzer;
 
-  public ThreadedIndexWriter(Directory dir, Analyzer a, int numThreads, int maxQueueSize) throws IOException {
-    super(dir, new IndexWriterConfig(a));
-    defaultAnalyzer = a;
+  public ThreadedIndexWriter(Directory directory, Analyzer analyzer, int numThreads, int maxQueueSize) throws IOException {
+    super(directory, new IndexWriterConfig(analyzer));
+    defaultAnalyzer = analyzer;
     threadPool = new ThreadPoolExecutor(numThreads, numThreads, 0, TimeUnit.SECONDS,
         new ArrayBlockingQueue<>(maxQueueSize, false), new ThreadPoolExecutor.CallerRunsPolicy());
   }
 
-  public void addDocument(Document doc) {
-    threadPool.execute(new Job(doc, null, defaultAnalyzer));
+  public void addDocument(Document document) {
+    threadPool.execute(new Job(document, null, defaultAnalyzer));
   }
 
-  public void addDocument(Document doc, Analyzer a) {
-    threadPool.execute(new Job(doc, null, a));
+  public void addDocument(Document document, Analyzer analyzer) {
+    threadPool.execute(new Job(document, null, analyzer));
   }
 
-  public void updateDocument(Term term, Document doc) {
-    threadPool.execute(new Job(doc, term, defaultAnalyzer));
+  public void updateDocument(Term term, Document document) {
+    threadPool.execute(new Job(document, term, defaultAnalyzer));
   }
 
-  public void updateDocument(Term term, Document doc, Analyzer a) {
-    threadPool.execute(new Job(doc, term, a));
+  public void updateDocument(Term term, Document document, Analyzer analyzer) {
+    threadPool.execute(new Job(document, term, analyzer));
   }
 
   public void close() throws IOException {
@@ -67,14 +67,14 @@ public class ThreadedIndexWriter extends IndexWriter {
   }
 
   private class Job implements Runnable {
-    Document doc;
+    Document document;
 
     Analyzer analyzer;
 
     Term delTerm;
 
-    public Job(Document doc, Term delTerm, Analyzer analyzer) {
-      this.doc = doc;
+    public Job(Document document, Term delTerm, Analyzer analyzer) {
+      this.document = document;
       this.analyzer = analyzer;
       this.delTerm = delTerm;
     }
@@ -82,9 +82,9 @@ public class ThreadedIndexWriter extends IndexWriter {
     public void run() {
       try {
         if (delTerm != null) {
-          ThreadedIndexWriter.super.updateDocument(delTerm, doc);
+          ThreadedIndexWriter.super.updateDocument(delTerm, document);
         } else {
-          ThreadedIndexWriter.super.addDocument(doc);
+          ThreadedIndexWriter.super.addDocument(document);
         }
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);

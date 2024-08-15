@@ -9,24 +9,24 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 
 public class SearcherManager {
-  private IndexSearcher currentSearcher;
+  private IndexSearcher currentIndexSearcher;
 
-  private IndexWriter writer;
+  private IndexWriter indexWriter;
 
-  public SearcherManager(Directory dir) throws IOException {
-    currentSearcher = new IndexSearcher(DirectoryReader.open(dir));
-    warm(currentSearcher);
+  public SearcherManager(Directory directory) throws IOException {
+    currentIndexSearcher = new IndexSearcher(DirectoryReader.open(directory));
+    warm(currentIndexSearcher);
   }
 
-  public SearcherManager(IndexWriter writer) throws IOException {
-    this.writer = writer;
-    currentSearcher = new IndexSearcher(DirectoryReader.open(writer));
-    warm(currentSearcher);
+  public SearcherManager(IndexWriter indexWriter) throws IOException {
+    this.indexWriter = indexWriter;
+    currentIndexSearcher = new IndexSearcher(DirectoryReader.open(indexWriter));
+    warm(currentIndexSearcher);
 
-    writer.getConfig().setMergedSegmentWarmer(reader -> SearcherManager.this.warm(new IndexSearcher(reader)));
+    indexWriter.getConfig().setMergedSegmentWarmer(reader -> SearcherManager.this.warm(new IndexSearcher(reader)));
   }
 
-  public void warm(IndexSearcher searcher) throws IOException {}
+  public void warm(IndexSearcher indexSearcher) throws IOException {}
 
   private boolean reopening;
 
@@ -46,18 +46,18 @@ public class SearcherManager {
     startReopen();
 
     try {
-      final IndexSearcher searcher = get();
+      final IndexSearcher indexSearcher = get();
       try {
-        IndexReader newReader = DirectoryReader.openIfChanged((DirectoryReader) currentSearcher.getIndexReader());
-        if (newReader != currentSearcher.getIndexReader()) {
-          IndexSearcher newSearcher = new IndexSearcher(newReader);
-          if (writer == null) {
-            warm(newSearcher);
+        IndexReader newIndexReader = DirectoryReader.openIfChanged((DirectoryReader) currentIndexSearcher.getIndexReader());
+        if (newIndexReader != currentIndexSearcher.getIndexReader()) {
+          IndexSearcher newIndexSearcher = new IndexSearcher(newIndexReader);
+          if (indexWriter == null) {
+            warm(newIndexSearcher);
           }
-          swapSearcher(newSearcher);
+          swapIndexSearcher(newIndexSearcher);
         }
       } finally {
-        release(searcher);
+        release(indexSearcher);
       }
     } finally {
       doneReopen();
@@ -65,20 +65,20 @@ public class SearcherManager {
   }
 
   public synchronized IndexSearcher get() {
-    currentSearcher.getIndexReader().incRef();
-    return currentSearcher;
+    currentIndexSearcher.getIndexReader().incRef();
+    return currentIndexSearcher;
   }
 
-  public synchronized void release(IndexSearcher searcher) throws IOException {
-    searcher.getIndexReader().decRef();
+  public synchronized void release(IndexSearcher indexSearcher) throws IOException {
+    indexSearcher.getIndexReader().decRef();
   }
 
-  private synchronized void swapSearcher(IndexSearcher newSearcher) throws IOException {
-    release(currentSearcher);
-    currentSearcher = newSearcher;
+  private synchronized void swapIndexSearcher(IndexSearcher newIndexSearcher) throws IOException {
+    release(currentIndexSearcher);
+    currentIndexSearcher = newIndexSearcher;
   }
 
   public void close() throws IOException {
-    swapSearcher(null);
+    swapIndexSearcher(null);
   }
 }
