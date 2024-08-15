@@ -15,7 +15,7 @@ import org.apache.lucene.queryparser.flexible.standard.nodes.WildcardQueryNode;
 public class CustomFlexibleQueryParser extends StandardQueryParser {
   public CustomFlexibleQueryParser(Analyzer analyzer) {
     super(analyzer);
-    QueryNodeProcessorPipeline processors = (QueryNodeProcessorPipeline) getQueryNodeProcessor();
+    var processors = (QueryNodeProcessorPipeline) getQueryNodeProcessor();
     processors.add(new NoFuzzyOrWildcardQueryProcessor());
   }
 
