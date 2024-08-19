@@ -2,7 +2,7 @@
 
 Lucene in Action is an excellent book available [here](https://www.manning.com/books/lucene-in-action-second-edition)... however the code examples are outdated.
 
-This is an attempt to update the code examples (where possible) using Apache Lucene [9.11.1](https://lucene.apache.org/core/9_11_1/).
+This is an attempt to update the code examples (where possible) using Apache Lucene [9.11.0](https://lucene.apache.org/core/9_11_0/).
 
 ## Versions
 
