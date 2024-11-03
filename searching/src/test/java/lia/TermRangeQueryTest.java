@@ -16,7 +16,7 @@ class TermRangeQueryTest {
       var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
       var termRangeQuery = new TermRangeQuery("title2", new BytesRef("d"), new BytesRef("j"), true, true);
       var topDocs = indexSearcher.search(termRangeQuery, 100);
-      assertThat(topDocs.totalHits.value).isEqualTo(3);
+      assertThat(topDocs.totalHits.value()).isEqualTo(3);
     }
   }
 }

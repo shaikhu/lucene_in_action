@@ -63,6 +63,6 @@ class PhraseQueryTest {
 
   private boolean matched(int slop, String... phrase) throws IOException {
     var topDocs = indexSearcher.search(new PhraseQuery(slop, "field", phrase), 10);
-    return topDocs.totalHits.value > 0;
+    return topDocs.totalHits.value() > 0;
   }
 }

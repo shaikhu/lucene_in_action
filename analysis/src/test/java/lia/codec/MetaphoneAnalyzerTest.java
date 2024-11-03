@@ -30,7 +30,7 @@ class MetaphoneAnalyzerTest {
       var query = new QueryParser("contents", METAPHONE_ANALYZER).parse("kool kat");
 
       var topDocs = indexSearcher.search(query, 1);
-      assertThat(topDocs.totalHits.value).isOne();
+      assertThat(topDocs.totalHits.value()).isOne();
 
       Document document = indexSearcher.storedFields().document(topDocs.scoreDocs[0].doc);
       assertThat(document.get("contents")).isEqualTo("cool cat");

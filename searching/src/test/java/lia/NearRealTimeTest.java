@@ -34,7 +34,7 @@ class NearRealTimeTest {
 
       var query = new TermQuery(new Term("text", "aaa"));
       var topDocs = indexSearcher.search(query, 1);
-      assertThat(topDocs.totalHits.value).isEqualTo(10);
+      assertThat(topDocs.totalHits.value()).isEqualTo(10);
 
       indexWriter.deleteDocuments(new Term("id", "7"));
 
@@ -49,11 +49,11 @@ class NearRealTimeTest {
       indexSearcher = new IndexSearcher(newDirectoryReader);
 
       topDocs = indexSearcher.search(query, 10);
-      assertThat(topDocs.totalHits.value).isEqualTo(9);
+      assertThat(topDocs.totalHits.value()).isEqualTo(9);
 
       query = new TermQuery(new Term("text", "bbb"));
       topDocs = indexSearcher.search(query, 1);
-      assertThat(topDocs.totalHits.value).isOne();
+      assertThat(topDocs.totalHits.value()).isOne();
       newDirectoryReader.close();
     }
   }

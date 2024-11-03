@@ -20,8 +20,8 @@ class PrefixQueryTest {
       var prefixQuery = new PrefixQuery(term);
       var termQuery = new TermQuery(term);
 
-      var numberOfProgrammingBooksAndSubcategories = indexSearcher.search(prefixQuery, 10).totalHits.value;
-      var numberOfProgrammingBooks = indexSearcher.search(termQuery, 10).totalHits.value;
+      var numberOfProgrammingBooksAndSubcategories = indexSearcher.search(prefixQuery, 10).totalHits.value();
+      var numberOfProgrammingBooks = indexSearcher.search(termQuery, 10).totalHits.value();
       assertThat(numberOfProgrammingBooksAndSubcategories).isGreaterThan(numberOfProgrammingBooks);
     }
   }

@@ -37,7 +37,7 @@ class TimeLimitCollectorTest {
 
       var collectorManager = new TopScoreDocCollectorManager(10, numAllBooks);
       var topDocs = indexSearcher.search(allBooksQuery, collectorManager);
-      assertThat(topDocs.totalHits.value).isEqualTo(numAllBooks);
+      assertThat(topDocs.totalHits.value()).isEqualTo(numAllBooks);
     }
   }
 }

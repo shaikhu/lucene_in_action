@@ -46,7 +46,7 @@ class ScoreTest {
     var query = new TermQuery(new Term("contents", "x"));
 
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isOne();
+    assertThat(topDocs.totalHits.value()).isOne();
     assertThat(topDocs.scoreDocs[0].score).isEqualTo(0);
   }
 
@@ -62,7 +62,7 @@ class ScoreTest {
     var query = new WildcardQuery(new Term("contents", "?ild*"));
     var topDocs = indexSearcher.search(query, 10);
 
-    assertThat(topDocs.totalHits.value).isEqualTo(3);
+    assertThat(topDocs.totalHits.value()).isEqualTo(3);
     assertThat(topDocs.scoreDocs[0].score).isEqualTo(topDocs.scoreDocs[1].score);
     assertThat(topDocs.scoreDocs[1].score).isEqualTo(topDocs.scoreDocs[2].score);
   }
@@ -75,7 +75,7 @@ class ScoreTest {
     var query = new FuzzyQuery(new Term("contents", "wuzza"));
     var topDocs = indexSearcher.search(query, 10);
 
-    assertThat(topDocs.totalHits.value).isEqualTo(2);
+    assertThat(topDocs.totalHits.value()).isEqualTo(2);
     assertThat(topDocs.scoreDocs[0].score).isNotEqualTo(topDocs.scoreDocs[1].score);
 
     var document = indexSearcher.storedFields().document(topDocs.scoreDocs[0].doc);

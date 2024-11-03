@@ -62,6 +62,6 @@ class SpecialsFilterTest {
       .build();
 
     var topDocs = indexSearcher.search(booleanQuery, 10);
-    assertThat(topDocs.totalHits.value).isEqualTo(2);
+    assertThat(topDocs.totalHits.value()).isEqualTo(2);
   }
 }

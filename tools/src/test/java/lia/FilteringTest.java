@@ -76,7 +76,7 @@ class FilteringTest {
         .build();
 
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isEqualTo(MAX);
+    assertThat(topDocs.totalHits.value()).isEqualTo(MAX);
   }
 
   @Test
@@ -87,7 +87,7 @@ class FilteringTest {
         .build();
 
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isEqualTo(MAX / 2);
+    assertThat(topDocs.totalHits.value()).isEqualTo(MAX / 2);
     assertThat(topDocs.scoreDocs)
         .extracting(scoreDoc -> indexSearcher.storedFields().document(scoreDoc.doc).get("owner"))
         .containsOnly("bob");
@@ -101,7 +101,7 @@ class FilteringTest {
         .build();
 
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isEqualTo(MAX / 2);
+    assertThat(topDocs.totalHits.value()).isEqualTo(MAX / 2);
     assertThat(topDocs.scoreDocs)
         .extracting(scoreDoc -> indexSearcher.storedFields().document(scoreDoc.doc).get("owner"))
         .containsOnly("sue");

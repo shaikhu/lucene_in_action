@@ -63,7 +63,7 @@ class MultiReaderTest {
       var indexSearcher = new IndexSearcher(new MultiReader(directoryReader1, directoryReader2));
       var query = new TermRangeQuery("animal", new BytesRef("h"), new BytesRef("t"), true, true);
       var topDocs = indexSearcher.search(query, 10);
-      assertThat(topDocs.totalHits.value).isEqualTo(12);
+      assertThat(topDocs.totalHits.value()).isEqualTo(12);
     }
   }
 }
