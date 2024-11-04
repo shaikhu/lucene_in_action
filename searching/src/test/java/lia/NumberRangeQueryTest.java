@@ -31,13 +31,13 @@ class NumberRangeQueryTest {
   void testInclusive() throws Exception {
     var query = LongPoint.newRangeQuery("pubmonth", 200605, 200609);
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isOne();
+    assertThat(topDocs.totalHits.value()).isOne();
   }
 
   @Test
   void testExclusive() throws Exception {
     var query = LongPoint.newRangeQuery("pubmonth", Math.addExact(200605, 1), Math.addExact(200609, -1));
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isZero();
+    assertThat(topDocs.totalHits.value()).isZero();
   }
 }

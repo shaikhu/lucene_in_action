@@ -18,7 +18,7 @@ class RegexQueryTest {
       var query = new RegexpQuery(new Term("title", ".*st.*"));
       var topDocs = indexSearcher.search(query, 10);
 
-      assertThat(topDocs.totalHits.value).isEqualTo(2);
+      assertThat(topDocs.totalHits.value()).isEqualTo(2);
       assertThat(hitsIncludeTitle(indexSearcher, topDocs, "Tapestry in Action")).isTrue();
       assertThat(hitsIncludeTitle(indexSearcher, topDocs, "Mindstorms: Children, Computers, And Powerful Ideas")).isTrue();
     }

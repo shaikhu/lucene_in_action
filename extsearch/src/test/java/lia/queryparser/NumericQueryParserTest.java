@@ -55,6 +55,6 @@ class NumericQueryParserTest {
     queryParser.setLocale(Locale.US);
     var query = queryParser.parse("pubmonth:[01/01/2010 TO 06/01/2010]");
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isNotZero();
+    assertThat(topDocs.totalHits.value()).isNotZero();
   }
 }

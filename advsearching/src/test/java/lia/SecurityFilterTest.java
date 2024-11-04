@@ -64,7 +64,7 @@ class SecurityFilterTest {
         .build();
 
     var topDocs = indexSearcher.search(booleanFilterQuery, 10);
-    assertThat(topDocs.totalHits.value).isOne();
+    assertThat(topDocs.totalHits.value()).isOne();
 
     var document = indexSearcher.storedFields().document(topDocs.scoreDocs[0].doc);
     assertThat(document.get("keywords")).isEqualTo("jake's sensitive info");

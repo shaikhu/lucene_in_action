@@ -65,12 +65,12 @@ class MultiPhraseQueryTest {
 
     var multiPhraseQuery = builder.build();
     var topDocs = indexSearcher.search(multiPhraseQuery, 10);
-    assertThat(topDocs.totalHits.value).isOne();
+    assertThat(topDocs.totalHits.value()).isOne();
 
     builder.setSlop(1);
     multiPhraseQuery = builder.build();
     topDocs = indexSearcher.search(multiPhraseQuery, 10);
-    assertThat(topDocs.totalHits.value).isEqualTo(2);
+    assertThat(topDocs.totalHits.value()).isEqualTo(2);
   }
 
 
@@ -93,7 +93,7 @@ class MultiPhraseQueryTest {
         .build();
 
     var topDocs = indexSearcher.search(booleanQuery, 10);
-    assertThat(topDocs.totalHits.value).isEqualTo(2);
+    assertThat(topDocs.totalHits.value()).isEqualTo(2);
   }
 
   @Test

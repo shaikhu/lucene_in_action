@@ -22,7 +22,7 @@ public class TestUtil
   }
 
   public static long hitCount(IndexSearcher searcher, Query query) throws IOException {
-    return searcher.search(query, 1).totalHits.value;
+    return searcher.search(query, 1).totalHits.value();
   }
 
   public static Directory getBookIndexDirectory() throws IOException {

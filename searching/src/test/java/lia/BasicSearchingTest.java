@@ -36,11 +36,11 @@ class BasicSearchingTest {
     var query = new TermQuery(term);
 
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isOne();
+    assertThat(topDocs.totalHits.value()).isOne();
 
     term = new Term("subject", "junit");
     topDocs = indexSearcher.search(new TermQuery(term), 10);
-    assertThat(topDocs.totalHits.value).isEqualTo(2);
+    assertThat(topDocs.totalHits.value()).isEqualTo(2);
   }
 
   @Test
@@ -48,7 +48,7 @@ class BasicSearchingTest {
     var term = new Term("isbn", "9781935182023");
     var query = new TermQuery(term);
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isOne();
+    assertThat(topDocs.totalHits.value()).isOne();
   }
 
   @Test
@@ -56,13 +56,13 @@ class BasicSearchingTest {
     var queryParser = new QueryParser("contents", new StandardAnalyzer());
     var query = queryParser.parse("+JUNIT +ANT -MOCK");
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isOne();
+    assertThat(topDocs.totalHits.value()).isOne();
 
     var document = indexSearcher.storedFields().document(topDocs.scoreDocs[0].doc);
     assertThat(document.get("title")).isEqualTo("Ant in Action");
 
     query = queryParser.parse("mock OR junit");
     topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isEqualTo(2);
+    assertThat(topDocs.totalHits.value()).isEqualTo(2);
   }
 }

@@ -144,17 +144,17 @@ class SpanQueryTest {
 
   private void assertOnlyBrownFox(Query query) throws Exception {
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isOne();
+    assertThat(topDocs.totalHits.value()).isOne();
     assertThat(topDocs.scoreDocs[0].doc).isZero();
   }
 
   private void assertBothFoxes(Query query) throws Exception {
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isEqualTo(2);
+    assertThat(topDocs.totalHits.value()).isEqualTo(2);
   }
 
   private void assertNoMatches(Query query) throws Exception {
     var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value).isZero();
+    assertThat(topDocs.totalHits.value()).isZero();
   }
 }
