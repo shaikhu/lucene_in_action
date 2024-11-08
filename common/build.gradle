@@ -7,4 +7,6 @@ tasks.register('createTestIndex', JavaExec) {
   mainClass = 'lia.common.CreateTestIndex'
   classpath = sourceSets.main.runtimeClasspath
   args "${getRootDir()}/data", "${getRootDir()}/testIndex"
+  jvmArgs = ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.vector"]
 }
+
