@@ -29,9 +29,6 @@ import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SpanQueryTest {
-  @TempDir
-  private Path index;
-
   private Directory directory;
 
   private IndexSearcher indexSearcher;
@@ -53,7 +50,7 @@ class SpanQueryTest {
   private SpanTermQuery cat;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp(@TempDir Path index) throws Exception {
     directory = new MMapDirectory(index);
 
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
