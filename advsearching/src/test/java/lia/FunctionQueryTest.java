@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class FunctionQueryTest {
   @TempDir
-  private Path index;
+  private static Path index;
 
   private Directory directory;
 
