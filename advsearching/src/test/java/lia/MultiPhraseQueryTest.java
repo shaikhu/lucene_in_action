@@ -17,14 +17,12 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MultiPhraseQuery;
 import org.apache.lucene.search.PhraseQuery;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,16 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MultiPhraseQueryTest {
   private static final SynonymEngine SYNONYM_ENGINE = text -> text.equals("quick") ? List.of("fast") : Collections.emptyList();
 
-  @TempDir
-  private Path index;
-
   private Directory directory;
 
   private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setUp() throws Exception {
-    directory = new MMapDirectory(index);
+    directory = new ByteBuffersDirectory();
 
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
       var document = new Document();

@@ -13,12 +13,11 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -48,14 +47,11 @@ class SpatialQueryTest
       new SpatialData("Hilton Washington Embassy Row", 38.9103000, -77.0451000)
   );
 
-  @TempDir
-  private Path index;
-
   private Directory directory;
 
   @BeforeEach
   void setup() throws Exception {
-    directory = new MMapDirectory(index);
+    directory = new ByteBuffersDirectory();
 
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
       for (var data : TEST_DATA) {
