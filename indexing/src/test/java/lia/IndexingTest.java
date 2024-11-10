@@ -1,6 +1,7 @@
 package lia;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import lia.common.TestUtil;
@@ -16,11 +17,12 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,12 +33,14 @@ class IndexingTest {
     new Data("1", "Netherlands", "Amsterdam has lots of bridges", "Amsterdam"),
     new Data("2", "Italy", "Venice has lots of canals", "Venice"));
 
+  @TempDir
+  private Path index;
 
   private Directory directory;
 
   @BeforeEach
   void setup() throws Exception {
-    directory = new ByteBuffersDirectory();
+    directory = new MMapDirectory(index);
 
     try (var indexWriter = getIndexWriter()) {
       for (var data : INDEX_DATA) {

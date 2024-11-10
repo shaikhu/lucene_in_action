@@ -14,22 +14,28 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SecurityFilterTest {
+  @TempDir
+  private Path index;
+
   private Directory directory;
 
   private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setup() throws Exception {
-    directory = new ByteBuffersDirectory();
+    directory = new MMapDirectory(index);
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
       var document = new Document();
       document.add(new StringField("owner", "elwood", Store.YES));

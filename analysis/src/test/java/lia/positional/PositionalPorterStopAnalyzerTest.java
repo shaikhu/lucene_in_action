@@ -1,6 +1,7 @@
 package lia.positional;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 import lia.common.TestUtil;
 import org.apache.lucene.document.Document;
@@ -11,16 +12,19 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PositionalPorterStopAnalyzerTest {
+  @TempDir
+  private Path index;
+
   private PositionalPorterStopAnalyzer porterAnalyzer;
 
   private Directory directory;
@@ -32,7 +36,7 @@ class PositionalPorterStopAnalyzerTest {
   @BeforeEach
   void setup() throws IOException {
     porterAnalyzer = new PositionalPorterStopAnalyzer();
-    directory = new ByteBuffersDirectory();
+    directory = new MMapDirectory(index);
 
     try (IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(porterAnalyzer))) {
       var document = new Document();
