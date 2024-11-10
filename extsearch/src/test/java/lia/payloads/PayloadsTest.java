@@ -1,6 +1,7 @@
 package lia.payloads;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
@@ -15,23 +16,26 @@ import org.apache.lucene.queries.payloads.PayloadDecoder;
 import org.apache.lucene.queries.payloads.PayloadScoreQuery;
 import org.apache.lucene.queries.spans.SpanTermQuery;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PayloadsTest {
+  @TempDir
+  private Path index;
 
   private Directory directory;
 
   private BulletinPayloadsAnalyzer analyzer;
 
   @BeforeEach
-  void setup(){
-    directory = new ByteBuffersDirectory();
+  void setup() throws IOException {
+    directory = new MMapDirectory(index);
     analyzer = new BulletinPayloadsAnalyzer(5.0F);
   }
 

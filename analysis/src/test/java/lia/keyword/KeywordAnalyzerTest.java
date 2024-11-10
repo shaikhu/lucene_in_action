@@ -1,5 +1,6 @@
 package lia.keyword;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 import lia.SimpleAnalyzer;
@@ -18,22 +19,26 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class KeywordAnalyzerTest {
+  @TempDir
+  private Path index;
+
   private Directory directory;
 
   private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setUp() throws Exception {
-    directory = new ByteBuffersDirectory();
+    directory = new MMapDirectory(index);
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new SimpleAnalyzer()))) {
       var document = new Document();
       document.add(new StringField("partnum", "Q36", Store.NO));

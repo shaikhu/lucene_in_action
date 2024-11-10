@@ -1,5 +1,6 @@
 package lia;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
@@ -20,11 +21,12 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TermRangeQuery;
-import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,13 +42,16 @@ class FilteringTest {
   private static final Query DATE_QUERY = TermRangeQuery.newStringRange("date",
       String.valueOf(Long.MIN_VALUE), String.valueOf(Long.MAX_VALUE), true, true);
 
+  @TempDir
+  private Path index;
+
   private Directory directory;
 
   private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setup() throws Exception {
-    directory = new ByteBuffersDirectory();
+    directory = new MMapDirectory(index);
 
     var date = START_DATE;
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
