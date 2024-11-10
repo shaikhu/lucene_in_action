@@ -12,28 +12,22 @@ import org.apache.lucene.queries.function.FunctionQuery;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.search.DoubleValuesSource;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FunctionQueryTest {
-  @TempDir
-  private Path index;
-
   private Directory directory;
 
   private IndexSearcher indexSearcher;
 
   @BeforeEach
   void setup() throws Exception {
-    directory = new MMapDirectory(index);
+    directory = new ByteBuffersDirectory();
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()))) {
       indexDocument(indexWriter, 7, "this hat is green");
       indexDocument(indexWriter, 42, "this hat is blue");

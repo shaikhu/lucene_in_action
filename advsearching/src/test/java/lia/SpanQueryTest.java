@@ -1,5 +1,6 @@
 package lia;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
@@ -17,22 +18,15 @@ import org.apache.lucene.queries.spans.SpanTermQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SpanQueryTest {
-  @TempDir
-  private Path index;
-
-  private Directory directory;
+  private ByteBuffersDirectory directory;
 
   private IndexSearcher indexSearcher;
 
@@ -54,7 +48,7 @@ class SpanQueryTest {
 
   @BeforeEach
   void setUp() throws Exception {
-    directory = new MMapDirectory(index);
+    directory = new ByteBuffersDirectory();
 
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
       var document = new Document();

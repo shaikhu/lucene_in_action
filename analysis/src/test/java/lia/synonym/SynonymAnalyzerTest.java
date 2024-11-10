@@ -1,7 +1,6 @@
 package lia.synonym;
 
 import java.io.StringReader;
-import java.nio.file.Path;
 import java.util.List;
 
 import lia.common.TestUtil;
@@ -19,19 +18,15 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SynonymAnalyzerTest {
-  @TempDir
-  private Path index;
-
   private Directory directory;
 
   private SynonymAnalyzer synonymAnalyzer;
@@ -40,7 +35,7 @@ class SynonymAnalyzerTest {
 
   @BeforeEach
   void setUp() throws Exception {
-    directory = new MMapDirectory(index);
+    directory = new ByteBuffersDirectory();
     synonymAnalyzer = new SynonymAnalyzer(new TestSynonymEngine());
 
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(synonymAnalyzer))) {
