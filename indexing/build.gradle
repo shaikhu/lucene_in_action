@@ -5,6 +5,7 @@ plugins {
 
 application {
   mainClass = 'lia.VerboseIndexing'
+  applicationDefaultJvmArgs  = ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.vector"]
 }
 
 dependencies {
