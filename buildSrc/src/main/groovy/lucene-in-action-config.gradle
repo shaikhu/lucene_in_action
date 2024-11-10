@@ -26,6 +26,7 @@ testing {
 
 tasks.named('test') {
   dependsOn(':common:createTestIndex')
+  jvmArgs = ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.vector"]
 }
 
 dependencies {
