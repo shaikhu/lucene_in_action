@@ -6,6 +6,7 @@ tasks.register('indexer', JavaExec) {
     dependsOn 'classes'
     mainClass = 'lia.Indexer'
     classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.vector"]
     args "${getRootDir()}/index", "${getRootDir()}/data"
 }
 
@@ -13,5 +14,6 @@ tasks.register('searcher', JavaExec) {
     dependsOn 'classes'
     mainClass = 'lia.Searcher'
     classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.vector"]
     args "${getRootDir()}/index", project.hasProperty("query") ? project.getProperties().get("query") : 'patent'
 }

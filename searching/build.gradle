@@ -9,8 +9,8 @@ dependencies {
 tasks.register('explainer', JavaExec) {
   mainClass = 'lia.Explainer'
   classpath = sourceSets.main.runtimeClasspath
+  jvmArgs = ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.vector"]
   args "${getRootDir()}/testIndex", project.hasProperty("query") ? project.getProperties().get("query") : 'junit'
-
 }
 
 explainer.dependsOn(['classes', ':common:createTestIndex'])
