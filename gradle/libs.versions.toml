@@ -1,0 +1,20 @@
+[versions]
+lucene = '10.0.0'
+tika = '2.8.0'
+
+[libraries]
+lucene-core = { module ='org.apache.lucene:lucene-core', version.ref = 'lucene' }
+lucene-query-parser = { module = 'org.apache.lucene:lucene-queryparser', version.ref = 'lucene'}
+lucene-analysis-common = { module = 'org.apache.lucene:lucene-analysis-common', version.ref = 'lucene'}
+lucene-benchmark = { module = 'org.apache.lucene:lucene-benchmark', version.ref = 'lucene'}
+lucene-highlighter = { module = 'org.lucene.lucene:lucene-highlighter', version.ref = 'lucene' }
+lucene-suggest = { module = 'org.lucene.lucene:lucene-suggest', version.ref = 'lucene' }
+
+tika-core = { module = 'org.apache.tika:tika-core', version.ref = 'tika'}
+tika-parsers = { module = 'org.apache.tika:tika-parsers-standard-package', version.ref = 'tika'}
+
+assertj = { module = 'org.assertj:assertj-core', version = '3.24.2' }
+
+[bundles]
+lucene = ['lucene-core', 'lucene-query-parser', 'lucene-analysis-common']
+tika = ['tika-core', 'tika-parsers']

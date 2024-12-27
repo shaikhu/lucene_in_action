@@ -6,8 +6,7 @@ dependencies {
   implementation project(':meetlucene')
 
   implementation 'org.apache.commons:commons-digester3:3.2'
-  implementation "org.apache.tika:tika-core:${tikaVersion}"
-  implementation "org.apache.tika:tika-parsers-standard-package:${tikaVersion}"
+  implementation libs.bundles.tika
 }
 
 tasks.register('tikaIndexer', JavaExec) {

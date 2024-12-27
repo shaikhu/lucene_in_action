@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-  implementation "org.apache.lucene:lucene-benchmark:${luceneVersion}"
+  implementation libs.lucene.benchmark
 }

@@ -18,7 +18,7 @@ testing {
     test {
       useJUnitJupiter()
       dependencies {
-        implementation 'org.assertj:assertj-core:3.24.2'
+        implementation(libs.assertj)
       }
     }
   }
@@ -30,7 +30,5 @@ tasks.named('test') {
 }
 
 dependencies {
-  implementation "org.apache.lucene:lucene-core:${luceneVersion}"
-  implementation "org.apache.lucene:lucene-queryparser:${luceneVersion}"
-  implementation "org.apache.lucene:lucene-analysis-common:${luceneVersion}"
+  implementation(libs.bundles.lucene)
 }
