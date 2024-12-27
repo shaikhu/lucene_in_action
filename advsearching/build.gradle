@@ -5,6 +5,5 @@ plugins {
 dependencies {
   testImplementation project(':analysis')
   testImplementation project(':common')
-
-  implementation 'org.apache.commons:commons-lang3:3.12.0'
+  implementation libs.commons.lang3
 }

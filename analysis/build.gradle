@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
   implementation project(':common')
-  implementation 'commons-codec:commons-codec:1.15'
+  implementation  libs.commons.codec
 }
 
 tasks.register('analyzerDemo', JavaExec) {
