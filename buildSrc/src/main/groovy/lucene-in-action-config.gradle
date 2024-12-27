@@ -18,7 +18,7 @@ testing {
     test {
       useJUnitJupiter()
       dependencies {
-        implementation(libs.assertj)
+        implementation libs.assertj
       }
     }
   }

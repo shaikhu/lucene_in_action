@@ -5,7 +5,7 @@ plugins {
 dependencies {
   implementation project(':meetlucene')
 
-  implementation 'org.apache.commons:commons-digester3:3.2'
+  implementation libs.commons.digester3
   implementation libs.bundles.tika
 }
 
