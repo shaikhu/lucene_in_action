@@ -4,10 +4,9 @@ plugins {
 
 dependencies {
   testImplementation project(':analysis')
-
   implementation project(':common')
-  implementation "org.apache.lucene:lucene-highlighter:10.0.0"
-  implementation "org.apache.lucene:lucene-suggest:10.0.0"
+  implementation libs.lucene.highlighter
+  implementation libs.lucene.suggest
 }
 
 tasks.register('createSpellCheckerIndex', JavaExec) {

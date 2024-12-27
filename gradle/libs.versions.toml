@@ -7,8 +7,8 @@ lucene-core = { module ='org.apache.lucene:lucene-core', version.ref = 'lucene' 
 lucene-query-parser = { module = 'org.apache.lucene:lucene-queryparser', version.ref = 'lucene'}
 lucene-analysis-common = { module = 'org.apache.lucene:lucene-analysis-common', version.ref = 'lucene'}
 lucene-benchmark = { module = 'org.apache.lucene:lucene-benchmark', version.ref = 'lucene'}
-lucene-highlighter = { module = 'org.lucene.lucene:lucene-highlighter', version.ref = 'lucene' }
-lucene-suggest = { module = 'org.lucene.lucene:lucene-suggest', version.ref = 'lucene' }
+lucene-highlighter = { module = 'org.apache.lucene:lucene-highlighter', version.ref = 'lucene' }
+lucene-suggest = { module = 'org.apache.lucene:lucene-suggest', version.ref = 'lucene' }
 
 tika-core = { module = 'org.apache.tika:tika-core', version.ref = 'tika'}
 tika-parsers = { module = 'org.apache.tika:tika-parsers-standard-package', version.ref = 'tika'}
