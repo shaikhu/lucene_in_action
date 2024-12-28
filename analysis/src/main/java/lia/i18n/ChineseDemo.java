@@ -37,15 +37,15 @@ public class ChineseDemo {
 
     JFrame frame = new JFrame();
     frame.setTitle(analyzer.getClass().getSimpleName() + " : " + text);
-    frame.setResizable(true);
+    frame.setResizable(false);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     var font = new Font(null, Font.PLAIN, 36);
     var width = getWidth(frame.getFontMetrics(font), output);
-    frame.setSize((width < 250) ? 250 : width + 50, 75);
+    frame.setSize((width < 290) ? 290 : width + 50, 135);
 
     var label = new JLabel(output);
-    label.setSize(width, 75);
+    label.setSize(width, 135);
     label.setAlignmentX(JLabel.CENTER_ALIGNMENT);
     label.setAlignmentY(JLabel.CENTER_ALIGNMENT);
     label.setFont(font);
