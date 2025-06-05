@@ -11,8 +11,6 @@ This is an attempt to update the code examples (where possible) using Apache Luc
 - Gradle 8.9
 - JDK 21
 
-<!--
 ## Shout out from Mike!
 ![image](shout_out.png)
 Original [tweet](https://twitter.com/mikemccand/status/1663855254545346561?s=20)
--->
