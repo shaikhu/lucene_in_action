@@ -24,9 +24,13 @@ testing {
   }
 }
 
-tasks.named('test') {
+tasks.withType(Test).configureEach {
   dependsOn(':common:createTestIndex')
-  jvmArgs = ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.vector"]
+  jvmArgs += ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.vector"]
+}
+
+tasks.withType(JavaExec).configureEach {
+  jvmArgs += ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.vector"]
 }
 
 dependencies {

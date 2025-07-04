@@ -1,5 +1,5 @@
 [versions]
-lucene = '10.0.0'
+lucene = '10.2.2'
 tika = '2.8.0'
 
 [libraries]
