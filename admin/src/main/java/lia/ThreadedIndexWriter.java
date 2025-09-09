@@ -61,7 +61,7 @@ public class ThreadedIndexWriter extends IndexWriter {
       }
       catch (InterruptedException ie) {
         Thread.currentThread().interrupt();
-        throw new RuntimeException(ie);
+        throw new RuntimeException("Thread interrupted while waiting for index operations to complete", ie);
       }
     }
   }
@@ -87,7 +87,7 @@ public class ThreadedIndexWriter extends IndexWriter {
           ThreadedIndexWriter.super.addDocument(document);
         }
       } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
+        throw new RuntimeException("Failed to execute index operation in background thread", ioe);
       }
     }
   }

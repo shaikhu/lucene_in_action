@@ -72,7 +72,7 @@ class BooksLikeThisTest {
     try {
       return indexSearcher.storedFields().document(scoreDoc.doc).get("title");
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to retrieve title for document " + scoreDoc.doc, e);
     }
   }
 }

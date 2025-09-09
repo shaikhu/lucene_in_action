@@ -56,7 +56,7 @@ public class Indexer {
       writer.addDocument(createDocument(path));
       return writer.getDocStats().numDocs;
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to index file: " + path, e);
     }
   }
 
