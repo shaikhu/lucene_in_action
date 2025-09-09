@@ -67,16 +67,13 @@ public class TikaIndexer extends Indexer {
 
   private ContentHandler getContent(Metadata metadata, Path path) throws Exception {
     var content = new BodyContentHandler();
-    var inputStream = Files.newInputStream(path);
     var parser = new AutoDetectParser();
     var parseContext = new ParseContext();
     parseContext.set(Parser.class, parser);
 
-    try {
+    try (var inputStream = Files.newInputStream(path)) {
       parser.parse(inputStream, content, metadata, new ParseContext());
       return content;
-    } finally {
-      inputStream.close();
     }
   }
 

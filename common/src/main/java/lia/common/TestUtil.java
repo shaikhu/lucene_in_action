@@ -41,14 +41,14 @@ public class TestUtil
 
   public static List<String> getTokens(Analyzer analyzer, String input) throws Exception {
     var tokens = new ArrayList<String>();
-    TokenStream tokenStream = analyzer.tokenStream("field", new StringReader(input));
-    CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
-    tokenStream.reset();
-    while (tokenStream.incrementToken()) {
-      tokens.add(term.toString());
+    try (TokenStream tokenStream = analyzer.tokenStream("field", new StringReader(input))) {
+      CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
+      tokenStream.reset();
+      while (tokenStream.incrementToken()) {
+        tokens.add(term.toString());
+      }
+      tokenStream.end();
     }
-    tokenStream.end();
-    tokenStream.close();
     return tokens;
   }
 }

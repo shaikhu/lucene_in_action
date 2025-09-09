@@ -29,32 +29,32 @@ class NearRealTimeTest {
         indexWriter.addDocument(document);
       }
 
-      var directoryReader = DirectoryReader.open(indexWriter);
-      var indexSearcher = new IndexSearcher(directoryReader);
+      try (var directoryReader = DirectoryReader.open(indexWriter)) {
+        var indexSearcher = new IndexSearcher(directoryReader);
 
-      var query = new TermQuery(new Term("text", "aaa"));
-      var topDocs = indexSearcher.search(query, 1);
-      assertThat(topDocs.totalHits.value()).isEqualTo(10);
+        var query = new TermQuery(new Term("text", "aaa"));
+        var topDocs = indexSearcher.search(query, 1);
+        assertThat(topDocs.totalHits.value()).isEqualTo(10);
 
-      indexWriter.deleteDocuments(new Term("id", "7"));
+        indexWriter.deleteDocuments(new Term("id", "7"));
 
-      var document = new Document();
-      document.add(new StringField("id", "11", Store.NO));
-      document.add(new TextField("text", "bbb", Store.NO));
-      indexWriter.addDocument(document);
+        var document = new Document();
+        document.add(new StringField("id", "11", Store.NO));
+        document.add(new TextField("text", "bbb", Store.NO));
+        indexWriter.addDocument(document);
 
-      var newDirectoryReader = DirectoryReader.openIfChanged(directoryReader);
-      assertThat(directoryReader).isNotSameAs(newDirectoryReader);
-      directoryReader.close();
-      indexSearcher = new IndexSearcher(newDirectoryReader);
+        try (var newDirectoryReader = DirectoryReader.openIfChanged(directoryReader)) {
+          assertThat(directoryReader).isNotSameAs(newDirectoryReader);
+          indexSearcher = new IndexSearcher(newDirectoryReader);
 
-      topDocs = indexSearcher.search(query, 10);
-      assertThat(topDocs.totalHits.value()).isEqualTo(9);
+          topDocs = indexSearcher.search(query, 10);
+          assertThat(topDocs.totalHits.value()).isEqualTo(9);
 
-      query = new TermQuery(new Term("text", "bbb"));
-      topDocs = indexSearcher.search(query, 1);
-      assertThat(topDocs.totalHits.value()).isOne();
-      newDirectoryReader.close();
+          query = new TermQuery(new Term("text", "bbb"));
+          topDocs = indexSearcher.search(query, 1);
+          assertThat(topDocs.totalHits.value()).isOne();
+        }
+      }
     }
   }
 }

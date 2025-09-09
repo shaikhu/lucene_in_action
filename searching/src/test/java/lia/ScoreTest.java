@@ -40,14 +40,16 @@ class ScoreTest {
   void testSimple() throws Exception {
     indexSingleFieldDocs(new TextField("contents", "x", Store.YES));
 
-    var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
-    indexSearcher.setSimilarity(new SimpleSimilarity());
+    try (var directoryReader = DirectoryReader.open(directory)) {
+      var indexSearcher = new IndexSearcher(directoryReader);
+      indexSearcher.setSimilarity(new SimpleSimilarity());
 
-    var query = new TermQuery(new Term("contents", "x"));
+      var query = new TermQuery(new Term("contents", "x"));
 
-    var topDocs = indexSearcher.search(query, 10);
-    assertThat(topDocs.totalHits.value()).isOne();
-    assertThat(topDocs.scoreDocs[0].score).isEqualTo(0);
+      var topDocs = indexSearcher.search(query, 10);
+      assertThat(topDocs.totalHits.value()).isOne();
+      assertThat(topDocs.scoreDocs[0].score).isEqualTo(0);
+    }
   }
 
   @Test
@@ -58,28 +60,32 @@ class ScoreTest {
         new TextField("contents", "mild", Store.YES),
         new TextField("contents", "mildew", Store.YES));
 
-    var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
-    var query = new WildcardQuery(new Term("contents", "?ild*"));
-    var topDocs = indexSearcher.search(query, 10);
+    try (var directoryReader = DirectoryReader.open(directory)) {
+      var indexSearcher = new IndexSearcher(directoryReader);
+      var query = new WildcardQuery(new Term("contents", "?ild*"));
+      var topDocs = indexSearcher.search(query, 10);
 
-    assertThat(topDocs.totalHits.value()).isEqualTo(3);
-    assertThat(topDocs.scoreDocs[0].score).isEqualTo(topDocs.scoreDocs[1].score);
-    assertThat(topDocs.scoreDocs[1].score).isEqualTo(topDocs.scoreDocs[2].score);
+      assertThat(topDocs.totalHits.value()).isEqualTo(3);
+      assertThat(topDocs.scoreDocs[0].score).isEqualTo(topDocs.scoreDocs[1].score);
+      assertThat(topDocs.scoreDocs[1].score).isEqualTo(topDocs.scoreDocs[2].score);
+    }
   }
 
   @Test
   void testFuzzy() throws Exception {
     indexSingleFieldDocs(new TextField("contents", "fuzzy", Store.YES), new TextField("contents", "wuzzy", Store.YES));
 
-    var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
-    var query = new FuzzyQuery(new Term("contents", "wuzza"));
-    var topDocs = indexSearcher.search(query, 10);
+    try (var directoryReader = DirectoryReader.open(directory)) {
+      var indexSearcher = new IndexSearcher(directoryReader);
+      var query = new FuzzyQuery(new Term("contents", "wuzza"));
+      var topDocs = indexSearcher.search(query, 10);
 
-    assertThat(topDocs.totalHits.value()).isEqualTo(2);
-    assertThat(topDocs.scoreDocs[0].score).isNotEqualTo(topDocs.scoreDocs[1].score);
+      assertThat(topDocs.totalHits.value()).isEqualTo(2);
+      assertThat(topDocs.scoreDocs[0].score).isNotEqualTo(topDocs.scoreDocs[1].score);
 
-    var document = indexSearcher.storedFields().document(topDocs.scoreDocs[0].doc);
-    assertThat(document.get("contents")).isEqualTo("wuzzy");
+      var document = indexSearcher.storedFields().document(topDocs.scoreDocs[0].doc);
+      assertThat(document.get("contents")).isEqualTo("wuzzy");
+    }
   }
 
   private void indexSingleFieldDocs(Field... fields) throws Exception {

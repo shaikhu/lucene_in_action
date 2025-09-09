@@ -134,7 +134,9 @@ public class DigesterXMLDocument {
     }
 
     var xmlDocument = new DigesterXMLDocument();
-    var document = xmlDocument.getDocument(new FileInputStream(args[0]));
-    System.out.println(document);
+    try (var fileInputStream = new FileInputStream(args[0])) {
+      var document = xmlDocument.getDocument(fileInputStream);
+      System.out.println(document);
+    }
   }
 }
