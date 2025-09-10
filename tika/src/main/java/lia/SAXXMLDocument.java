@@ -4,11 +4,14 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.lucene.document.Document;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.util.HashMap;
@@ -27,8 +30,8 @@ public class SAXXMLDocument extends DefaultHandler {
     try {
       var parser = parserFactory.newSAXParser();
       parser.parse(inputStream, this);
-    } catch (Exception e) {
-      throw new DocumentHandlerException("Cannot parse XML document", e);
+    } catch (IOException | SAXException | ParserConfigurationException e) {
+      throw new DocumentHandlerException("Failed to parse XML document: " + e.getClass().getSimpleName(), e);
     }
     return document;
   }

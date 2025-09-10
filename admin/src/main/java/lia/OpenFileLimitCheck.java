@@ -14,8 +14,8 @@ public class OpenFileLimitCheck {
         files.add(new RandomAccessFile("tmp" + files.size(), "rw"));
       }
     } catch (IOException e) {
-      System.out.println("IOException after  " + files.size() + " open files");
-      e.printStackTrace();
+      System.err.println("ERROR: Failed to open file after " + files.size() + " successful opens: " + e.getMessage());
+      e.printStackTrace(System.err);
     } finally {
       int i = 0;
       for (RandomAccessFile file : files) {

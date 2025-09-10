@@ -63,7 +63,7 @@ public class CreateTestIndex
       var date = DateTools.stringToDate(pubmonth);
       document.add(new LongField("pubmonthAsDay", date.getTime()/(1000*3600*24), Store.NO));
     } catch (ParseException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to parse publication date: " + pubmonth, e);
     }
 
     for (String text : List.of(title, subject, authors , category)) {

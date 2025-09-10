@@ -28,7 +28,7 @@ public class VerboseIndexing {
       document.add(new StringField("keyword", "goober", Store.YES));
       indexWriter.addDocument(document);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to add document to index", e);
     }
   }
 

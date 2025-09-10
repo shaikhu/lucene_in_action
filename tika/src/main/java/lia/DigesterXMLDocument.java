@@ -36,7 +36,7 @@ public class DigesterXMLDocument {
       digester.parse(inputStream);
     }
     catch (IOException | SAXException e) {
-      throw new DocumentHandlerException("Cannot parse XML document", e);
+      throw new DocumentHandlerException("Failed to parse XML document: " + e.getClass().getSimpleName(), e);
     }
     return document;
   }

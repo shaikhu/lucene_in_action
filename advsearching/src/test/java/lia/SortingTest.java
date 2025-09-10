@@ -95,7 +95,7 @@ class SortingTest {
     try {
       return indexSearcher.storedFields().document(scoreDoc.doc).get("category");
     } catch (IOException e) {
-      throw new RuntimeException((e));
+      throw new RuntimeException("Failed to retrieve category for document " + scoreDoc.doc, e);
     }
   }
 
@@ -103,7 +103,7 @@ class SortingTest {
     try {
       return indexSearcher.storedFields().document(scoreDoc.doc).get("pubmonth");
     } catch (IOException e) {
-      throw new RuntimeException((e));
+      throw new RuntimeException("Failed to retrieve pubmonth for document " + scoreDoc.doc, e);
     }
   }
 
