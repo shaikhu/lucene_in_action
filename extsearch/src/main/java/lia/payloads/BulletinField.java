@@ -10,8 +10,7 @@ import org.apache.lucene.index.IndexOptions;
 
 /**
  * A custom Field that creates a pre-analyzed TokenStream with bulletin payload handling.
- * This approach avoids the performance penalty of NO_REUSE analyzers by building
- * the TokenStream chain directly with the bulletin state known at indexing time.
+ * Builds the TokenStream chain directly with the bulletin state known at indexing time.
  */
 public class BulletinField extends Field {
   
