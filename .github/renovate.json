@@ -1,0 +1,36 @@
+{
+  "extends": ["config:base"],
+  "gradle": {
+    "enabled": true
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "automerge": true
+  },
+  "schedule": ["before 9am on the first monday of the month"],
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["^org.apache.lucene"],
+      "groupName": "Lucene dependencies",
+      "reviewers": ["shaikhu"]
+    },
+    {
+      "matchPackagePatterns": ["^org.apache.tika"],
+      "groupName": "Tika dependencies", 
+      "reviewers": ["shaikhu"]
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["minor", "major"],
+      "reviewers": ["shaikhu"]
+    }
+  ],
+  "prHourlyLimit": 3,
+  "prConcurrentLimit": 5,
+  "semanticCommits": "enabled",
+  "commitMessagePrefix": "deps:",
+  "rebaseWhen": "conflicted"
+}
