@@ -20,11 +20,11 @@
       "reviewers": ["shaikhu"]
     },
     {
-      "matchUpdateTypes": ["patch"],
+      "matchUpdateTypes": ["minor","patch"],
       "automerge": true
     },
     {
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": ["major"],
       "reviewers": ["shaikhu"]
     }
   ],
