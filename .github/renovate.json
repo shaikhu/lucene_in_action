@@ -24,7 +24,7 @@
       "automerge": true
     },
     {
-      "matchUpdateTypes": ["minor", "major"],
+      "matchUpdateTypes": ["minor"],
       "reviewers": ["shaikhu"]
     }
   ],
