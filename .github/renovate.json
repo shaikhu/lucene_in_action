@@ -7,7 +7,7 @@
     "enabled": true,
     "automerge": true
   },
-  "schedule": ["before 9am on the first monday of the month"],
+  "schedule": ["before 9am on the 1st day of the month"],
   "packageRules": [
     {
       "matchPackagePatterns": ["^org.apache.lucene"],
@@ -17,6 +17,11 @@
     {
       "matchPackagePatterns": ["^org.apache.tika"],
       "groupName": "Tika dependencies", 
+      "reviewers": ["shaikhu"]
+    },
+    {
+      "matchPackagePatterns": ["^org.apache.commons"],
+      "groupName": "Apache Commons dependencies",
       "reviewers": ["shaikhu"]
     },
     {
