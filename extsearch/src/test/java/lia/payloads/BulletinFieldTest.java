@@ -29,17 +29,11 @@ class BulletinFieldTest {
   }
 
   private TokenStream createTestTokenStream(String value, boolean isBulletin, float warningBoost) {
-    try {
-      StandardTokenizer tokenizer = new StandardTokenizer();
-      tokenizer.setReader(new StringReader(value));
-      
-      BulletinPayloadsFilter payloadFilter = new BulletinPayloadsFilter(tokenizer, warningBoost);
-      payloadFilter.setIsBulletin(isBulletin);
-      
-      return payloadFilter;
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create test TokenStream", e);
-    }
+    var tokenizer = new StandardTokenizer();
+    tokenizer.setReader(new StringReader(value));
+    var payloadFilter = new BulletinPayloadsFilter(tokenizer, warningBoost);
+    payloadFilter.setIsBulletin(isBulletin);
+    return payloadFilter;
   }
 
   @Test
