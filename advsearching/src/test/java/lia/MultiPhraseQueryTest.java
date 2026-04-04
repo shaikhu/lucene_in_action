@@ -1,6 +1,5 @@
 package lia;
 
-import java.util.Collections;
 import java.util.List;
 
 import lia.synonym.SynonymAnalyzer;
@@ -29,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MultiPhraseQueryTest {
-  private static final SynonymEngine SYNONYM_ENGINE = text -> text.equals("quick") ? List.of("fast") : Collections.emptyList();
+  private static final SynonymEngine SYNONYM_ENGINE = (String text) -> text.equals("quick") ? List.of("fast") : List.of();
 
   private Directory directory;
 
