@@ -32,6 +32,6 @@ public class BookLinkCollector extends SimpleCollector {
   }
 
   public Map<String, String> getLinks() {
-    return Collections.unmodifiableMap(documents);
+    return Map.copyOf(documents);
   }
 }
