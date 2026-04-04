@@ -36,7 +36,6 @@ public class BulletinField extends Field {
   }
   
   private static TokenStream createTokenStream(String value, boolean isBulletin, float warningBoost) {
-    try {
       // Create the TokenStream chain: StandardTokenizer -> BulletinPayloadsFilter
       StandardTokenizer tokenizer = new StandardTokenizer();
       tokenizer.setReader(new StringReader(value));
@@ -45,8 +44,5 @@ public class BulletinField extends Field {
       payloadFilter.setIsBulletin(isBulletin);
       
       return payloadFilter;
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create TokenStream for BulletinField", e);
-    }
   }
 }
