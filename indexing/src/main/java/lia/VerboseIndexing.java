@@ -1,7 +1,6 @@
 package lia;
 
 import java.io.IOException;
-import java.util.stream.IntStream;
 
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
@@ -18,17 +17,11 @@ public class VerboseIndexing {
 
     try (var directory = new ByteBuffersDirectory();
          var indexWriter = new IndexWriter(directory, indexWriterConfig)) {
-      IntStream.range(1, 100).forEach(index -> indexDocument(indexWriter));
-    }
-  }
-
-  private void indexDocument(IndexWriter indexWriter) {
-    try {
-      var document = new Document();
-      document.add(new StringField("keyword", "goober", Store.YES));
-      indexWriter.addDocument(document);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to add document to index", e);
+      for (int i = 1; i < 100; i++) {
+        var document = new Document();
+        document.add(new StringField("keyword", "goober", Store.YES));
+        indexWriter.addDocument(document);
+      }
     }
   }
 
