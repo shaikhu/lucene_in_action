@@ -15,21 +15,16 @@ public class NumericDateRangeQueryParser extends QueryParser {
   @Override
   public Query getRangeQuery(String field, String part1, String part2, boolean startInclusive, boolean endInclusive)
       throws ParseException {
-
-    TermRangeQuery query = (TermRangeQuery) super.getRangeQuery(field, part1, part2, startInclusive, endInclusive);
-    if ("pubmonth".equals(field)) {
-      long lowerValue = query.includesLower()
-          ? Long.parseLong(query.getLowerTerm().utf8ToString())
-          : Math.addExact(Long.parseLong(query.getLowerTerm().utf8ToString()), 1);
-
-      long upperValue = query.includesUpper()
-          ? Long.parseLong(query.getUpperTerm().utf8ToString())
-          : Math.addExact(Long.parseLong(query.getUpperTerm().utf8ToString()), -1);
-
-      return LongPoint.newRangeQuery(field, lowerValue, upperValue);
+    var baseQuery = super.getRangeQuery(field, part1, part2, startInclusive, endInclusive);
+    if (!"pubmonth".equals(field) || !(baseQuery instanceof TermRangeQuery rangeQuery)) {
+      return baseQuery;
     }
-    else {
-      return query;
-    }
+    long lower = rangeQuery.includesLower()
+        ? Long.parseLong(rangeQuery.getLowerTerm().utf8ToString())
+        : Math.addExact(Long.parseLong(rangeQuery.getLowerTerm().utf8ToString()), 1);
+    long upper = rangeQuery.includesUpper()
+        ? Long.parseLong(rangeQuery.getUpperTerm().utf8ToString())
+        : Math.addExact(Long.parseLong(rangeQuery.getUpperTerm().utf8ToString()), -1);
+    return LongPoint.newRangeQuery(field, lower, upper);
   }
 }
