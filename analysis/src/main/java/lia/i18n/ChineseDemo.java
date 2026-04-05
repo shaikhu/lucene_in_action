@@ -1,71 +1,50 @@
 package lia.i18n;
 
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
-import lia.SimpleAnalyzer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.cjk.CJKAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
-public class ChineseDemo {
-  private static final List<String> TEXT = List.of("\u9053\u5FB7\u7D93");
+import lia.SimpleAnalyzer;
 
-  private static final List<Analyzer> ANALYSERS = List.of(
+/**
+ * Demonstrates how different analyzers tokenize CJK (Chinese/Japanese/Korean) text.
+ *
+ * SimpleAnalyzer and StandardAnalyzer treat the whole string as one token.
+ * CJKAnalyzer produces overlapping bigrams — e.g. "道德經" → [道德] [德經] — which
+ * better supports partial-match search across CJK scripts.
+ */
+public class ChineseDemo {
+  // CJK text for 'Tao Te Ching'
+  private static final String TEXT = "道德經";
+
+  private static final List<Analyzer> ANALYZERS = List.of(
       new SimpleAnalyzer(),
       new StandardAnalyzer(),
       new CJKAnalyzer());
 
   private static void analyze(String text, Analyzer analyzer) throws IOException {
-    var stringBuilder = new StringBuilder();
-    var tokenStream = analyzer.tokenStream("contents", new StringReader(text));
-    var charTerm = tokenStream.addAttribute(CharTermAttribute.class);
-
-    tokenStream.reset();
-    while(tokenStream.incrementToken()) {
-      stringBuilder.append("[").append(charTerm.toString()).append("] ");
+    try (var tokenStream = analyzer.tokenStream("contents", new StringReader(text))) {
+      var charTerm = tokenStream.addAttribute(CharTermAttribute.class);
+      var sb = new StringBuilder();
+      tokenStream.reset();
+      while (tokenStream.incrementToken()) {
+        sb.append("[").append(charTerm).append("] ");
+      }
+      tokenStream.end();
+      System.out.printf("%-30s : %s%n", analyzer.getClass().getSimpleName(), sb);
     }
-    tokenStream.end();
-    tokenStream.close();
-    var output = stringBuilder.toString();
-
-    JFrame frame = new JFrame();
-    frame.setTitle(analyzer.getClass().getSimpleName() + " : " + text);
-    frame.setResizable(false);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-    var font = new Font(null, Font.PLAIN, 36);
-    var width = getWidth(frame.getFontMetrics(font), output);
-    frame.setSize((width < 290) ? 290 : width + 50, 135);
-
-    var label = new JLabel(output);
-    label.setSize(width, 135);
-    label.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-    label.setAlignmentY(JLabel.CENTER_ALIGNMENT);
-    label.setFont(font);
-    frame.add(label);
-    frame.setVisible(true);
-  }
-
-  private static int getWidth(FontMetrics fontMetrics, String text) {
-    var size = 0;
-    for (var i = 0; i < text.length(); i++) {
-      size += fontMetrics.charWidth(text.charAt(i));
-    }
-    return size;
   }
 
   public static void main(String... args) throws IOException {
-    for (var text : TEXT) {
-      for (var analyzer : ANALYSERS) {
-        analyze(text, analyzer);
-      }
+    System.out.println("Text: " + TEXT);
+    System.out.println();
+    for (var analyzer : ANALYZERS) {
+      analyze(TEXT, analyzer);
     }
   }
 }
