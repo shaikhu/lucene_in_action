@@ -1,6 +1,6 @@
 [versions]
 lucene = '10.2.2'
-tika = '2.8.0'
+tika = '2.9.4'
 
 [libraries]
 lucene-core = { module ='org.apache.lucene:lucene-core', version.ref = 'lucene' }
