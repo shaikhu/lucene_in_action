@@ -6,7 +6,7 @@ This is an attempt to update the code examples (where possible) using Apache Luc
 
 ## Versions
 
-- Lucene: 10.0.0
+- Lucene: 10.4.0
 - Tika 2.8.0
 - Gradle 8.9
 - JDK 21

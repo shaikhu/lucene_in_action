@@ -30,7 +30,7 @@ class FilterTest {
 
   @BeforeEach
   void setup() throws IOException {
-    allBooksQuery = new MatchAllDocsQuery();
+    allBooksQuery = MatchAllDocsQuery.INSTANCE;
     directory = TestUtil.getBookIndexDirectory();
     indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }

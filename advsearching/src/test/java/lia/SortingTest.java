@@ -36,7 +36,7 @@ class SortingTest {
     var javaBook = new QueryParser("contents", new StandardAnalyzer()).parse("java OR action");
 
     booleanQuery = new BooleanQuery.Builder()
-        .add(new MatchAllDocsQuery(), Occur.SHOULD)
+        .add(MatchAllDocsQuery.INSTANCE, Occur.SHOULD)
         .add(javaBook, Occur.SHOULD)
         .build();
   }

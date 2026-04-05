@@ -34,7 +34,7 @@ class TimeLimitCollectorTest {
       var indexSearcher = new IndexSearcher(directoryReader);
       indexSearcher.setTimeout(new QueryTimeoutImpl(1000));
 
-      var allBooksQuery = new MatchAllDocsQuery();
+      var allBooksQuery = MatchAllDocsQuery.INSTANCE;
       var numAllBooks = (int) TestUtil.hitCount(indexSearcher, allBooksQuery);
 
       var collectorManager = new TopScoreDocCollectorManager(10, numAllBooks);
