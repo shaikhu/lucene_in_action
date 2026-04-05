@@ -23,7 +23,7 @@ class LockTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 

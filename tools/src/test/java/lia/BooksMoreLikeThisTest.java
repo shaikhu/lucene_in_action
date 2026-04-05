@@ -12,6 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -33,7 +34,7 @@ class BooksMoreLikeThisTest {
   private TopDocs topDocs;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = TestUtil.getBookIndexDirectory();
     directoryReader = DirectoryReader.open(directory);
     indexSearcher = new IndexSearcher(directoryReader);
@@ -41,13 +42,13 @@ class BooksMoreLikeThisTest {
   }
 
   @AfterEach
-  void tearDown() throws  Exception {
+  void tearDown() throws IOException {
     directoryReader.close();
     directory.close();
   }
 
   @Test
-  void testMoreLikeThis() throws Exception {
+  void testMoreLikeThis() throws IOException {
     var moreLikeThisQuery = new MoreLikeThis(directoryReader);
     moreLikeThisQuery.setFieldNames(new String[]{"title", "author"});
     moreLikeThisQuery.setMinTermFreq(1);

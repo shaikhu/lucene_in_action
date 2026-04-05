@@ -35,7 +35,7 @@ class IndexingTest {
   private Directory directory;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = new ByteBuffersDirectory();
 
     try (var indexWriter = getIndexWriter()) {
@@ -51,7 +51,7 @@ class IndexingTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 

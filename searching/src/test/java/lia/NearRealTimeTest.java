@@ -14,11 +14,13 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NearRealTimeTest {
   @Test
-  void testNearRealTime() throws Exception {
+  void testNearRealTime() throws IOException {
     try (var directory = new ByteBuffersDirectory();
          var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()))) {
 

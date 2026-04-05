@@ -1,5 +1,6 @@
 package lia;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
@@ -45,7 +46,7 @@ class FilteringTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = new ByteBuffersDirectory();
 
     var date = START_DATE;
@@ -64,12 +65,12 @@ class FilteringTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testOr() throws Exception {
+  void testOr() throws IOException {
     var query = new BooleanQuery.Builder()
         .add(TERM_QUERY_SUE, Occur.SHOULD)
         .add(TERM_QUERY_BOB, Occur.SHOULD)
@@ -80,7 +81,7 @@ class FilteringTest {
   }
 
   @Test
-  void testAnd() throws Exception {
+  void testAnd() throws IOException {
     var query = new BooleanQuery.Builder()
         .add(DATE_QUERY, Occur.MUST)
         .add(TERM_QUERY_BOB, Occur.MUST)
@@ -94,7 +95,7 @@ class FilteringTest {
   }
 
   @Test
-  void testAndNot() throws Exception {
+  void testAndNot() throws IOException {
     var query = new BooleanQuery.Builder()
         .add(DATE_QUERY, Occur.MUST)
         .add(TERM_QUERY_BOB, Occur.MUST_NOT)

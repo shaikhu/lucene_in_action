@@ -1,5 +1,7 @@
 package lia;
 
+import java.io.IOException;
+
 import lia.common.TestUtil;
 import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.index.DirectoryReader;
@@ -22,18 +24,18 @@ class BooleanQueryTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = TestUtil.getBookIndexDirectory();
     indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testAnd() throws Exception {
+  void testAnd() throws IOException {
     var bookQuery = new TermQuery(new Term("subject", "search"));
     var yearQuery = LongPoint.newRangeQuery("pubmonth", 201001, 201012);
 
@@ -49,7 +51,7 @@ class BooleanQueryTest {
   }
 
   @Test
-  void testOr() throws Exception {
+  void testOr() throws IOException {
     var methodologyBooksQuery = new TermQuery(new Term("category", "/technology/computers/programming/methodology"));
     var easternPhilosophyBooksQuery = new TermQuery(new Term("category", "/philosophy/eastern"));
 

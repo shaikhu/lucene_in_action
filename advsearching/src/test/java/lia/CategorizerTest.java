@@ -1,5 +1,6 @@
 package lia;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,7 @@ class CategorizerTest {
   Map<String,Map<String,Integer>> categories = new HashMap<>();
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     try (IndexReader indexReader = DirectoryReader.open(TestUtil.getBookIndexDirectory())) {
       for (int i = 0; i < indexReader.maxDoc(); i++) {
         Document document = indexReader.storedFields().document(i);
@@ -35,7 +36,7 @@ class CategorizerTest {
     }
   }
 
-  private void addTermFreqToMap(Map<String, Integer> vectorMap, Terms terms) throws Exception {
+  private void addTermFreqToMap(Map<String, Integer> vectorMap, Terms terms) throws IOException {
     List<String> subjectTerms = new ArrayList<>();
 
     TermsEnum termsIterator = terms.iterator();

@@ -20,6 +20,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SecurityFilterTest {
@@ -28,7 +30,7 @@ class SecurityFilterTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = new ByteBuffersDirectory();
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
       var document = new Document();
@@ -46,12 +48,12 @@ class SecurityFilterTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testSecurityFilter() throws Exception {
+  void testSecurityFilter() throws IOException {
     var keywordQuery = new TermQuery(new Term("keywords", "info"));
     assertThat(TestUtil.hitCount(indexSearcher, keywordQuery)).isEqualTo(2);
 

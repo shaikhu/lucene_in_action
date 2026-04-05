@@ -1,6 +1,5 @@
 package lia;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
@@ -9,12 +8,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queries.spans.SpanFirstQuery;
-import org.apache.lucene.queries.spans.SpanNearQuery;
-import org.apache.lucene.queries.spans.SpanNotQuery;
-import org.apache.lucene.queries.spans.SpanOrQuery;
-import org.apache.lucene.queries.spans.SpanQuery;
-import org.apache.lucene.queries.spans.SpanTermQuery;
+import org.apache.lucene.queries.spans.*;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
@@ -22,6 +16,8 @@ import org.apache.lucene.store.ByteBuffersDirectory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,7 +43,7 @@ class SpanQueryTest {
   private SpanTermQuery cat;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() throws IOException {
     directory = new ByteBuffersDirectory();
 
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
@@ -72,17 +68,17 @@ class SpanQueryTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testSpanTermQuery() throws Exception {
+  void testSpanTermQuery() throws IOException {
     assertOnlyBrownFox(brown);
   }
 
   @Test
-  void testSpanFirstQuery() throws Exception {
+  void testSpanFirstQuery() throws IOException {
     SpanFirstQuery spanFirstQuery = new SpanFirstQuery(brown, 2);
     assertNoMatches(spanFirstQuery);
 
@@ -91,7 +87,7 @@ class SpanQueryTest {
   }
 
   @Test
-  void testSpanNearQuery() throws Exception {
+  void testSpanNearQuery() throws IOException {
     var quickBrownDog = new SpanQuery[]{quick, brown, dog};
     var spanNearQuery = new SpanNearQuery(quickBrownDog, 0, true);
     assertNoMatches(spanNearQuery);
@@ -117,7 +113,7 @@ class SpanQueryTest {
   }
 
   @Test
-  void testSpanNotQuery() throws Exception {
+  void testSpanNotQuery() throws IOException {
     var quickFox = new SpanNearQuery(new SpanQuery[]{quick, fox}, 1, true);
     assertBothFoxes(quickFox);
 
@@ -129,7 +125,7 @@ class SpanQueryTest {
   }
 
   @Test
-  void testSpanOrQuery() throws Exception {
+  void testSpanOrQuery() throws IOException {
     var quickFox = new SpanNearQuery(new SpanQuery[]{quick, fox}, 1, true);
     var lazyDog = new SpanNearQuery(new SpanQuery[]{lazy, dog}, 0, true);
     var sleepyCat = new SpanNearQuery(new SpanQuery[]{sleepy, cat}, 0, true);
@@ -142,18 +138,18 @@ class SpanQueryTest {
     assertBothFoxes(bothFoxes);
   }
 
-  private void assertOnlyBrownFox(Query query) throws Exception {
+  private void assertOnlyBrownFox(Query query) throws IOException {
     var topDocs = indexSearcher.search(query, 10);
     assertThat(topDocs.totalHits.value()).isOne();
     assertThat(topDocs.scoreDocs[0].doc).isZero();
   }
 
-  private void assertBothFoxes(Query query) throws Exception {
+  private void assertBothFoxes(Query query) throws IOException {
     var topDocs = indexSearcher.search(query, 10);
     assertThat(topDocs.totalHits.value()).isEqualTo(2);
   }
 
-  private void assertNoMatches(Query query) throws Exception {
+  private void assertNoMatches(Query query) throws IOException {
     var topDocs = indexSearcher.search(query, 10);
     assertThat(topDocs.totalHits.value()).isZero();
   }

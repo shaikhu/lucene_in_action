@@ -1,5 +1,6 @@
 package lia.synonym;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
@@ -34,7 +36,7 @@ class SynonymAnalyzerTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() throws IOException {
     directory = new ByteBuffersDirectory();
     synonymAnalyzer = new SynonymAnalyzer(new TestSynonymEngine());
 
@@ -48,12 +50,12 @@ class SynonymAnalyzerTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testJumps() throws Exception {
+  void testJumps() throws IOException {
     var tokenStream = synonymAnalyzer.tokenStream("contents", new StringReader("jumps"));
     var charTerm = tokenStream.addAttribute(CharTermAttribute.class);
     var positionIncrement = tokenStream.addAttribute(PositionIncrementAttribute.class);
@@ -72,7 +74,7 @@ class SynonymAnalyzerTest {
   }
 
   @Test
-  void testSearchByAPI() throws Exception {
+  void testSearchByAPI() throws IOException {
     var termQuery = new TermQuery(new Term("content", "hops"));
     assertThat(TestUtil.hitCount(indexSearcher, termQuery)).isOne();
 
@@ -84,7 +86,7 @@ class SynonymAnalyzerTest {
   }
 
   @Test
-  void testWithQueryParser() throws Exception {
+  void testWithQueryParser() throws ParseException, IOException {
     var queryParser = new QueryParser("content", synonymAnalyzer);
     var query = queryParser.parse("\"fox jumps\"");
     assertThat(TestUtil.hitCount(indexSearcher, query)).isOne();

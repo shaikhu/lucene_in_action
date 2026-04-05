@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 
 import static lia.common.TestUtil.documents;
@@ -27,7 +28,7 @@ class BooksLikeThisTest {
   private TopDocs results;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = TestUtil.getBookIndexDirectory();
     directoryReader = DirectoryReader.open(directory);
     indexSearcher = new IndexSearcher(directoryReader);
@@ -35,12 +36,12 @@ class BooksLikeThisTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testMoreLikeThis() throws Exception {
+  void testMoreLikeThis() throws IOException {
     var antInActionDocument = directoryReader.storedFields().document(results.scoreDocs[0].doc);
 
     var authorQueryBuilder = new BooleanQuery.Builder();

@@ -1,5 +1,7 @@
 package lia.codec;
 
+import java.io.IOException;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
@@ -7,6 +9,7 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.ByteBuffersDirectory;
@@ -18,7 +21,7 @@ class MetaphoneAnalyzerTest {
   private static final Analyzer METAPHONE_ANALYZER = new MetaphoneReplacementAnalyzer();
   
   @Test
-  void testKoolKat() throws Exception {
+  void testKoolKat() throws ParseException, IOException {
     try (var directory = new ByteBuffersDirectory()) {
       try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(METAPHONE_ANALYZER))) {
         var document = new Document();

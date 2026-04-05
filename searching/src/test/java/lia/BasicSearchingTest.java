@@ -1,9 +1,12 @@
 package lia;
 
+import java.io.IOException;
+
 import lia.common.TestUtil;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
@@ -20,18 +23,18 @@ class BasicSearchingTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = TestUtil.getBookIndexDirectory();
     indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testTerm() throws Exception {
+  void testTerm() throws IOException {
     var term = new Term("subject", "ant");
     var query = new TermQuery(term);
 
@@ -44,7 +47,7 @@ class BasicSearchingTest {
   }
 
   @Test
-  void testKeyword() throws Exception {
+  void testKeyword() throws IOException {
     var term = new Term("isbn", "9781935182023");
     var query = new TermQuery(term);
     var topDocs = indexSearcher.search(query, 10);
@@ -52,7 +55,7 @@ class BasicSearchingTest {
   }
 
   @Test
-  void testQueryParser() throws Exception {
+  void testQueryParser() throws ParseException, IOException {
     var queryParser = new QueryParser("contents", new StandardAnalyzer());
     var query = queryParser.parse("+JUNIT +ANT -MOCK");
     var topDocs = indexSearcher.search(query, 10);

@@ -11,23 +11,25 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TimeLimitCollectorTest {
   private Directory directory;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = TestUtil.getBookIndexDirectory();
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testTimeoutLimitCollector() throws Exception {
+  void testTimeoutLimitCollector() throws IOException {
     try (var directoryReader = ExitableDirectoryReader.open(directory)) {
       var indexSearcher = new IndexSearcher(directoryReader);
       indexSearcher.setTimeout(new QueryTimeoutImpl(1000));

@@ -1,5 +1,6 @@
 package lia.keyword;
 
+import java.io.IOException;
 import java.util.Map;
 
 import lia.SimpleAnalyzer;
@@ -15,6 +16,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
@@ -32,7 +34,7 @@ class KeywordAnalyzerTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() throws IOException {
     directory = new ByteBuffersDirectory();
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new SimpleAnalyzer()))) {
       var document = new Document();
@@ -44,18 +46,18 @@ class KeywordAnalyzerTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testTermQuery() throws Exception {
+  void testTermQuery() throws IOException {
     var termQuery = new TermQuery(new Term("partnum", "Q36"));
     assertThat(TestUtil.hitCount(indexSearcher, termQuery)).isOne();
   }
 
   @Test
-  void testBasicQueryParser() throws Exception {
+  void testBasicQueryParser() throws ParseException, IOException {
     var queryParser = new QueryParser("description", new SimpleAnalyzer());
     var query = queryParser.parse("partnum:Q36 AND SPACE");
     assertThat(query.toString("description")).isEqualTo("+partnum:q36 +space");
@@ -63,7 +65,7 @@ class KeywordAnalyzerTest {
   }
 
   @Test
-  void testPerFieldAnalyzer() throws Exception {
+  void testPerFieldAnalyzer() throws ParseException, IOException {
     Map<String, Analyzer> fieldAnalyzers = Map.of("partnum", new KeywordAnalyzer());
     var analyzerWrapper = new PerFieldAnalyzerWrapper(new SimpleAnalyzer(), fieldAnalyzers);
     var query = new QueryParser("description", analyzerWrapper).parse("partnum:Q36 AND SPACE");

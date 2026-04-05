@@ -1,5 +1,7 @@
 package lia.i18n;
 
+import java.io.IOException;
+
 import lia.common.TestUtil;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Term;
@@ -11,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ChineseTest {
   @Test
-  void testChinese() throws Exception {
+  void testChinese() throws IOException {
     try (var directory = TestUtil.getBookIndexDirectory()) {
       var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
       var query = new TermQuery(new Term("contents", "\u9053"));

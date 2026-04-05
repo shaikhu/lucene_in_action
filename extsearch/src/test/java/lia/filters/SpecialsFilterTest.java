@@ -1,5 +1,6 @@
 package lia.filters;
 
+import java.io.IOException;
 import java.util.List;
 
 import lia.common.TestUtil;
@@ -25,18 +26,18 @@ class SpecialsFilterTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() throws IOException {
     directory = TestUtil.getBookIndexDirectory();
     indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testFilter() throws Exception {
+  void testFilter() throws IOException {
     // all books about logo
     var logoBooksQuery = new TermQuery(new Term("subject", "logo"));
 

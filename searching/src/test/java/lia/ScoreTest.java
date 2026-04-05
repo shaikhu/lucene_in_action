@@ -21,6 +21,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ScoreTest {
@@ -32,12 +34,12 @@ class ScoreTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testSimple() throws Exception {
+  void testSimple() throws IOException {
     indexSingleFieldDocs(new TextField("contents", "x", Store.YES));
 
     try (var directoryReader = DirectoryReader.open(directory)) {
@@ -53,7 +55,7 @@ class ScoreTest {
   }
 
   @Test
-  void testWildCard() throws Exception {
+  void testWildCard() throws IOException {
     indexSingleFieldDocs(
         new TextField("contents", "wild", Store.YES),
         new TextField("contents", "child", Store.YES),
@@ -72,7 +74,7 @@ class ScoreTest {
   }
 
   @Test
-  void testFuzzy() throws Exception {
+  void testFuzzy() throws IOException {
     indexSingleFieldDocs(new TextField("contents", "fuzzy", Store.YES), new TextField("contents", "wuzzy", Store.YES));
 
     try (var directoryReader = DirectoryReader.open(directory)) {
@@ -88,7 +90,7 @@ class ScoreTest {
     }
   }
 
-  private void indexSingleFieldDocs(Field... fields) throws Exception {
+  private void indexSingleFieldDocs(Field... fields) throws IOException {
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer())) ) {
       for (var field : fields) {
         var document = new Document();

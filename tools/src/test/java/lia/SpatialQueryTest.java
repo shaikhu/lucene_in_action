@@ -19,6 +19,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +50,7 @@ class SpatialQueryTest
   private Directory directory;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = new ByteBuffersDirectory();
 
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
@@ -63,12 +64,12 @@ class SpatialQueryTest
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testBasicQuery() throws Exception {
+  void testBasicQuery() throws IOException {
     var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
     var topDocs = indexSearcher.search(LatLonPoint.newDistanceQuery("location", 38.8725000, -77.3829000, 10000), 10);
     assertThat(topDocs.scoreDocs)
@@ -81,7 +82,7 @@ class SpatialQueryTest
   }
 
   @Test
-  void testBooleanQuery() throws Exception {
+  void testBooleanQuery() throws IOException {
     var distanceQuery = LatLonPoint.newDistanceQuery("location", 38.8725000, -77.3829000, 10000);
     var restaurantsQuery = new TermQuery(new Term("name", "Restaurant"));
 

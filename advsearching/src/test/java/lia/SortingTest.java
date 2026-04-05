@@ -1,5 +1,6 @@
 package lia;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -8,6 +9,7 @@ import lia.common.TestUtil;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.*;
@@ -30,7 +32,7 @@ class SortingTest {
   private IndexSearcher indexSearcher;
 
   @BeforeAll
-  static void initQuery() throws Exception {
+  static void initQuery() throws ParseException {
     var javaBook = new QueryParser("contents", new StandardAnalyzer()).parse("java OR action");
 
     booleanQuery = new BooleanQuery.Builder()
@@ -40,18 +42,18 @@ class SortingTest {
   }
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = TestUtil.getBookIndexDirectory();
     indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testSortByRelevance() throws Exception {
+  void testSortByRelevance() throws IOException {
     TopDocs results = indexSearcher.search(booleanQuery, 10, Sort.RELEVANCE, true);
 
     List<Float> scores = Arrays.stream(results.scoreDocs)
@@ -62,7 +64,7 @@ class SortingTest {
   }
 
   @Test
-  void testSortByIndexOrder() throws Exception {
+  void testSortByIndexOrder() throws IOException {
     TopDocs results = indexSearcher.search(booleanQuery, 10, Sort.INDEXORDER, true);
 
     List<Integer> documentNumbers = Arrays.stream(results.scoreDocs)
@@ -73,7 +75,7 @@ class SortingTest {
   }
 
   @Test
-  void testSortByField() throws Exception {
+  void testSortByField() throws IOException {
     Sort sort = new Sort(new SortField("category", Type.STRING));
     TopDocs results = indexSearcher.search(booleanQuery, 10, sort, true);
 
@@ -85,7 +87,7 @@ class SortingTest {
   }
 
   @Test
-  void testSortByMultipleFields() throws Exception {
+  void testSortByMultipleFields() throws IOException {
     Sort sort = new Sort(new SortField("category", Type.STRING), new SortedNumericSortField("pubmonth", Type.LONG));
     TopDocs results = indexSearcher.search(booleanQuery, 10, sort, true);
 
@@ -96,7 +98,7 @@ class SortingTest {
   }
 
   @Test
-  void testSortByFieldReverse() throws Exception {
+  void testSortByFieldReverse() throws IOException {
     Sort sort = new Sort(new SortField("category", Type.STRING, true));
     TopDocs results = indexSearcher.search(booleanQuery, 10, sort, true);
 

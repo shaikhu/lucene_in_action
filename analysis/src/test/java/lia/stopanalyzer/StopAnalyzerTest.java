@@ -5,12 +5,14 @@ import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class StopAnalyzerTest {
   private static final StopAnalyzer STOP_ANALYZER = new StopAnalyzer(EnglishAnalyzer.ENGLISH_STOP_WORDS_SET);
 
-  @Test void testHoles() throws Exception {
+  @Test void testHoles() throws IOException {
     assertThat(TestUtil.getTokens(STOP_ANALYZER, "one is not enough")).containsOnly("one", "enough");
     assertThat(TestUtil.getTokens(STOP_ANALYZER, "one is enough")).containsOnly("one", "enough");
     assertThat(TestUtil.getTokens(STOP_ANALYZER, "one enough")).containsOnly("one", "enough");

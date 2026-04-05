@@ -8,11 +8,13 @@ import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.TermQuery;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PrefixQueryTest {
   @Test
-  void testPrefix() throws Exception {
+  void testPrefix() throws IOException {
     try (var directory = TestUtil.getBookIndexDirectory()) {
       var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
 

@@ -18,6 +18,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FunctionQueryTest {
@@ -26,7 +28,7 @@ class FunctionQueryTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = new ByteBuffersDirectory();
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()))) {
       indexDocument(indexWriter, 7, "this hat is green");
@@ -37,12 +39,12 @@ class FunctionQueryTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testFieldScoreQuery() throws Throwable {
+  void testFieldScoreQuery() throws IOException {
     var functionQuery = new FunctionQuery(ValueSource.fromDoubleValuesSource(DoubleValuesSource.fromLongField("score")));
     var topDocs = indexSearcher.search(functionQuery, 10);
 
@@ -54,7 +56,7 @@ class FunctionQueryTest {
   }
 
 
-  private void indexDocument(IndexWriter indexWriter, long score, String content) throws Exception {
+  private void indexDocument(IndexWriter indexWriter, long score, String content) throws IOException {
     var document = new Document();
     document.add(new NumericDocValuesField("score", score));
     document.add(new TextField("content", content, Store.NO));

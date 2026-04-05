@@ -1,5 +1,6 @@
 package lia;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
@@ -31,7 +32,7 @@ class MultiReaderTest {
   private Directory directory2;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() throws IOException {
     directory1 = new ByteBuffersDirectory();
     directory2 = new ByteBuffersDirectory();
 
@@ -51,13 +52,13 @@ class MultiReaderTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory1.close();
     directory2.close();
   }
 
   @Test
-  void testMulti() throws Exception {
+  void testMulti() throws IOException {
     try (var directoryReader1 = DirectoryReader.open(directory1);
          var directoryReader2 = DirectoryReader.open(directory2)) {
       var indexSearcher = new IndexSearcher(new MultiReader(directoryReader1, directoryReader2));

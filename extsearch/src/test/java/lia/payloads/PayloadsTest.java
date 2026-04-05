@@ -35,12 +35,12 @@ class PayloadsTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testPayloadTermQuery() throws Exception {
+  void testPayloadTermQuery() throws IOException {
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()))){
       indexDocument(indexWriter, "Hurricane warning", "Bulletin: A hurricane warning was issued at 6 AM for the outer great banks");
       indexDocument(indexWriter, "Warning label maker", "The warning label maker is a delightful toy for your precocious seven year old's warning needs");

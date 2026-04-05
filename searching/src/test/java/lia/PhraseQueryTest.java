@@ -42,19 +42,19 @@ class PhraseQueryTest {
   }
 
   @Test
-  void testSlopComparison() throws Exception {
+  void testSlopComparison() throws IOException {
     assertThat(matched(0, "quick", "fox")).isFalse();
     assertThat(matched(1, "quick", "fox")).isTrue();
   }
 
   @Test
-  void testReverse() throws Exception {
+  void testReverse() throws IOException {
     assertThat(matched(2, "fox", "quick")).isFalse();
     assertThat(matched(3, "fox", "quick")).isTrue();
   }
 
   @Test
-  void testMultiple() throws Exception {
+  void testMultiple() throws IOException {
     assertThat(matched(3, "quick", "jumped", "lazy")).isFalse();
     assertThat(matched(4, "quick", "jumped", "lazy")).isTrue();
     assertThat(matched(7, "lazy", "jumped", "quick")).isFalse();

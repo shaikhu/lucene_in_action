@@ -1,5 +1,6 @@
 package lia;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
 import org.apache.lucene.search.highlight.TokenSources;
@@ -24,7 +26,7 @@ class HighlightTest {
       "JUnit in <B>Action</B>, Second Edition");
 
   @Test
-  void testHighlighting() throws Exception {
+  void testHighlighting() throws IOException, InvalidTokenOffsetsException {
     var text = "The quick brown fox jumps over the lazy dog";
     var query = new TermQuery(new Term("field", "fox"));
     var tokenStream = new SimpleAnalyzer().tokenStream("field", new StringReader(text));
@@ -38,7 +40,7 @@ class HighlightTest {
   }
 
   @Test
-  void testHits() throws Exception {
+  void testHits() throws IOException, InvalidTokenOffsetsException {
     try (var directory = TestUtil.getBookIndexDirectory();
          var indexReader = DirectoryReader.open(directory)) {
 

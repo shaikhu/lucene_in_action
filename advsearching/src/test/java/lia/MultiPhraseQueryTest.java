@@ -1,5 +1,6 @@
 package lia;
 
+import java.io.IOException;
 import java.util.List;
 
 import lia.synonym.SynonymAnalyzer;
@@ -12,6 +13,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -35,7 +37,7 @@ class MultiPhraseQueryTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() throws IOException {
     directory = new ByteBuffersDirectory();
 
     try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(new WhitespaceAnalyzer()))) {
@@ -52,12 +54,12 @@ class MultiPhraseQueryTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testBasic() throws Exception {
+  void testBasic() throws IOException {
     var builder = new MultiPhraseQuery.Builder()
         .add(new Term[]{new Term("field", "quick"), new Term("field", "fast")})
         .add(new Term("field", "fox"));
@@ -74,7 +76,7 @@ class MultiPhraseQueryTest {
 
 
   @Test
-  void testAgainstOR() throws Exception {
+  void testAgainstOR() throws IOException {
     var quickFoxQuery = new PhraseQuery.Builder()
         .add(new Term("field", "quick"))
         .add(new Term("field", "fox"))
@@ -96,7 +98,7 @@ class MultiPhraseQueryTest {
   }
 
   @Test
-  void testQueryParser() throws Exception {
+  void testQueryParser() throws ParseException {
     var queryParser = new QueryParser("field", new SynonymAnalyzer(SYNONYM_ENGINE));
     var query = queryParser.parse("\"quick fox\"");
     assertThat(query).hasToString("field:\"(quick fast) fox\"");

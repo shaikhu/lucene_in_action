@@ -12,7 +12,7 @@ class FlexibleQueryParserTest {
   private StandardQueryParser queryParser;
 
   @Test
-  void testSimple() throws Exception {
+  void testSimple() throws QueryNodeException {
     queryParser = new StandardQueryParser(new StandardAnalyzer());
     var query = queryParser.parse("(agile OR extreme) AND methodology", "subject");
     assertThat(query).hasToString("+(subject:agile subject:extreme) +subject:methodology");

@@ -1,5 +1,7 @@
 package lia.collector;
 
+import java.io.IOException;
+
 import lia.common.TestUtil;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Term;
@@ -16,17 +18,17 @@ class CollectorTest {
   private Directory directory;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = TestUtil.getBookIndexDirectory();
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testCollecting() throws Exception {
+  void testCollecting() throws IOException {
     var query = new TermQuery(new Term("contents", "junit"));
 
     try (var directoryReader = DirectoryReader.open(directory)) {

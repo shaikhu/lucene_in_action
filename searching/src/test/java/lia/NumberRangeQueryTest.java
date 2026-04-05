@@ -9,6 +9,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NumberRangeQueryTest {
@@ -17,25 +19,25 @@ class NumberRangeQueryTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = TestUtil.getBookIndexDirectory();
     indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testInclusive() throws Exception {
+  void testInclusive() throws IOException {
     var query = LongPoint.newRangeQuery("pubmonth", 200605, 200609);
     var topDocs = indexSearcher.search(query, 10);
     assertThat(topDocs.totalHits.value()).isOne();
   }
 
   @Test
-  void testExclusive() throws Exception {
+  void testExclusive() throws IOException {
     var query = LongPoint.newRangeQuery("pubmonth", Math.addExact(200605, 1), Math.addExact(200609, -1));
     var topDocs = indexSearcher.search(query, 10);
     assertThat(topDocs.totalHits.value()).isZero();

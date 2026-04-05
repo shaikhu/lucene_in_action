@@ -1,5 +1,6 @@
 package lia.queryparser;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import lia.common.TestUtil;
@@ -7,6 +8,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
@@ -24,32 +26,32 @@ class NumericRangeQueryParserTest {
   private IndexSearcher indexSearcher;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     directory = TestUtil.getBookIndexDirectory();
     analyzer = new WhitespaceAnalyzer();
     indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testNumericRangeQuery() throws Exception {
+  void testNumericRangeQuery() throws ParseException {
     var queryParser = new NumericRangeQueryParser("subject", analyzer);
     var query = queryParser.parse("price:[10 TO 20]");
     assertThat(query).hasToString("price:[10.0 TO 20.0]");
  }
 
-  @Test void testDefaultDateRangeQuery() throws Exception {
+  @Test void testDefaultDateRangeQuery() throws ParseException {
     var queryParser = new QueryParser("subject", analyzer);
     var query = queryParser.parse("pubmonth:[1/1/04 TO 12/31/04]");
     assertThat(query).hasToString("pubmonth:[1/1/04 TO 12/31/04]");
   }
 
   @Test
-  void testDateRangeQuery() throws Exception {
+  void testDateRangeQuery() throws ParseException, IOException {
     var queryParser = new NumericDateRangeQueryParser("subject", analyzer);
     queryParser.setDateResolution("pubmonth", DateTools.Resolution.MONTH);
     queryParser.setLocale(Locale.US);

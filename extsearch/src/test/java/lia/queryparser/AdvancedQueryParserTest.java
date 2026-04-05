@@ -33,7 +33,7 @@ class AdvancedQueryParserTest {
   }
 
   @Test
-  void testPhraseQuery() throws Exception {
+  void testPhraseQuery() throws ParseException {
     var query = customQueryParser.parse("singleTerm");
     assertThat(query).isInstanceOf(TermQuery.class);
 

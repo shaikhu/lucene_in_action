@@ -40,7 +40,7 @@ public class TestUtil
     return false;
   }
 
-  public static List<String> getTokens(Analyzer analyzer, String input) throws Exception {
+  public static List<String> getTokens(Analyzer analyzer, String input) throws IOException {
     var tokens = new ArrayList<String>();
     try (TokenStream tokenStream = analyzer.tokenStream("field", new StringReader(input))) {
       CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);

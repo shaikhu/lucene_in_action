@@ -9,6 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +25,7 @@ class BulletinFieldTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
@@ -53,7 +54,7 @@ class BulletinFieldTest {
   }
 
   @Test
-  void testBulletinPayloadAttachment() throws Exception {
+  void testBulletinPayloadAttachment() throws IOException {
     // Test by creating a TokenStream directly with the same chain as BulletinField uses
     try (TokenStream tokenStream = createTestTokenStream("This is a warning message", true, WARNING_BOOST)) {
       var charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
@@ -80,7 +81,7 @@ class BulletinFieldTest {
   }
 
   @Test
-  void testNonBulletinNoPayload() throws Exception {
+  void testNonBulletinNoPayload() throws IOException {
     try (TokenStream tokenStream = createTestTokenStream("This is a warning message", false, WARNING_BOOST)) {
       var payloadAttribute = tokenStream.addAttribute(PayloadAttribute.class);
       
@@ -96,7 +97,7 @@ class BulletinFieldTest {
   }
 
   @Test
-  void testEmptyContent() throws Exception {
+  void testEmptyContent() throws IOException {
     try (TokenStream tokenStream = createTestTokenStream("", true, WARNING_BOOST)) {
       tokenStream.reset();
       assertThat(tokenStream.incrementToken()).isFalse();
@@ -105,7 +106,7 @@ class BulletinFieldTest {
   }
 
   @Test
-  void testMultipleWarningTerms() throws Exception {
+  void testMultipleWarningTerms() throws IOException {
     try (TokenStream tokenStream = createTestTokenStream("Warning: severe warning about tornado warning", true, WARNING_BOOST)) {
       var charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
       var payloadAttribute = tokenStream.addAttribute(PayloadAttribute.class);
@@ -127,7 +128,7 @@ class BulletinFieldTest {
   }
 
   @Test
-  void testDifferentBoostValues() throws Exception {
+  void testDifferentBoostValues() throws IOException {
     float customBoost = 10.0F;
     
     try (TokenStream tokenStream = createTestTokenStream("This is a warning", true, customBoost)) {

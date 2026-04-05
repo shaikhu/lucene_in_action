@@ -17,6 +17,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FilterTest {
@@ -27,19 +29,19 @@ class FilterTest {
   private Query allBooksQuery;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() throws IOException {
     allBooksQuery = new MatchAllDocsQuery();
     directory = TestUtil.getBookIndexDirectory();
     indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() throws IOException {
     directory.close();
   }
 
   @Test
-  void testQueryFiltering() throws Exception {
+  void testQueryFiltering() throws IOException {
     var query = new BooleanQuery.Builder()
         .add(allBooksQuery, Occur.MUST)
         .add(new TermRangeQuery("title2", new BytesRef("d"), new BytesRef("j"), true, true), Occur.FILTER)
@@ -49,7 +51,7 @@ class FilterTest {
   }
 
   @Test
-  void testNumericDateFilter() throws Exception {
+  void testNumericDateFilter() throws IOException {
     var query = new BooleanQuery.Builder()
         .add(allBooksQuery, Occur.MUST)
         .add(LongPoint.newRangeQuery("pubmonth", 201001, 201006), Occur.FILTER)
@@ -59,7 +61,7 @@ class FilterTest {
   }
 
   @Test
-  void testStringRangeFilter() throws Exception {
+  void testStringRangeFilter() throws IOException {
     var query = new BooleanQuery.Builder()
         .add(allBooksQuery, Occur.MUST)
         .add(TermRangeQuery.newStringRange("title2", "d", "j", true, true), Occur.FILTER)
@@ -69,7 +71,7 @@ class FilterTest {
   }
 
   @Test
-  void testPrefixFilter() throws Exception {
+  void testPrefixFilter() throws IOException {
     var prefixQuery = new PrefixQuery(new Term("category", "/technology/computers"));
     var booleanQuery = new BooleanQuery.Builder()
         .add(allBooksQuery, Occur.MUST)

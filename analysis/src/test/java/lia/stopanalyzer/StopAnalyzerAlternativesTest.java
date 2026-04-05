@@ -1,5 +1,7 @@
 package lia.stopanalyzer;
 
+import java.io.IOException;
+
 import lia.common.TestUtil;
 import org.junit.jupiter.api.Test;
 
@@ -9,12 +11,12 @@ class StopAnalyzerAlternativesTest {
   private static final String TEXT = "The quick brown";
 
   @Test
-  void testStopAnalyzer2() throws Exception {
+  void testStopAnalyzer2() throws IOException {
     assertThat(TestUtil.getTokens(new StopAnalyzer1(), TEXT)).containsOnly("quick", "brown");
   }
 
   @Test
-  public void testStopAnalyzerFlawed() throws Exception {
+  public void testStopAnalyzerFlawed() throws IOException {
     assertThat(TestUtil.getTokens(new StopAnalyzerFlawed(), TEXT)).containsOnly("the", "quick", "brown");
   }
 }

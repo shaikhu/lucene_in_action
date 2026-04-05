@@ -6,13 +6,15 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.RegexpQuery;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static lia.common.TestUtil.getBookIndexDirectory;
 import static lia.common.TestUtil.hitsIncludeTitle;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RegexQueryTest {
   @Test
-  void testRegexQuery() throws Exception {
+  void testRegexQuery() throws IOException {
     try (var directory = getBookIndexDirectory()) {
       var indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
       var query = new RegexpQuery(new Term("title", ".*st.*"));
