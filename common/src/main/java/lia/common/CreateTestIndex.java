@@ -55,15 +55,15 @@ public class CreateTestIndex
     document.add(new SortedDocValuesField("category", new BytesRef(category)));
     document.add(new StringField("category", category, Store.YES));
 
-    document.add(new Field("title", title, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, true)));
-    document.add(new Field("title2", title.toLowerCase(), createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, false)));
+    document.add(new Field("title", title, createFieldType(true, true)));
+    document.add(new Field("title2", title.toLowerCase(), createFieldType(true, false)));
 
     for (var author : authors.split(",")) {
-      document.add(new Field("author", author, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, true, false)));
+      document.add(new Field("author", author, createFieldType(true, false)));
     }
 
     document.add(new StringField("url", url, Store.YES));
-    document.add(new Field("subject", subject, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, false, true)));
+    document.add(new Field("subject", subject, createFieldType(false, true)));
     document.add(new SortedNumericDocValuesField("pubmonth", Long.parseLong(pubmonth)));
     document.add(new LongField("pubmonth", Long.parseLong(pubmonth), Store.YES));
 
@@ -73,15 +73,15 @@ public class CreateTestIndex
     document.add(new LongField("pubmonthAsDay", daysFromEpoch, Store.NO));
 
     for (String text : List.of(title, subject, authors , category)) {
-      document.add(new Field("contents", text, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, false, true)));
+      document.add(new Field("contents", text, createFieldType(false, true)));
     }
 
     return document;
   }
 
-  private static FieldType createFieldType(IndexOptions indexOptions, boolean stored, boolean tokenized) {
+  private static FieldType createFieldType(boolean stored, boolean tokenized) {
     var fieldType = new FieldType();
-    fieldType.setIndexOptions(indexOptions);
+    fieldType.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS);
     fieldType.setStored(stored);
     fieldType.setTokenized(tokenized);
     fieldType.setStoreTermVectors(true);
