@@ -95,7 +95,7 @@ public class CreateTestIndex
     var indexDirectory = args[1];
 
     var files = listFiles(Paths.get(dataDirectory));
-    System.out.println(files.size() + " books to index");
+    System.out.printf("%d books to index %n", files.size());
 
     var indexWriterConfig = new IndexWriterConfig(new StandardAnalyzer());
     indexWriterConfig.setOpenMode(OpenMode.CREATE);
