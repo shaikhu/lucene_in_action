@@ -25,7 +25,7 @@ public class HighlightIt {
 
   public static void main(String... args) throws Exception {
     if (args.length != 1) {
-      throw new IllegalArgumentException("Usage: java " + HighlightIt.class.getName() + " <word>");
+      throw new IllegalArgumentException("Usage: java %s <word>".formatted(HighlightIt.class.getName()));
     }
 
     var queryParser = new QueryParser("f", new StandardAnalyzer());

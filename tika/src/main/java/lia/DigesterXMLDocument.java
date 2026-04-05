@@ -130,7 +130,7 @@ public class DigesterXMLDocument {
 
   public static void main(String... args) throws Exception {
     if (args.length != 1) {
-      throw new IllegalArgumentException("Usage: java " + DigesterXMLDocument.class.getName() + " <xml file>");
+      throw new IllegalArgumentException("Usage: java %s <xml file>".formatted(DigesterXMLDocument.class.getName()));
     }
 
     var xmlDocument = new DigesterXMLDocument();

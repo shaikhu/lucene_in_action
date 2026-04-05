@@ -29,7 +29,7 @@ public class Searcher {
 
   public static void main(String... args) throws Exception {
     if (args.length != 2) {
-      throw new IllegalArgumentException("Usage: java " + Searcher.class.getName() + " <index dir> <query>");
+      throw new IllegalArgumentException("Usage: java %s <index dir> <query>".formatted(Searcher.class.getName()));
     }
     search(args[0], args[1]);
   }

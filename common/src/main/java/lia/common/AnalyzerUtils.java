@@ -42,7 +42,7 @@ public class AnalyzerUtils {
           System.out.print(position + ": ");
         }
 
-        System.out.print("[" + charTerm.toString() + ":" + offset.startOffset() + "->" + offset.endOffset() + ":" + type.type() + "] ");
+        System.out.print("[%s:%d->%d:%s] ".formatted(charTerm, offset.startOffset(), offset.endOffset(), type.type()));
       }
       tokenStream.end();
     }

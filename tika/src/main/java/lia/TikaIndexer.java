@@ -88,7 +88,7 @@ public class TikaIndexer extends Indexer {
 
   public static void main(String[] args) throws IOException {
     if (args.length != 2) {
-      throw new IllegalArgumentException("Usage: java " + TikaIndexer.class.getName() + " <index dir> <data dir>");
+      throw new IllegalArgumentException("Usage: java %s <index dir> <data dir>".formatted(TikaIndexer.class.getName()));
     }
 
     var tikaConfig = TikaConfig.getDefaultConfig();

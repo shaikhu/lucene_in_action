@@ -12,7 +12,7 @@ import org.apache.lucene.store.FSDirectory;
 public class CreateSpellCheckerIndex {
   public static void main(String... args) throws Exception {
     if (args.length != 3) {
-      throw new IllegalArgumentException("Usage: java " + CreateSpellCheckerIndex.class.getName() +  " <spell check dir> <index dir> <index field>");
+      throw new IllegalArgumentException("Usage: java %s <spell check dir> <index dir> <index field>".formatted(CreateSpellCheckerIndex.class.getName()));
     }
 
     var spellCheckDir = args[0];

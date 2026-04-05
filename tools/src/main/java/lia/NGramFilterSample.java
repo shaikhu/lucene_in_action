@@ -31,7 +31,7 @@ public class NGramFilterSample {
 
   public static void main(String... args) throws IOException {
     if (args.length != 1) {
-      throw new IllegalArgumentException("Usage: java " + NGramFilterSample.class.getName() + " <spell checker index dir> <word>");
+      throw new IllegalArgumentException("Usage: java %s <spell checker index dir> <word>".formatted(NGramFilterSample.class.getName()));
     }
     AnalyzerUtils.displayTokensWithPositions(new NGramAnalyzer(), args[0]);
     AnalyzerUtils.displayTokensWithPositions(new EdgeNGramAnalyzer(), args[0]);

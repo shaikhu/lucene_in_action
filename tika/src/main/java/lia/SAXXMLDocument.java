@@ -61,7 +61,7 @@ public class SAXXMLDocument extends DefaultHandler {
 
   public static void main(String... args) throws Exception {
     if (args.length != 1) {
-      throw new IllegalArgumentException("Usage: java " + SAXXMLDocument.class.getName() + " <xml file>");
+      throw new IllegalArgumentException("Usage: java %s <xml file>".formatted(SAXXMLDocument.class.getName()));
     }
     var xmlDocument = new SAXXMLDocument();
     try (var fileInputStream = new FileInputStream(args[0])) {

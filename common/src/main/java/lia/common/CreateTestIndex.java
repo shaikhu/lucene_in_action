@@ -41,7 +41,14 @@ public class CreateTestIndex
     var subject = props.getProperty("subject");
     var pubmonth = props.getProperty("pubmonth");
 
-    System.out.println(title + "\n" + authors + "\n" + subject + "\n" + pubmonth + "\n" + category + "\n---------");
+    System.out.printf("""
+            %s
+            %s
+            %s
+            %s
+            %s
+            ---------
+            %n""", title, authors, subject, pubmonth, category);
 
     document.add(new StringField("isbn", isbn, Store.YES));
     document.add(new SortedDocValuesField("category", new BytesRef(category)));

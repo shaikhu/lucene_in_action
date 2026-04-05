@@ -70,7 +70,7 @@ public class Indexer {
 
   public static void main(String... args) throws IOException {
     if (args.length != 2) {
-      throw new IllegalArgumentException("Usage: java " + Indexer.class.getName() + " <index dir> <data dir>");
+      throw new IllegalArgumentException("Usage: java %s <index dir> <data dir>".formatted(Indexer.class.getName()));
     }
     new Indexer(args[0], args[1]).index(TEXT_FILE_FILTER);
   }

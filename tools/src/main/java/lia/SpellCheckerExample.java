@@ -11,7 +11,7 @@ import org.apache.lucene.store.FSDirectory;
 public class SpellCheckerExample {
   public static void main(String... args) throws Exception {
     if (args.length != 2) {
-      throw new IllegalArgumentException("Usage: java " + SpellCheckerExample.class.getName() + " + <spell checker index dir> <word to respell>");
+      throw new IllegalArgumentException("Usage: java %s <spell checker index dir> <word to respell>".formatted(SpellCheckerExample.class.getName()));
     }
 
     var spellCheckDir = args[0];
