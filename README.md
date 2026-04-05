@@ -7,8 +7,8 @@ This is an attempt to update the code examples (where possible) using Apache Luc
 ## Versions
 
 - Lucene: 10.4.0
-- Tika 2.8.0
-- Gradle 8.9
+- Tika 3.2.3
+- Gradle 9.4.1
 - JDK 21
 
 ## Shout out from Mike!
