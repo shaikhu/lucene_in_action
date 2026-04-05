@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Properties;
 
@@ -66,12 +67,10 @@ public class CreateTestIndex
     document.add(new SortedNumericDocValuesField("pubmonth", Long.parseLong(pubmonth)));
     document.add(new LongField("pubmonth", Long.parseLong(pubmonth), Store.YES));
 
-    try {
-      var date = DateTools.stringToDate(pubmonth);
-      document.add(new LongField("pubmonthAsDay", date.getTime()/(1000*3600*24), Store.NO));
-    } catch (ParseException e) {
-      throw new RuntimeException("Failed to parse publication date: " + pubmonth, e);
-    }
+    var daysFromEpoch = YearMonth.parse(pubmonth, DateTimeFormatter.ofPattern("yyyyMM"))
+        .atDay(1)
+        .toEpochDay();
+    document.add(new LongField("pubmonthAsDay", daysFromEpoch, Store.NO));
 
     for (String text : List.of(title, subject, authors , category)) {
       document.add(new Field("contents", text, createFieldType(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS, false, true)));
