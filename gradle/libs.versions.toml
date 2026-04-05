@@ -13,7 +13,7 @@ lucene-suggest = { module = 'org.apache.lucene:lucene-suggest', version.ref = 'l
 tika-core = { module = 'org.apache.tika:tika-core', version.ref = 'tika'}
 tika-parsers = { module = 'org.apache.tika:tika-parsers-standard-package', version.ref = 'tika'}
 
-commons-lang3 = { module = 'org.apache.commons:commons-lang3', version = '3.12.0'}
+commons-lang3 = { module = 'org.apache.commons:commons-lang3', version = '3.20.0'}
 commons-codec = { module = 'commons-codec:commons-codec', version = '1.21.0' }
 commons-digester3 = { module = 'org.apache.commons:commons-digester3', version = '3.2' }
 
