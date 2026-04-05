@@ -26,6 +26,11 @@ testing {
 
 tasks.withType(Test).configureEach {
   dependsOn(':common:createTestIndex')
+
+  /*
+   * Required for Lucene off-heap memory access and optional SIMD optimizations
+   * via the JDK Vector API.
+   */
   jvmArgs += ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.vector"]
 }
 
