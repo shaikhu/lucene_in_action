@@ -1,6 +1,8 @@
 [versions]
 lucene = '10.4.0'
-tika = '2.8.0'
+tika = '3.2.3'
+slf4j = '2.0.17'
+log4j = '2.24.3'
 
 [libraries]
 lucene-core = { module ='org.apache.lucene:lucene-core', version.ref = 'lucene' }
@@ -18,6 +20,8 @@ commons-codec = { module = 'commons-codec:commons-codec', version = '1.21.0' }
 commons-digester3 = { module = 'org.apache.commons:commons-digester3', version = '3.2' }
 
 assertj = { module = 'org.assertj:assertj-core', version = '3.27.7' }
+slf4j-nop = { module = 'org.slf4j:slf4j-nop', version.ref = 'slf4j' }
+log4j-to-slf4j = { module = 'org.apache.logging.log4j:log4j-to-slf4j', version.ref = 'log4j' }
 
 [bundles]
 lucene = ['lucene-core', 'lucene-query-parser', 'lucene-analysis-common']

@@ -7,6 +7,9 @@ dependencies {
 
   implementation libs.commons.digester3
   implementation libs.bundles.tika
+
+  runtimeOnly libs.slf4j.nop
+  runtimeOnly libs.log4j.to.slf4j
 }
 
 tasks.register('tikaIndexer', JavaExec) {
