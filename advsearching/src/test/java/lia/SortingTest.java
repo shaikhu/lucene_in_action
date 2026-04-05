@@ -1,51 +1,47 @@
 package lia;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
 import lia.common.TestUtil;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.*;
 import org.apache.lucene.search.SortField.Type;
-import org.apache.lucene.search.SortedNumericSortField;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static java.util.Comparator.comparing;
+import static lia.common.TestUtil.documents;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SortingTest {
+  private static BooleanQuery booleanQuery;
+
   private Directory directory;
 
   private IndexSearcher indexSearcher;
 
-  private BooleanQuery booleanQuery;
+  @BeforeAll
+  static void initQuery() throws Exception {
+    var javaBook = new QueryParser("contents", new StandardAnalyzer()).parse("java OR action");
+
+    booleanQuery = new BooleanQuery.Builder()
+        .add(new MatchAllDocsQuery(), Occur.SHOULD)
+        .add(javaBook, Occur.SHOULD)
+        .build();
+  }
 
   @BeforeEach
   void setup() throws Exception {
     directory = TestUtil.getBookIndexDirectory();
-
-    Query javaBook = new QueryParser("contents", new StandardAnalyzer()).parse("java OR action");
-    Query allBooks = new MatchAllDocsQuery();
-
-    booleanQuery = new BooleanQuery.Builder()
-        .add(allBooks, Occur.SHOULD)
-        .add(javaBook, Occur.SHOULD)
-        .build();
-
     indexSearcher = new IndexSearcher(DirectoryReader.open(directory));
   }
 
@@ -57,61 +53,57 @@ class SortingTest {
   @Test
   void testSortByRelevance() throws Exception {
     TopDocs results = indexSearcher.search(booleanQuery, 10, Sort.RELEVANCE, true);
-    List<Float> scores = Arrays.stream(results.scoreDocs).map(this::mapToScore).toList();
+
+    List<Float> scores = Arrays.stream(results.scoreDocs)
+            .map(scoreDoc -> scoreDoc.score)
+            .toList();
+
     assertThat(scores).isSortedAccordingTo(Comparator.reverseOrder());
   }
 
   @Test
   void testSortByIndexOrder() throws Exception {
     TopDocs results = indexSearcher.search(booleanQuery, 10, Sort.INDEXORDER, true);
-    List<Integer> documentNumbers = Arrays.stream(results.scoreDocs).map(this::mapToDocumentID).toList();
+
+    List<Integer> documentNumbers = Arrays.stream(results.scoreDocs)
+            .map(scoreDoc -> scoreDoc.doc)
+            .toList();
+
     assertThat(documentNumbers).isSorted();
   }
 
   @Test
   void testSortByField() throws Exception {
-    TopDocs results = indexSearcher.search(booleanQuery, 10, new Sort(new SortField("category", Type.STRING)), true);
-    List<String> titles = Arrays.stream(results.scoreDocs).map(this::mapToCategory).toList();
+    Sort sort = new Sort(new SortField("category", Type.STRING));
+    TopDocs results = indexSearcher.search(booleanQuery, 10, sort, true);
+
+    List<String> titles = documents(indexSearcher, results).stream()
+            .map(doc -> doc.get("category"))
+            .toList();
+
     assertThat(titles).isSorted();
   }
 
   @Test
   void testSortByMultipleFields() throws Exception {
-    TopDocs results = indexSearcher.search(booleanQuery, 10,
-            new Sort(new SortField("category", Type.STRING),
-                     new SortedNumericSortField("pubmonth", Type.LONG)), true);
-    List<ScoreDoc> docs = Arrays.stream(results.scoreDocs).toList();
-    assertThat(docs).isSortedAccordingTo(Comparator.comparing(this::mapToCategory).thenComparing(this::mapToPubMonth));
+    Sort sort = new Sort(new SortField("category", Type.STRING), new SortedNumericSortField("pubmonth", Type.LONG));
+    TopDocs results = indexSearcher.search(booleanQuery, 10, sort, true);
+
+    List<Document> docs = documents(indexSearcher, results);
+    assertThat(docs).isSortedAccordingTo(comparing((Document doc) -> doc.get("category"))
+            .thenComparing((Document doc) -> doc.get("pubmonth"))
+    );
   }
 
   @Test
   void testSortByFieldReverse() throws Exception {
-    TopDocs results = indexSearcher.search(booleanQuery, 10, new Sort(new SortField("category", Type.STRING, true)), true);
-    List<String> titles = Arrays.stream(results.scoreDocs).map(this::mapToCategory).toList();
+    Sort sort = new Sort(new SortField("category", Type.STRING, true));
+    TopDocs results = indexSearcher.search(booleanQuery, 10, sort, true);
+
+    List<String> titles = documents(indexSearcher, results).stream()
+            .map(doc -> doc.get("category"))
+            .toList();
+
     assertThat(titles).isSortedAccordingTo(Comparator.reverseOrder());
-  }
-
-  private String mapToCategory(ScoreDoc scoreDoc) {
-    try {
-      return indexSearcher.storedFields().document(scoreDoc.doc).get("category");
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to retrieve category for document " + scoreDoc.doc, e);
-    }
-  }
-
-  private String mapToPubMonth(ScoreDoc scoreDoc) {
-    try {
-      return indexSearcher.storedFields().document(scoreDoc.doc).get("pubmonth");
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to retrieve pubmonth for document " + scoreDoc.doc, e);
-    }
-  }
-
-  private int mapToDocumentID(ScoreDoc scoreDoc) {
-    return scoreDoc.doc;
-  }
-
-  private float mapToScore(ScoreDoc scoreDoc) {
-    return scoreDoc.score;
   }
 }

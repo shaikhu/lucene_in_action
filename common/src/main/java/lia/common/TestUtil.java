@@ -1,19 +1,20 @@
 package lia.common;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestUtil
 {
@@ -50,5 +51,13 @@ public class TestUtil
       tokenStream.end();
     }
     return tokens;
+  }
+
+  public static List<Document> documents(IndexSearcher indexSearcher, TopDocs results) throws IOException {
+    List<Document> docs = new ArrayList<>();
+    for (var scoreDoc : results.scoreDocs) {
+      docs.add(indexSearcher.storedFields().document(scoreDoc.doc));
+    }
+    return docs;
   }
 }
