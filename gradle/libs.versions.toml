@@ -2,7 +2,7 @@
 lucene = '10.4.0'
 tika = '3.3.0'
 slf4j = '2.0.17'
-log4j = '2.24.3'
+log4j = '2.25.4'
 
 [libraries]
 lucene-core = { module ='org.apache.lucene:lucene-core', version.ref = 'lucene' }
