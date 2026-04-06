@@ -1,6 +1,6 @@
 [versions]
 lucene = '10.4.0'
-tika = '3.2.3'
+tika = '3.3.0'
 slf4j = '2.0.17'
 log4j = '2.24.3'
 
